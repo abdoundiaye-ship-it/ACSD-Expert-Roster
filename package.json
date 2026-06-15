@@ -1,0 +1,14 @@
+{
+  "name": "acsd-expert-roster",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ACSD Expert Roster Management System — seeding script and frontend",
+  "scripts": {
+    "seed": "node scripts/seed_experts.js",
+    "seed:force": "node scripts/seed_experts.js --force"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.0",
+    "dotenv": "^16.4.0"
+  }
+}

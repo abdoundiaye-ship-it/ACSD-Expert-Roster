@@ -1,0 +1,72 @@
+/* ACSD Expert Roster — custom styles (supplements Tailwind CDN) */
+
+/* Filter sidebar selects */
+.filter-select {
+  width: 100%;
+  font-size: 0.8125rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.625rem;
+  background-color: #fff;
+  color: #374151;
+  appearance: auto;
+}
+.filter-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+  border-color: #3b82f6;
+}
+
+/* Modal section headings */
+.section-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Taxonomy tags */
+.tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  background-color: #f3f4f6;
+  color: #374151;
+  border-radius: 9999px;
+  padding: 0.2rem 0.625rem;
+  line-height: 1.4;
+}
+.tag-primary {
+  background-color: #dbeafe;
+  color: #1e40af;
+  font-weight: 600;
+}
+.tag-role {
+  background-color: #eef2ff;
+  color: #4338ca;
+}
+
+/* Multi-line clamp for card titles */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Animated spinner (supplement to Tailwind's animate-spin) */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.animate-spin { animation: spin 0.75s linear infinite; }
+
+/* Smooth modal entrance */
+#modal > div:last-child {
+  animation: slideUp 0.18s ease-out both;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

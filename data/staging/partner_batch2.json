@@ -1,0 +1,168 @@
+{
+  "batch": "Partner Consultants - Batch 2 of 5",
+  "experts": [
+    {
+      "source_cv": "CV Dr Moustapha KINDO Resume.pdf",
+      "full_name": "Dr. Moustapha Kindo",
+      "title": "Senior Labour Law, Human Resources and Legal Specialist",
+      "affiliation_type": "partner",
+      "partner_org": "Ministere de la Fonction Publique, du Travail et de la Protection Sociale (Burkina Faso)",
+      "seniority_tier": "principal_expert",
+      "years_experience": 15,
+      "availability_status": "unknown",
+      "bio_summary": "Burkinabe labour-law and human-resources specialist with 15+ years of experience spanning the Ministry of Civil Service, Labour and Social Protection (Labour Inspector, then Labour Law Inspectorate Advisor) and the role of Human Resources and Legal Manager for the USAID-funded Inclusive Governance for Resilience (IGR) project at Creative Associates International; holds a PhD in Public Law and has cross-country labour-law/HR expertise across Burkina Faso, Mali, Niger, Cote d'Ivoire, Senegal and Togo.",
+      "sectors": {
+        "primary": "Human Resources",
+        "secondary": ["Core Humanitarian Standards"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "professional"}
+      ],
+      "geographies": ["Burkina Faso"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Human Resources and Legal Manager, USAID-funded Inclusive Governance for Resilience (IGR) Project, Creative Associates International, Burkina Faso (Nov 2021-Apr 2025) - HR policy/procedures, recruitment, legal compliance, contracts, and project HR closeout"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "PhD in Public Law (Litigation in the International Civil Service in West Africa)", "institution": "Universite Thomas Sankara, Ouagadougou, Burkina Faso", "year": 2025},
+        {"type": "education", "title": "High Diploma in Labour Administration", "institution": "Ecole Nationale d'Administration et de Magistrature, Ouagadougou, Burkina Faso", "year": 2015},
+        {"type": "education", "title": "Master of Human Resources Management", "institution": "Universite Aube Nouvelle, Ouagadougou, Burkina Faso", "year": 2014},
+        {"type": "certification", "title": "Integration of Gender for Sustainable Development", "institution": "ITC/ILO", "year": 2021},
+        {"type": "certification", "title": "Management of Social Security Systems", "institution": "SESRIC", "year": 2021},
+        {"type": "certification", "title": "Institutional Capacity Building for Effective Labour Market Information Systems", "institution": "SESRIC", "year": 2021}
+      ],
+      "activity_experience": ["Technical guidance notes", "Training materials", "Recommendations for programme improvement"],
+      "role_fit": ["Capacity-strengthening assignment"],
+      "needs_review": [
+        "affiliation_type set to 'partner' and partner_org set to 'Ministere de la Fonction Publique, du Travail et de la Protection Sociale (Burkina Faso)' based on his current role (Labour Law Inspectorate and Advisor, since May 2025) - confirm whether his most recent donor-funded affiliation (Creative Associates International / IGR project, Nov 2021-Apr 2025) should instead be recorded as partner_org.",
+        "years_experience=15 and seniority_tier='principal_expert' are based on the CV's own claim of '15+ years of experience in Legal and HR' - confirm against ACSD's seniority bands.",
+        "Primary sector 'Human Resources' is a strong fit; secondary sector 'Core Humanitarian Standards' is a judgment call reflecting his compliance/legal-policy/internal-controls focus - confirm.",
+        "Geography limited to Burkina Faso - the CV's professional summary claims 'cross-country expertise (Burkina Faso, Mali, Niger, Cote d'Ivoire, Senegal, Togo) in Labour Law, Administrative Law, Mining Law, HR' but no specific assignments in those other countries are described; confirm whether this reflects actual fieldwork or general subject-matter knowledge."
+      ]
+    },
+    {
+      "source_cv": "CV Dr Zegbé Narcisse GAHI.pdf",
+      "full_name": "Dr. Zegbe Narcisse Gahi",
+      "title": "Senior Climate Change, Water Resources and WASH/Sanitation Specialist (Climate-Water-Agriculture-Sanitation Nexus)",
+      "affiliation_type": "partner",
+      "partner_org": "Universite Felix Houphouet-Boigny (UFHB)",
+      "seniority_tier": "principal_expert",
+      "years_experience": 14,
+      "availability_status": "unknown",
+      "bio_summary": "Climate change, integrated water resources management and WASH/sanitation specialist (PhD in hydrogeology, climate-water-agriculture-sanitation nexus) with 14+ years of national and international experience supporting NGOs, international organizations, universities and research centers across West and Central Africa and Western Europe in climate vulnerability/adaptation/resilience assessments, integrated water resource management, and capacity-strengthening of water, agriculture and sanitation professionals and communities; researcher-lecturer at Universite Felix Houphouet-Boigny (Cote d'Ivoire) and international climate expert on regional programs including the West Africa Agricultural Productivity Program (WAAPP/PPAAO).",
+      "sectors": {
+        "primary": "Climate adaptation and resilience programming",
+        "secondary": ["WASH", "Food security"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "professional"}
+      ],
+      "geographies": ["Burkina Faso", "Cote d'Ivoire", "Senegal", "Ghana", "Cameroon"],
+      "donor_experience": [
+        {"donor": "World Bank", "category": "Development", "notes": "Focal point (climate expert), West Africa Agricultural Productivity Program (WAAPP/PPAAO, implemented in 11 West African countries), Centre Africain de Recherche Scientifique et de Formation (CRES), Burkina Faso (Apr-Jun 2013) - contributed to the climate-smart agriculture and livelihoods strategy and gender action plan"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Postdoctoral research, sustainable agriculture and climate change", "institution": "Ghent University / ILVO (Flanders Research Institute for Agriculture, Fisheries and Food), Belgium", "year": 2022},
+        {"type": "education", "title": "PhD in Hydrogeology (Climate-Water-Food Security specialty)", "institution": "Universite Felix Houphouet-Boigny (UFHB), Abidjan, Cote d'Ivoire", "year": 2016},
+        {"type": "education", "title": "Master in Hydrogeology (Water, Sanitation and Hygiene option)", "institution": "Universite Felix Houphouet-Boigny (UFHB), Abidjan, Cote d'Ivoire", "year": 2009},
+        {"type": "education", "title": "Bachelor in Geology (Hydro(geo)logy option)", "institution": "Universite Felix Houphouet-Boigny (UFHB), Abidjan, Cote d'Ivoire", "year": 2007},
+        {"type": "certification", "title": "Climate and Livelihoods Economy Assessment", "institution": "University of Reading, UK", "year": 2018},
+        {"type": "certification", "title": "Research Proposal Writing, and Put Results into Use", "institution": "British Geological Survey, UK", "year": 2018},
+        {"type": "certification", "title": "Large Scale Research and Development Proposal Writing on Climate Change and Gender", "institution": "AWARD, Morocco", "year": 2019},
+        {"type": "certification", "title": "Climate of Mitigation and Adaptation and Livestock sector under Climate Change", "institution": "ISRA/LNERV, Dakar, Senegal", "year": 2015},
+        {"type": "certification", "title": "Climate and Crop Modelling", "institution": "Agrhymet, Niger", "year": 2015},
+        {"type": "certification", "title": "Nexus adaptation-mitigation in agriculture (crops and livestock) to avoid maladaptation", "institution": "Ghent University, Belgium", "year": 2022}
+      ],
+      "activity_experience": ["Technical guidance notes", "Training materials", "Methodological frameworks", "Evaluation reports"],
+      "role_fit": ["Capacity-strengthening assignment", "Field technical monitoring"],
+      "needs_review": [
+        "partner_org set to 'Universite Felix Houphouet-Boigny (UFHB)' (his academic researcher-lecturer affiliation since 2018) - he also holds concurrent consulting roles with Cabinet TERRANOV (since Oct 2024, Chef de mission) and GGGI/Global Green Growth Institute (Nov 2023-Nov 2025, Climate Expert Associate) - confirm which affiliation should be recorded as partner_org.",
+        "years_experience=14 and seniority_tier='principal_expert' reflect the CV's own claim of 'plus de 14 annees d'experience' - confirm against ACSD's seniority bands.",
+        "Primary sector 'Climate adaptation and resilience programming' is a strong fit; secondary sectors 'WASH' (City-Wide Inclusive Sanitation / ISC-Hub programs) and 'Food security' (irrigated/rainfed agriculture, hydro-agrosystems) are judgment calls given the breadth of the climate-water-agriculture-sanitation nexus profile - confirm.",
+        "World Bank donor tag is inferred from WAAPP/PPAAO being a World Bank-funded regional program (consistent with the same attribution made for Togbe Koumi in partner_batch1) - the CV itself names only the implementing research center (CRES); confirm this attribution.",
+        "UNICEF, CCAC and 'secteur prive' are mentioned only as partner platforms for institutional representation under the GGGI CWIS project (Nov 2023-Nov 2025), not as direct funders of his role - not added to donor_experience (per project policy, donor tags should reflect funding relationships, not partner/platform mentions); confirm.",
+        "Geography limited to Burkina Faso, Cote d'Ivoire, Senegal, Ghana and Cameroon (countries named for specific project assignments within West/Central Africa) per policy - assignments in the United Arab Emirates and Belgium (Ghent University postdoc, Rain Enhancement Program) are outside the policy's geographic scope and not recorded."
+      ]
+    },
+    {
+      "source_cv": "CV Expert en Suivi & Évaluation-Kamae Mahamdou.pdf",
+      "full_name": "Kamae Mahamadou",
+      "title": "Senior Monitoring, Evaluation, Accountability and Learning (MEAL) Specialist",
+      "affiliation_type": "partner",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 17,
+      "availability_status": "unknown",
+      "bio_summary": "Niger-based senior MEAL specialist with 17 years of experience in monitoring and evaluation of development and emergency programs (governance, migration, water/hydraulics, entrepreneurship, reproductive health, youth, stabilization, and countering violent extremism) with CARE International, Relief International, OXFAM, Welthungerhilfe and IOM; expertise in MEAL system design, quality and accountability management, capacity-strengthening of partners and staff in M&E, and donor/institutional reporting, including the USAID/OTI-funded Community Cohesion Program (PCCN) in Niger.",
+      "sectors": {
+        "primary": "MEAL technical integration",
+        "secondary": ["Conflict sensitivity", "Migration and displacement"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"}
+      ],
+      "geographies": ["Niger", "Cameroon"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Consultant en Evaluation, Programme de Cohesion Communautaire (PCCN1, then PCCN2 with GFFO co-funding), IOM/OTI/USAID, Niger (Apr 2016-Nov 2023) - M&E plans and reports, evaluation of completed projects, hotline/complaints management, perception surveys"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Master 1, Sociologie, Genre et Developpement", "institution": "Universite de Niamey, Niger", "year": 2019},
+        {"type": "education", "title": "Licence en Sociologie", "institution": "Universite de Niamey, Niger", "year": 1999},
+        {"type": "certification", "title": "Suivi/L'Orientation vers la Realisation et l'Impact", "institution": null, "year": null},
+        {"type": "certification", "title": "Professional Development in Monitoring and Evaluation", "institution": null, "year": null},
+        {"type": "certification", "title": "Core Humanitarian Standard (CHS)", "institution": null, "year": null}
+      ],
+      "activity_experience": ["Methodological frameworks", "Evaluation reports", "Field monitoring reports", "Training materials"],
+      "role_fit": ["Sectoral evaluation - Senior evaluator", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "partner_org left null - this CV does not name a current consulting firm/cabinet for Kamae Mahamadou; the source document ('Consultant Principal- Expert en Suivi Evaluation - KAMAE Mahamadou') also includes profiles for two 'Associes Consultants' (Issifou Amadou Mahamadou, a statistician/M&E analyst, and Soumana Seydou, a project management/local development expert) presented as part of the same consulting team - confirm whether a firm/cabinet name should be recorded as partner_org, and whether the two associates should be extracted as separate expert records (Soumana Seydou appears to also have a dedicated CV file, 'CV SOUMANA BARAZE Seydou.txt', to be processed in a later batch).",
+        "years_experience=17 and seniority_tier='principal_expert' reflect the CV's own claim of '17 annees d'experiences' - confirm against ACSD's seniority bands.",
+        "Only French is recorded under languages - this section of the CV does not include an explicit language-proficiency table; English level is unstated and not assumed - confirm whether English proficiency should be added.",
+        "Primary sector 'MEAL technical integration' is a strong fit; secondary sectors 'Conflict sensitivity' and 'Migration and displacement' are judgment calls reflecting the IOM/OTI community-cohesion and CVE-related M&E work - confirm.",
+        "UN Peacebuilding Fund (PBF, current OIM Niger project since Nov 2023) and Germany's GFFO (PCCN2 co-funding) not added as donor tags - neither is in the TOR/RFP/proposal donor list (per project policy); Welthungerhilfe, OXFAM, Relief International and CARE International assignments (2006-2016) had no stated donor and are not recorded as donor_experience."
+      ]
+    },
+    {
+      "source_cv": "CV Hamadoun Bocoum.pdf",
+      "full_name": "Hamadoun Bocoum",
+      "title": "Senior Monitoring & Evaluation Specialist / Executive Director",
+      "affiliation_type": "partner",
+      "partner_org": "Societe de Developpement International (SDI)",
+      "seniority_tier": "senior",
+      "years_experience": 12,
+      "availability_status": "unknown",
+      "bio_summary": "Malian geographer and results-oriented M&E specialist with 12+ years of experience designing, implementing and managing M&E systems for development projects across Mali, Benin, Senegal, Cote d'Ivoire, Niger, Burkina Faso and Chad; founding member and Executive Director of Societe de Developpement International (SDI), with extensive Data Quality Assessment (DQA) and Third-Party Monitoring (TPM) experience for USAID-, UNHCR-, WFP- and UNICEF-funded programs, and prior roles with Management Systems International (MSI, a Tetra Tech company) on the USAID/Mali Performance Monitoring and Evaluation Platform (PMEP).",
+      "sectors": {
+        "primary": "MEAL technical integration",
+        "secondary": ["Economic recovery and livelihoods", "Food security"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "professional"},
+        {"name": "Fulfulde", "proficiency": "fluent"},
+        {"name": "Bambara", "proficiency": "native"}
+      ],
+      "geographies": ["Mali", "Benin", "Senegal", "Cote d'Ivoire", "Niger", "Burkina Faso", "Chad"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Monitoring & Evaluation Specialist, USAID/Mali Performance Monitoring and Evaluation Platform (PMEP), Management Systems International / Tetra Tech (Sep 2015-Apr 2020) - DQAs/TPMs, IP capacity-building, and contributions to the 2016 Midterm Evaluation of the Cereal Value Chain Activity, 2018 USAID Rapid Health Systems Assessment, and 2019 Mali Democracy, Human Rights and Governance Assessment; also Baseline Study for the USAID-funded Feed the Future Mali Sene Yiriwa Project (DevWorks International, Oct 2021-Mar 2022) and ongoing DQA/TPM missions for USAID-funded projects as SDI Executive Director (since Nov 2017)"},
+        {"donor": "UNHCR", "category": "Humanitarian", "notes": "Third-Party Monitoring (TPM) of UNHCR programs in Chad, SDI (Jan 2025-present)"},
+        {"donor": "WFP", "category": "Humanitarian", "notes": "Third-Party Monitoring (TPM) of WFP programs in Northern Mali (Gao/Timbuktu, Aug-Dec 2024) and in Chad (Oct 2021-Mar 2023), SDI; TPM of WFP Resilience Programs in Northern Mali (Jan-Sep 2021)"},
+        {"donor": "UNICEF", "category": "Humanitarian", "notes": "National Household Registration and Unified Social Registry (RSU) Survey conducted with UNICEF Mali, assessing relevance, efficiency, human rights, gender and equity (Nov 2020-Jun 2022)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Master's degree in Development Geography", "institution": "Faculty of Letters, Languages, Arts and Humanities (FLASH), Bamako, Mali", "year": 2007},
+        {"type": "education", "title": "Bachelor's degree in Geography", "institution": "Faculty of Letters, Languages, Arts and Humanities (FLASH), Bamako, Mali", "year": 2006}
+      ],
+      "activity_experience": ["Field monitoring reports", "Evaluation reports", "Methodological frameworks", "Training materials"],
+      "role_fit": ["Field technical monitoring", "Sectoral evaluation - Senior evaluator", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "partner_org set to 'Societe de Developpement International (SDI)' - he is a founding member and current Executive Director (since Nov 2017) - confirm.",
+        "years_experience=12 and seniority_tier='senior' reflect the CV's own claim of 'over 12 years of experience'; total career (including Innovations for Poverty Action roles from 2009) spans roughly 17 years - confirm which figure should be used.",
+        "Primary sector 'MEAL technical integration' is a strong fit; secondary sectors 'Economic recovery and livelihoods' (youth employment/agricultural microfinance evaluations) and 'Food security' (WFP resilience TPMs, Feed the Future Sene Yiriwa) are judgment calls given the breadth of M&E assignments across sectors - confirm.",
+        "Millennium Challenge Account-funded ALATONA project (Dec 2008-Jun 2009, data collection supervision) not added as donor experience - MCC is not in the TOR/RFP/proposal donor list (per project policy).",
+        "Geography includes Chad based solely on 2021-2025 TPM assignments for UNHCR and WFP programs there; Benin and Senegal are based on a feasibility study (electrification of peri-urban localities in Benin) and general 'geographical experience' listing (Senegal) without a named assignment - confirm these should be retained."
+      ]
+    }
+  ]
+}

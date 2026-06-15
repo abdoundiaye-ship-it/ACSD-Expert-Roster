@@ -1,0 +1,180 @@
+{
+  "batch": "Partner Consultants - Batch 3 of 5",
+  "experts": [
+    {
+      "source_cv": "CV Jean-BAZIE.pdf",
+      "full_name": "Jean Bazie",
+      "title": "Senior Disaster Risk Management, Resilience and Social Protection Specialist",
+      "affiliation_type": "partner",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 15,
+      "availability_status": "unknown",
+      "bio_summary": "Burkinabe disaster risk management, climate resilience, food/nutrition security and social protection specialist with 15+ years managing humanitarian and development programs in Burkina Faso, including as WFP Programme Policy Officer for Country Capacity Strengthening & Social Protection (2020-2023), Disaster Risk Management Expert with Action Contre la Faim (2017-2019), and resilience/emergency programme roles with Tearfund UK and Office de Developpement des Eglises Evangeliques (ODE); extensive experience designing and managing programs funded by ECHO, the European Union, USAID, FCDO (DFID) and the World Bank, with particular expertise in Disaster Risk Management/Climate Change Adaptation, Rapid Response Mechanisms, cash-transfer social protection, and Core Humanitarian Standards-based capacity strengthening.",
+      "sectors": {
+        "primary": "Climate adaptation and resilience programming",
+        "secondary": ["Food security", "Cash and voucher assistance"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "professional"}
+      ],
+      "geographies": ["Burkina Faso"],
+      "donor_experience": [
+        {"donor": "WFP", "category": "Humanitarian", "notes": "Programme Policy Officer - Country Capacity Strengthening & Social Protection, WFP, Ouagadougou (Jan 2020-Jun 2023) - PSCNSEPR project (Project of Strengthening the Capacities of the National Scheme for Emergency Preparedness and Response), co-funded with ECHO and BMZ"},
+        {"donor": "ECHO", "category": "Humanitarian", "notes": "Expert Disaster Risk Management, Action Contre la Faim (2017-2019) - Rapid Response Mechanism (RRM-ECHO) and PPRC-ST/DIPECHO (Soum/Tapoa provinces) projects; also PCAS (Projet d'Attenuation de la Crise Alimentaire au Sahel, ECHO/Christian Aid-UK/ATAD/ODE, 2007-2011 period)"},
+        {"donor": "EU", "category": "Development", "notes": "Resilience, Food and Nutrition Security Project Officer, ODE (Jan 2014-May 2017) - PRSAN project (ODE/ATAD/Christian Aid/Oxfam/European Union); also RESIANE/FFU project (ACF-GRET-HELVETAS-Tin Tua, EU Food Facility, Eastern Region)"},
+        {"donor": "USAID", "category": "Development", "notes": "Head of Mission / Quality Manager, Alliance Technique d'Assistance au Developpement (ATAD), Apr 2013-Jan 2014 - Projet ViM (Projet Victoire sur la Malnutrition), funded by USAID Food for Peace (FFP/USAID) with ACDI-VOCA, SNV and Save the Children"},
+        {"donor": "World Bank", "category": "Development", "notes": "Expert Disaster Risk Management, Action Contre la Faim (2017-2019) - PSP (Projet Surveillance Pastorale), World Bank and Enable-funded, with VSF"},
+        {"donor": "FCDO", "category": "Development", "notes": "Expert Disaster Risk Management, Action Contre la Faim (2017-2019) - BRACED (Building Resilience and Adaptation to Climate Extreme Disaster), DFID UK-funded with Christian Aid UK, Oxfam, Met Office and King's College London; also BDRC (Building Disaster Resilient Communities, ODE/ATAD, DFID UK-funded, 2007-2011 period)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Diploma in Rural Development Engineering (Master's degree in Rural Development Sciences and Techniques)", "institution": "Polytechnic University of Bobo Dioulasso, Burkina Faso", "year": 2006},
+        {"type": "education", "title": "General University Studies Diploma, Chemistry-Biology", "institution": "University of Ouagadougou, Burkina Faso", "year": 2003},
+        {"type": "certification", "title": "Core Humanitarian Standards and Quality Management", "institution": null, "year": null},
+        {"type": "certification", "title": "Climate Change, Adaptation and Resilience", "institution": null, "year": null},
+        {"type": "certification", "title": "Project Monitoring-Evaluation-Accountability and Learning (MEAL)", "institution": null, "year": null},
+        {"type": "certification", "title": "Cash Based Transfers and Social Protection", "institution": null, "year": null},
+        {"type": "certification", "title": "Safe and Security Approaches in Field Environments (SSAFE)", "institution": null, "year": null},
+        {"type": "certification", "title": "Humanitarian Access & Negotiation", "institution": null, "year": null}
+      ],
+      "activity_experience": ["Field monitoring reports", "Methodological frameworks", "Training materials", "Recommendations for programme improvement"],
+      "role_fit": ["Capacity-strengthening assignment", "Field technical monitoring"],
+      "needs_review": [
+        "partner_org left null - the CV (dated August 2023) does not show a current employer after his WFP contract ended in June 2023; he appears to be available as an independent consultant - confirm.",
+        "years_experience=15 and seniority_tier='principal_expert' reflect the CV's own claim of 'over 15 years in managerial positions'; total career (incl. 2006-2007 research role) spans ~17 years - confirm.",
+        "Primary sector 'Climate adaptation and resilience programming' reflects the strong DRM/CCA thread across his career; secondary sectors 'Food security' and 'Cash and voucher assistance' are judgment calls given the breadth of his food-security, nutrition and social-protection (cash transfer) work - 'Core Humanitarian Standards' and 'Accountability to affected populations' (CHS, HAP) could alternatively be considered - confirm.",
+        "Donor attributions (WFP, ECHO, EU, USAID, World Bank, FCDO) are drawn from the CV's project stakeholder footnotes rather than from explicit statements of who funded *his* specific role on each project - confirm these six donor tags are appropriate or should be trimmed to the most directly-evidenced ones (WFP and ECHO are most directly stated; EU/USAID/World Bank/FCDO are inferred from co-funder/stakeholder lists).",
+        "English proficiency: CV shows 'Fluent-Level C' for reading/written but 'Fluent-Level B' for oral - mapped to overall 'professional'; confirm.",
+        "DFID/UK is recorded under the 'FCDO' donor entry (current name of the same agency) - confirm this mapping is acceptable, or whether a separate 'DFID' donor should be added."
+      ]
+    },
+    {
+      "source_cv": "CV KARAMBIRI Mamadou.pdf",
+      "full_name": "Mamadou Karambiri",
+      "title": "Community Health and Primary Healthcare Specialist",
+      "affiliation_type": "partner",
+      "partner_org": "Aide Medicale Nord-Sud (AMNS)",
+      "seniority_tier": "principal_expert",
+      "years_experience": 15,
+      "availability_status": "unknown",
+      "bio_summary": "Burkinabe community health and primary healthcare specialist with 15+ years of experience in primary care service delivery, community-based health/nutrition/WASH programming, epidemiological surveillance, and resilience project management; resilience project officer with Aide Medicale Nord-Sud (AMNS) in Zondoma province (since 2010) and former UNICEF Burkina Faso national consultant for community health (Real-Time Monitoring of the multisectoral health/nutrition/education/WASH/social-protection initiative, Jul-Dec 2021); also part-time tutor in Crisis and Humanitarian Action Management at Institut 2iE.",
+      "sectors": {
+        "primary": "Health",
+        "secondary": ["Nutrition", "WASH"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "working"}
+      ],
+      "geographies": ["Burkina Faso"],
+      "donor_experience": [
+        {"donor": "UNICEF", "category": "Humanitarian", "notes": "Consultant national en Sante Communautaire (Specialiste en soins de sante primaires), UNICEF Burkina Faso (Jul-Dec 2021) - design/validation of a 'Real-Time Monitoring' methodology for the multisectoral (Health, Nutrition, Education, WASH, Social Protection, Digitalisation) initiative across four regions, national/regional/district/community-level monitoring coordination, and final report with recommendations"},
+        {"donor": "WFP", "category": "Humanitarian", "notes": "Distribution of food assistance (cereals/supplements) to malnourished children, pregnant and breastfeeding women in partnership with the World Food Programme (PAM), as Responsable du centre de sante et de promotion sociale de Tangaye, District sanitaire de Gourcy (Dec 2004-Nov 2011)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Master 2, Management des entreprises et des organisations (option management des crises et actions humanitaires)", "institution": "Fondation 2iE, Ouagadougou, Burkina Faso", "year": 2017},
+        {"type": "education", "title": "Master 2 en Sante Publique", "institution": "Institut de Conseils et d'Assistance pour le Developpement Economique et Social (ICADES), Monaco", "year": 2014},
+        {"type": "education", "title": "Licence en Sciences Infirmieres", "institution": "Ecole Nationale de Sante Publique, Bobo Dioulasso, Burkina Faso", "year": 2004},
+        {"type": "certification", "title": "BSAFE", "institution": "UNDSS", "year": 2021},
+        {"type": "certification", "title": "Prevention of Sexual Harassment and Abuse of Authority", "institution": "UNICEF Burkina Faso", "year": 2021},
+        {"type": "certification", "title": "Ethique et Integrite a l'UNICEF", "institution": "UNICEF Burkina Faso", "year": 2020},
+        {"type": "certification", "title": "Prevention de l'Exploitation et des Abus Sexuels (PSEA)", "institution": "UNICEF Burkina Faso", "year": null},
+        {"type": "certification", "title": "Communication sur les risques", "institution": "OMS (OpenWHO)", "year": null}
+      ],
+      "activity_experience": ["Field monitoring reports", "Training materials", "Methodological frameworks", "Recommendations for programme improvement"],
+      "role_fit": ["Capacity-strengthening assignment", "Field technical monitoring"],
+      "needs_review": [
+        "partner_org set to 'Aide Medicale Nord-Sud (AMNS)' based on his ongoing role since 2010 ('Charge des projets de la resilience', listed as current) - he also holds a concurrent part-time tutoring contract at Institut 2iE (Mar 2023-Feb 2026) - confirm which should be recorded as partner_org, or whether both should be noted.",
+        "years_experience=15 and seniority_tier='principal_expert' are estimated from his AMNS role start (2010) plus the UNICEF national-consultant assignment (2021); his earliest health-center roles date to Dec 2004 (~20 years total) - confirm against ACSD's seniority bands.",
+        "WFP donor entry is based on a brief mention of food distributions 'avec le PAM' during his 2004-2011 health-center role, not a dedicated WFP-funded assignment - confirm whether this should be retained or removed.",
+        "Primary sector 'Health' is a strong fit; secondary sectors 'Nutrition' (PCIMA/malnutrition management) and 'WASH' (Eau-Hygiene-Assainissement programme) are judgment calls given the breadth of his community-health portfolio - confirm.",
+        "Funding from 'Fonds Chretiens pour l'Enfance / Canada' (Christian Children's Fund of Canada, CCF/C Programme 00572, 2004-2011) not added as donor experience - not in the TOR/RFP/proposal donor list (per project policy).",
+        "English proficiency: CV states 'ecrit et lu bien' (good reading/writing) with no oral level given - mapped to 'working'; confirm."
+      ]
+    },
+    {
+      "source_cv": "CV KASSEUNGBE.pdf",
+      "full_name": "Tchakfiene Kasseungbe",
+      "title": "Senior Finance & Administration Specialist / Audit Firm Director",
+      "affiliation_type": "partner",
+      "partner_org": "Cabinet BEPAF",
+      "seniority_tier": "principal_expert",
+      "years_experience": 20,
+      "availability_status": "unknown",
+      "bio_summary": "Chadian finance and administration specialist with 20+ years of experience in accounting, financial/administrative management, and internal/external audit for international NGOs and private companies in Chad; Director of the audit firm Cabinet BEPAF (since 2014), with hands-on experience managing donor financial procedures, payroll, contracts and reporting on EU-, UNHCR- and ExxonMobil-related programs, including procedures-manual development and QuickBooks implementation/training for NGO clients.",
+      "sectors": {
+        "primary": "Finance",
+        "secondary": ["Human Resources", "Core Humanitarian Standards"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "working"},
+        {"name": "Arabic", "proficiency": "working"}
+      ],
+      "geographies": ["Chad"],
+      "donor_experience": [
+        {"donor": "UNHCR", "category": "Humanitarian", "notes": "Administrateur Financier UNHCR, Africare Chad, Gore (Feb-May 2008) - invoice verification, payroll, accounting entries (FFS software), monthly financial reports and quarterly projections; also multi-project financial management (UNHCR, BOFSI, IRPEF, food security) as Comptable, Africare, N'Djamena (Jun 2008-Jul 2014); certified training in 'Comptabilite sous-projets UNHCR/Tchad' (N'Djamena, 2009)"},
+        {"donor": "EU", "category": "Development", "notes": "Financial reporting to donors (UE) as Responsable Administratif & Financier, Groupement ASD et ATURAD, Bol (Oct 2016-Nov 2019 and Oct 2022-Jan 2023); development of procedures manual for an EU-funded GBV project (commune de Doba), Groupement Esther (2020)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Master en Management des Projets", "institution": "Institut Sup-Management, N'Djamena, Chad", "year": null},
+        {"type": "education", "title": "Licence en Comptabilite-Finance", "institution": "Universite Evangelique du Tchad", "year": null},
+        {"type": "education", "title": "BTS, Gestion des PME/PMI", "institution": "Universite Evangelique du Tchad", "year": 2004},
+        {"type": "certification", "title": "Suivi budgetaire via logiciel AMS", "institution": "GTZ, Yaounde, Cameroon", "year": 2005}
+      ],
+      "activity_experience": ["Field monitoring reports", "Methodological frameworks", "Technical review reports"],
+      "role_fit": ["Capacity-strengthening assignment", "Field technical monitoring"],
+      "needs_review": [
+        "partner_org set to 'Cabinet BEPAF' (audit firm he has directed since 2014) - he also holds a concurrent Responsable Administratif & Financier role at 'Job Booster Chad' (Jul 2023-Mar 2026, ongoing) - confirm which should be recorded as partner_org.",
+        "years_experience=20 and seniority_tier='principal_expert' reflect the CV's own claim of '20 ans d'experience' - confirm against ACSD's seniority bands.",
+        "USAID and 'Agences ONU' are mentioned only in the general profile statement ('Expert reconnu des procedures des principaux bailleurs de fonds: UE, USAID, Agences ONU, Exxon Mobil') without a specific named project/role - not added to donor_experience (per project policy, which favors named project evidence); confirm whether a general USAID donor tag should still be added.",
+        "'BOFSI' and 'IRPEF' (multi-project portfolios managed at Africare, 2008-2014) are unidentified acronyms/funders not in the seeded donors list - excluded from donor_experience pending clarification of what they refer to.",
+        "ExxonMobil (Tchad-Cameroun Constructors, 2001-2003, and general profile mention) is a private-sector employer, not a seeded donor - excluded per policy.",
+        "Primary sector 'Finance' is a strong fit; secondary sectors 'Human Resources' (payroll/contracts/CNPS) and 'Core Humanitarian Standards' (procedures manuals, internal controls, audit compliance) are judgment calls - confirm.",
+        "Arabic proficiency: CV states 'Arabe local tchadien' (Chadian/colloquial Arabic dialect, distinct from Modern Standard Arabic) - mapped to the existing 'Arabic' lookup entry with proficiency 'working'; confirm this mapping is acceptable or whether a separate 'Chadian Arabic' language entry is warranted.",
+        "English proficiency: CV states 'Niveau 5' with no defined scale - mapped to 'working'; confirm."
+      ]
+    },
+    {
+      "source_cv": "CV Expert en Suivi & Évaluation-Kamae Mahamdou.pdf",
+      "full_name": "Issifou Amadou Mahamadou",
+      "title": "Statistician / Monitoring, Evaluation and Data Analyst",
+      "affiliation_type": "partner",
+      "partner_org": "Save the Children",
+      "seniority_tier": "intermediary",
+      "years_experience": 8,
+      "availability_status": "unknown",
+      "bio_summary": "Niger-based statistical engineer and M&E/data analyst with about 8 years of experience in monitoring & evaluation, household and health surveys, and data management for development and humanitarian programs; currently MEAL Officer and Child Safeguarding Focal Point (Zinder region) for the USAID/BHA-funded 'Wadata' household prosperity program (Save the Children/CLUSA/Kaizen Company/DEMI-E consortium, since Jun 2024), with prior MEAL/SERA roles on a USAID/BHA-funded emergency response consortium (COOPI/ALIMA/PUI) and the Programme de Cohesion Communautaire (PCCN) in Niger, plus extensive field survey/data-collection experience including SMART nutrition surveys, COVID-19 KAP surveys, national vaccination-coverage surveys, and evaluations of the PRG-PA and USAID GHSC-PSM programs.",
+      "sectors": {
+        "primary": "MEAL technical integration",
+        "secondary": ["Protection", "Health"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"}
+      ],
+      "geographies": ["Niger"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Consultant MEAL Officer / Child Safeguarding Focal Point, USAID/BHA-funded 'Wadata' household prosperity programme, Save the Children/CLUSA/Kaizen Company/DEMI-E consortium, Zinder (since Jun 2024); Assistant MEAL/SERA, USAID/BHA-funded RRM and community solutions project for health/nutrition/protection (COOPI/ALIMA/PUI consortium), Tillaberi & Maradi (Sep 2023-Jun 2024); team leader/enumerator for the USAID-funded PRG-PA mid-term evaluation (Counterpart International/Cabinet STAT DES, Oct 2019) and final evaluation (Nov 2021); supervisor for the USAID GHSC-PSM GIS survey (Chemonics International, Apr-May 2019)"},
+        {"donor": "UNICEF", "category": "Humanitarian", "notes": "Supervisor, final evaluation of the 'Stimulation pour la prise en charge complete de la malnutrition aigue severe' project, Humanite & Inclusion, financed by UNICEF, Madarounfa health district (Oct 2020)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Master 1 en Gestion de Projet", "institution": "Universite Aube Nouvelle du Burkina Faso", "year": 2024},
+        {"type": "education", "title": "Licence (BAC+3) en Statistique Appliquee, Mention Bien", "institution": "Ecole Superieure de Statistique et de l'Informatique (ESSI), Niger", "year": 2021},
+        {"type": "education", "title": "Technicien Superieur en Statistique", "institution": "ENSEA, Abidjan, Cote d'Ivoire", "year": 2018},
+        {"type": "education", "title": "BAC scientifique, serie D", "institution": "Lycee Kassai, Niamey, Niger", "year": 2014}
+      ],
+      "activity_experience": ["Field monitoring reports", "Evaluation reports"],
+      "role_fit": ["Field technical monitoring"],
+      "needs_review": [
+        "This record is one of three consultant profiles (Kamae Mahamadou, Issifou Amadou Mahamadou, Soumana Seydou) contained in the single combined PDF titled 'Consultant Principal- Expert en Suivi Evaluation - KAMAE Mahamadou', where Issifou is presented as 'Associe Consultant Principal'. Kamae Mahamadou was recorded separately in partner_batch2.json; Soumana Seydou will be recorded in a later batch (note: a separate, more detailed CV file 'CV SOUMANA BARAZE Seydou.txt' also exists for a person with the same surname/first name - confirm whether these are the same individual). All three share the same source_cv filename - confirm whether ACSD wants a distinguishing note (e.g., page/section reference) added to source_cv for these combined-file records.",
+        "partner_org set to 'Save the Children' based on his current role (since Jun 2024) on the Wadata consortium (which also includes CLUSA, Kaizen Company and DEMI-E) - confirm whether the consortium lead or a different member organization should be recorded.",
+        "years_experience=8 and seniority_tier='intermediary' are estimated from his earliest listed role (2017, ENSEA technician training / Direction des Statistiques volunteer) through 2025; his titles throughout (Assistant, Investigateur, Superviseur, Enqueteur, Consultant MEAL Officer) suggest an intermediary/early-career profile rather than senior - confirm against ACSD's seniority bands.",
+        "Only French is recorded under languages - no language-proficiency table is provided in his CV section; English level is unstated (though his survey/software skills list includes English-language tools like Power BI, ODK/KOBO, SPSS) - confirm whether English should be added.",
+        "Primary sector 'MEAL technical integration' is a strong fit; secondary sectors 'Protection' (Child Safeguarding Focal Point role) and 'Health' (SMART/SARA/vaccination/GHSC-PSM health and nutrition surveys) are judgment calls - confirm.",
+        "His Jan 2022-Jun 2023 'Assistant Suivi & Evaluation Terrain' role on the Programme de Cohesion Communautaire (PCCN) in Niger is not separately attributed to a donor in donor_experience - per Kamae Mahamadou's profile, PCCN1 was OIM/OTI/USAID-funded and PCCN2 was co-funded with GFFO; given the date overlap with PCCN2 and ambiguity over which phase/funder applied to Issifou's specific assignment, this was not added as a separate USAID entry beyond the general USAID donor tag above - confirm.",
+        "Excluded as non-seeded per policy: Global Fund/GAVI/WHO (SARA survey, Feb-Mar 2019), French Ministry for Europe and Foreign Affairs via CDCS (PUI Maradi project, Sep 2023-Mar 2024), Belgian DGD via Plan International (baseline study, Jul 2021, and PASS+ evaluation with Fondation Stromme, Apr-May 2021), and government-organized surveys with no stated donor (INS-Niger SMART survey 2021, ECV vaccination coverage survey 2017, ACF/ANDIN COVID-19 KAP survey 2020)."
+      ]
+    }
+  ]
+}

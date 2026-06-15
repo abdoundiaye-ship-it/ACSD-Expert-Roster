@@ -1,0 +1,223 @@
+{
+  "batch": "Partner Consultants - Batch 1 of 5",
+  "experts": [
+    {
+      "source_cv": "CV ALI_KABORE -V08-01-2026.pdf",
+      "full_name": "Ali Kabore",
+      "title": "Statistical Engineer / Statistics and Decision-Support Specialist",
+      "affiliation_type": "partner",
+      "partner_org": "Institut National de la Statistique et de la Demographie (INSD)",
+      "seniority_tier": "senior",
+      "years_experience": 9,
+      "availability_status": "unknown",
+      "bio_summary": "Statistical engineer with approximately 9 years of experience in survey design, statistical database management, geospatial information systems, and monitoring & evaluation for government institutions and donor-funded programs in Burkina Faso, including data collection/mapping support to ACSD's USAID-funded LCapS project and agricultural data work for the African Development Bank.",
+      "sectors": {
+        "primary": "MEAL technical integration",
+        "secondary": ["Economic recovery and livelihoods", "Localisation approaches"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "working"}
+      ],
+      "geographies": ["Burkina Faso", "Cote d'Ivoire"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Consultant Associe, USAID-funded Strengthening Localization Capacity Assessments and Supports in Burkina Faso (LCapS) project, ACSD, under Issa Zerbo (May-July 2024) - data collection tool design, data processing/analysis, and partner-unit cartography/directory setup"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Master II, Statistique et Analyse Economique", "institution": "Universite Ouaga3S, Ouagadougou, Burkina Faso", "year": 2023},
+        {"type": "education", "title": "Master II, Gestion de Projets", "institution": "Universite Aube Nouvelle, Ouagadougou, Burkina Faso", "year": 2021},
+        {"type": "education", "title": "Ingenieur des Travaux Statistiques (Cycle Ingenieur Statisticien)", "institution": "Ecole Nationale de la Statistique et de l'Analyse Economique, Dakar, Senegal", "year": 2016},
+        {"type": "certification", "title": "Training on agricultural statistics (Global Strategy to Improve Agricultural and Rural Statistics)", "institution": "UN Economic Commission for Africa (UNECA)", "year": 2022},
+        {"type": "certification", "title": "Data analysis for sustainable development planning", "institution": "African Institute for Economic Development and Planning (IDEP)", "year": 2019},
+        {"type": "certification", "title": "Trade in services statistics", "institution": "UNCTAD", "year": 2019},
+        {"type": "certification", "title": "Monitoring & evaluation training for public administration and civil society officials (EU-funded population studies capacity-building framework)", "institution": "Institut Superieur des Sciences de la Population / Universite Ouaga 1 Pr Joseph Ki-Zerbo", "year": 2018},
+        {"type": "certification", "title": "Fisheries, aquaculture, basic agricultural and post-harvest loss statistics", "institution": "UN Economic Commission for Africa, funded by the African Development Bank", "year": 2018},
+        {"type": "certification", "title": "English Intermediate II (Level 301)", "institution": "American Language Center", "year": 2017}
+      ],
+      "activity_experience": ["Field monitoring reports", "Methodological frameworks", "Training materials", "Narrative technical assessments"],
+      "role_fit": ["Field technical monitoring", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "affiliation_type set to 'partner' and partner_org set to 'Institut National de la Statistique et de la Demographie (INSD)' (his current government employer since April 2023) based on folder placement (Partner Consultants) - confirm whether 'partner_org' should instead reflect a specific ACSD local partner organization or his independent-consultant identity rather than his primary government employer.",
+        "seniority_tier 'senior' and years_experience=9 are estimates based on continuous professional statistics/M&E roles 2017-2026 (his 2012-2016 period was statistical-engineering training, not professional experience) - confirm against ACSD's seniority bands.",
+        "Primary/secondary sector mapping is approximate - CV is a statistics/data-management/survey-design profile that does not map cleanly onto the TOR's 23 sectors; 'MEAL technical integration' chosen as primary given the M&E systems and survey design focus.",
+        "African Development Bank (BAD/AfDB) consultancy (Feb 2020-Sep 2022, Cote d'Ivoire, agricultural data/food balance sheets) not added as a donor tag - AfDB is not in the TOR/RFP/proposal donor list (per project policy); geography 'Cote d'Ivoire' retained as the work location.",
+        "Multiple short-term consulting assignments for Orange Burkina Faso (telecom market research), International Challenge Consulting and Advisory, Programme d'Investissement Forestier/REDD+, and various Burkina Faso government ministries are private-sector or government-commissioned studies with no seeded donor - not added to donor_experience.",
+        "December 2018 M&E training was funded by the European Union (Institut Superieur des Sciences de la Population) - recorded as a certification only, not as donor_experience, since it was a training he attended rather than donor-funded project work he delivered."
+      ]
+    },
+    {
+      "source_cv": "CV ALI_TAMBOURA_05_2023.pdf",
+      "full_name": "Ali Tamboura",
+      "title": "Safety, Security and Disaster Risk Management (DRM) Specialist",
+      "affiliation_type": "partner",
+      "partner_org": "CARE International (Burkina Faso)",
+      "seniority_tier": "senior",
+      "years_experience": 15,
+      "availability_status": "unknown",
+      "bio_summary": "Safety, Security and Disaster Risk Management (DRM) specialist with about 15 years of field-based experience supporting CARE International, Humanite & Inclusion, OCADES, ADRA and the RESA consortium in Burkina Faso, covering security risk analysis, humanitarian access, early-warning systems (SAP), conflict-sensitive community resilience programming, cash-transfer/livestock support, and refugee assistance in the Soum and Yagha provinces.",
+      "sectors": {
+        "primary": "Access and safety",
+        "secondary": ["Conflict sensitivity", "Protection"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "working"},
+        {"name": "Fulfulde", "proficiency": "native"},
+        {"name": "Moore", "proficiency": "working"}
+      ],
+      "geographies": ["Burkina Faso"],
+      "donor_experience": [
+        {"donor": "UNHCR", "category": "Humanitarian", "notes": "Agent Terrain, ADRA, distributions and household identification alongside UNHCR teams for Malian refugees at Mentao camp, Burkina Faso (2013-2014)"},
+        {"donor": "EU", "category": "Development", "notes": "Supervisor (Gouvernance & Mobilisation Communautaire / DRM), RESA consortium resilience program in Yagha province, contributing to the advocacy strategy of the EU Emergency Trust Fund for Africa ('FFU') (2018-present)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "L2 Sociologie / 2eme annee Management des Projets et Programmes (incomplete)", "institution": "Ecole Superieure, Ouagadougou / OTC", "year": null},
+        {"type": "education", "title": "Attestation Terminal D", "institution": "Lycee Provincial de Djibo", "year": 2007},
+        {"type": "certification", "title": "Communication training", "institution": "Institut National d'Etude Economique et Sociale", "year": 2011}
+      ],
+      "activity_experience": ["Field monitoring reports", "Recommendations for programme improvement", "Training materials", "Workshop facilitation outputs"],
+      "role_fit": ["Capacity-strengthening assignment"],
+      "needs_review": [
+        "affiliation_type set to 'partner' and partner_org set to 'CARE International (Burkina Faso)' based on the most recently dated role (Safety and Security Manager, since Feb 2021); the CV also lists a concurrent 'a nos jours' DRM supervisory role at Humanite & Inclusion (since Feb 2020) and a Gouvernance & Mobilisation Communautaire supervisory role with the RESA consortium (since June 2019) - confirm which organization should be recorded as partner_org, or whether multiple concurrent affiliations should be noted.",
+        "seniority_tier 'senior' and years_experience=15 are estimates based on a field career running roughly 2011-2026, with earlier (2007-2011) lower-level community-mobilization/animation roles - confirm against ACSD's seniority bands.",
+        "Primary sector 'Access and safety' (current Safety & Security Manager role) and secondary sectors ('Conflict sensitivity' for EPVC/conflict-sensitive programming and peace caravans, 'Protection' for refugee-camp distributions and child-marriage/FGM prevention work) are judgment calls - confirm fit.",
+        "UNHCR donor tag is inferred from ADRA-implemented refugee-assistance distributions at Mentao camp where the CV states coordination 'avec les equipes du HCR sur le terrain' (2013-2014); EU donor tag is inferred from the RESA consortium's reference to the EU Emergency Trust Fund for Africa ('FFU') for the Yagha resilience program - both attributions should be confirmed.",
+        "Global Fund (Fonds Mondial Round 8 Tuberculose / NFM financing model) and OCHA (cited only as organizer of coordination meetings the consultant attended) not added as donor experience - Global Fund is not in the TOR/RFP/proposal donor list, and OCHA involvement reflects coordination-meeting attendance rather than project funding (per project policy)."
+      ]
+    },
+    {
+      "source_cv": "CV AMADE_OUEDRAOGO.pdf",
+      "full_name": "Hamade Ouedraogo",
+      "title": "Chartered Accountant / Senior Audit, Finance and Organizational Systems Specialist",
+      "affiliation_type": "partner",
+      "partner_org": "Gueber's Consulting",
+      "seniority_tier": "principal_expert",
+      "years_experience": 25,
+      "availability_status": "unknown",
+      "bio_summary": "Chartered accountant (Expert Comptable agree, Ordre National des Experts Comptables et des Comptables Agrees du Burkina Faso) with 25+ years of experience developing financial, accounting and internal-audit/management-control procedure manuals and conducting financial audits for donor-funded projects and NGOs across Burkina Faso, Benin, Mali, Niger, Mauritania, Chad and Cameroon, including assignments for ACSD, USAID-funded projects, OCADES CARITAS, and the WFP school-canteens program.",
+      "sectors": {
+        "primary": "Finance",
+        "secondary": ["Human Resources", "Core Humanitarian Standards"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "professional"},
+        {"name": "Moore", "proficiency": "fluent"},
+        {"name": "Dioula", "proficiency": "working"}
+      ],
+      "geographies": ["Burkina Faso", "Benin", "Mali", "Niger", "Mauritania", "Chad", "Cameroon"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "2020: developed accounting/financial/internal-audit/management-control procedure manual for the ASTER USAID project; 2020: developed a similar manual for the LSTA Tetra Tech project; 2015: developed an internal-audit accounting manual for the AEWEP project (Africare Tchad); 2014: developed an internal-audit manual for the BOFSI project (Africare Tchad)"},
+        {"donor": "WFP", "category": "Humanitarian", "notes": "2014: developed administrative, financial, accounting and internal-audit procedures manual for the WFP Country Programme, School Canteens component (Programme de Pays du PAM, volet Cantines Scolaires)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Master en Audit et Controle de Gestion", "institution": "Institut Africain de Management (IAM), Burkina Faso", "year": 2011},
+        {"type": "education", "title": "Maitrise en Sciences de Gestion (MSG)", "institution": "Institut Superieur Prive Polytechnique (ISPP), Ouagadougou, Burkina Faso", "year": 2007},
+        {"type": "education", "title": "DUT, Finance-Comptabilite", "institution": "Institut Superieur Prive Polytechnique (ISPP), Ouagadougou, Burkina Faso", "year": 2002},
+        {"type": "education", "title": "Faculte des Sciences Economiques et de Gestion (FASEG) (partial)", "institution": "Universite de Ouagadougou, Burkina Faso", "year": 1995},
+        {"type": "certification", "title": "SYSCOHADA Revise", "institution": null, "year": null},
+        {"type": "certification", "title": "Audit and financial-audit-mission practice training", "institution": "Lome, Togo", "year": null},
+        {"type": "certification", "title": "Audit of accounts per IFAC standards (from standard to practice)", "institution": null, "year": null},
+        {"type": "certification", "title": "Public procurement techniques", "institution": "Ecole Nationale des Regies Financieres (ENAREF)", "year": null},
+        {"type": "certification", "title": "OHADA revised Acte Uniforme on company law", "institution": null, "year": null}
+      ],
+      "activity_experience": ["Methodological frameworks", "Evaluation reports", "Training materials", "Technical review reports"],
+      "role_fit": ["Capacity-strengthening assignment"],
+      "needs_review": [
+        "partner_org set to 'Gueber's Consulting' (his consulting partnership/firm since 2012, 'Associe a Gueber's Consulting') based on the CV's current professional affiliation - confirm.",
+        "Primary sector 'Finance' reflects the core accounting/audit/financial-systems-manual focus; secondary sectors ('Human Resources' for HR audits, recruitment and training-plan development, 'Core Humanitarian Standards' for internal-control/compliance-framework work) are judgment calls - confirm fit.",
+        "'LSTA TETRA TECH' (2020 manual) and AEWEP/BOFSI (Africare Tchad) projects were attributed to USAID on the assumption these are USAID-funded Local Systems Strengthening Activity / Africare Food-for-Peace projects implemented by Tetra Tech and Africare respectively - confirm these attributions.",
+        "MCA Burkina/MCC-funded 'Securisation fonciere' assignments (2009 and 2012, via ARD/Tetra Tech and a communication-strategy contract) not added as donor tags - MCC is not in the TOR/RFP/proposal donor list (per project policy).",
+        "Swedish development cooperation agency (ASDI, 2018 manual) and the 'Initiative Communautaire en Afrique de l'Ouest (ICAO)' (2012 manual, funder unspecified) not added as donor experience - not in TOR/RFP/proposal donor list or funder unclear (per project policy)."
+      ]
+    },
+    {
+      "source_cv": "CV Consultant_senior_koumi_togbe.pdf",
+      "full_name": "Togbe Koumi",
+      "title": "Senior Independent Consultant - Audit, Project Evaluation and Technical Support (West Africa)",
+      "affiliation_type": "partner",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 20,
+      "availability_status": "unknown",
+      "bio_summary": "Senior independent consultant with 20+ years of experience in audit, development-project evaluation and technical support to implementation teams, based in Togo, with a strong prior background as a banking-sector finance/accounting director (BSIC-Togo, BIA-Togo); recent assignments include financial and operational audits of World Bank-funded regional programs (PPAAO/WAAPP and WARCIP) in Togo, results-based management, and internal-control manual development.",
+      "sectors": {
+        "primary": "Finance",
+        "secondary": ["MEAL technical integration", "Core Humanitarian Standards"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "professional"}
+      ],
+      "geographies": ["Togo"],
+      "donor_experience": [
+        {"donor": "World Bank", "category": "Development", "notes": "Consultant principal, financial and accounting audits of the West Africa Agricultural Productivity Program (PPAAO Togo, accounts as of 31 Dec 2018) and of the West African Regional Communication Infrastructure Program (WARCIP Togo, accounts as of 31 Dec 2017 and 31 Dec 2019), via Cabinet SAFECO, Togo (2018-2020)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Diplome d'Etudes Superieures (DES, ITB3), Institut Technique de Banque du Conservatoire National des Arts et Metiers de France", "institution": "Dakar, Senegal", "year": 2003},
+        {"type": "education", "title": "Maitrise en Sciences de Gestion des Entreprises", "institution": "Universite de Lome, Togo", "year": 1988},
+        {"type": "education", "title": "Baccalaureat technique quantitative de gestion (serie G2)", "institution": "College Polytechnique Bruce, Lome, Togo", "year": 1983},
+        {"type": "certification", "title": "Certificat de competences professionnelles (CPP)", "institution": "Ecole de formation en hautes etudes commerciales (EFEC), Burkina Faso", "year": 2015},
+        {"type": "certification", "title": "Project management fundamentals certificate", "institution": "Cornerstone OnDemand Foundation", "year": 2024},
+        {"type": "certification", "title": "Attestation de formation sur le Suivi-Evaluation des projets", "institution": "CEFERI, Burkina Faso", "year": 2025},
+        {"type": "certification", "title": "BSAFE security awareness certificate", "institution": "UN Department of Safety and Security (UNDSS)", "year": null},
+        {"type": "certification", "title": "PSEA (prevention of sexual exploitation and abuse) training attestation", "institution": "United Nations", "year": null}
+      ],
+      "activity_experience": ["Evaluation reports", "Technical review reports", "Recommendations for programme improvement", "Methodological frameworks"],
+      "role_fit": ["Sectoral evaluation - Senior evaluator", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "partner_org left null - the CV describes the consultant as a 'Consultant Senior Independant' without a current firm affiliation (his 2006-2017 employer, BSIC-Togo, and 1991-2006 employer, BIA-Togo, are former positions); affiliation_type set to 'partner' based on folder placement - confirm whether a current partner organization should be recorded.",
+        "years_experience=20 reflects the CV's own claim of 'plus de 20 ans d'experience dans l'audit, l'evaluation de projets de developpement et l'appui technique'; total career including earlier full-time banking roles (1991-2017) spans roughly 35 years - confirm which figure should be used for seniority_tier purposes (currently set to 'principal_expert').",
+        "Primary sector 'Finance' reflects the audit/accounting/banking background; secondary sectors ('MEAL technical integration' for project evaluation/results-based management/S&E, 'Core Humanitarian Standards' for internal-control and compliance-manual work) are judgment calls - confirm fit.",
+        "Geography limited to Togo (all named audit assignments) per policy - the CV's professional summary claims breadth across 'Afrique de l'Ouest' but no specific assignments outside Togo are named.",
+        "World Bank donor tag is inferred from PPAAO (West Africa Agricultural Productivity Program) and WARCIP (West African Regional Communication Infrastructure Program) being World Bank-funded regional programs - the CV itself names only the implementing audit cabinet (SAFECO) and does not state the donor directly; confirm this attribution.",
+        "Fonds National de la Finance Inclusive (FNFI, Togo) audits (2017-2018) not added as donor experience - funding source not specified and not clearly mapped to a seeded donor (per project policy)."
+      ]
+    },
+    {
+      "source_cv": "CV Dr GANSANE ZAKARIA_Full.pdf",
+      "full_name": "Dr. Zakaria Gansane",
+      "title": "Senior Epidemiologist and Clinical Research Specialist (Public Health Physician)",
+      "affiliation_type": "partner",
+      "partner_org": "CLIMAFRICA CRO",
+      "seniority_tier": "principal_expert",
+      "years_experience": 15,
+      "availability_status": "unknown",
+      "bio_summary": "Public health physician and senior epidemiologist with 15 years of experience in clinical research (CRA, clinical trial management), vaccine and drug trials for infectious diseases (malaria, Ebola, COVID-19, pneumococcal disease), nutrition and food-security/CAP surveys, and national health-policy and strategy development, primarily in Burkina Faso with multi-country clinical-trial work across West and Central Africa; conducted a USAID-funded evaluation of Burkina Faso's National Community Health Strategy (2019-2023) via JHPIEGO.",
+      "sectors": {
+        "primary": "Health",
+        "secondary": ["Nutrition", "MEAL technical integration"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "professional"},
+        {"name": "Dioula", "proficiency": "working"},
+        {"name": "Bissa", "proficiency": "working"}
+      ],
+      "geographies": ["Burkina Faso", "Democratic Republic of the Congo", "Niger", "Guinea", "Mali", "Senegal", "Cote d'Ivoire", "Nigeria", "Togo", "Benin", "Gabon"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Consultant associe, evaluation de la Strategie Nationale de Sante Communautaire 2019-2023 du Burkina Faso, JHPIEGO, sous contrat de USAID (Jan-Sep 2023)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Master en Epidemiologie, Biostatistique, Recherche Clinique", "institution": "Universite Joseph Ki-Zerbo, Burkina Faso", "year": 2018},
+        {"type": "education", "title": "Doctorat en Medecine", "institution": "Universite de Ouagadougou, Burkina Faso", "year": 2010},
+        {"type": "certification", "title": "Certificat en evaluation d'impact", "institution": "The International Training Centre", "year": 2023},
+        {"type": "certification", "title": "Certificat en biosecurite et biosurete", "institution": "Africa CDC", "year": 2020},
+        {"type": "certification", "title": "Formation en pharmacovigilance", "institution": "Jeyflex Pharmacovigilance Services", "year": 2020},
+        {"type": "certification", "title": "Bonne Pratique Clinique", "institution": "Vienna School of Clinical Research", "year": 2010},
+        {"type": "certification", "title": "Introduction a la recherche Clinique", "institution": "Vienna School of Clinical Research", "year": 2011},
+        {"type": "certification", "title": "Bonne Pratique Clinique et recherche Clinique", "institution": "National Institute of Health (NIH)", "year": 2013},
+        {"type": "certification", "title": "Essai Clinique Vaccinale (vaccine trial methods and best practice)", "institution": "Johns Hopkins Bloomberg School of Public Health", "year": 2013}
+      ],
+      "activity_experience": ["Evaluation reports", "Narrative technical assessments", "Field monitoring reports", "Technical guidance notes"],
+      "role_fit": ["Sectoral evaluation - Senior evaluator"],
+      "needs_review": [
+        "partner_org set to 'CLIMAFRICA CRO' (the clinical research organization he has directed since 2016) - he also holds concurrent consultant roles at FHI Clinical (since 2018) and ACE Research Africa (since 2016) - confirm which affiliation should be recorded as partner_org.",
+        "Primary sector 'Health' with secondary 'Nutrition' (nutritional/CAP surveys, malnutrition management protocols) and 'MEAL technical integration' (program/strategy evaluations) reflect the epidemiology/clinical-research/nutrition-survey profile - confirm fit, given the CV is heavily clinical-trial-focused and does not map perfectly onto the TOR's humanitarian/development sectors.",
+        "'Bissa' added to the languages lookup table as a regional Burkina Faso/West Africa language (per project policy, alongside Dioula which was already seeded) - confirm spelling/inclusion.",
+        "Geography list includes many countries (DRC, Niger, Guinea, Mali, Senegal, Cote d'Ivoire, Nigeria, Togo, Benin, Gabon) named only as clinical-trial sites or pharmacovigilance-consultancy countries rather than sustained program engagement - confirm whether this level of detail is desired or should be trimmed to Burkina Faso (his base) plus a smaller set.",
+        "UNFPA (2022 evaluation of HIV/reproductive-health integration) and WHO/TDR (2010-2012 co-investigator funding) not added as donor experience - neither is in the TOR/RFP/proposal donor list (per project policy); numerous pharmaceutical/private clinical-trial sponsors (GSK, Janssen, FIND, Diagreat Being) and NGOs (Hellen Keller Intl, Africa CDC) are also not recorded as donor_experience for the same reason."
+      ]
+    }
+  ]
+}

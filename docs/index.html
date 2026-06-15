@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACSD Expert Roster</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- ── Header ── -->
+  <header class="bg-blue-950 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <div>
+        <h1 class="text-base font-bold tracking-tight leading-none">ACSD Expert Roster</h1>
+        <p class="text-xs text-blue-400 mt-0.5">Fichier d'experts pour ordres de travail</p>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <span id="user-email" class="text-xs text-blue-300 hidden sm:block"></span>
+        <span id="admin-badge"
+          class="hidden text-xs font-semibold bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full">
+          Admin
+        </span>
+        <button id="logout-btn"
+          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
+          Déconnexion
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Body layout: sidebar + main ── -->
+  <div class="max-w-screen-xl mx-auto px-4 py-6 flex gap-5 items-start">
+
+    <!-- Sidebar filters -->
+    <aside class="w-56 flex-shrink-0 sticky top-20">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold text-gray-700 uppercase tracking-wide">Filtres</span>
+          <button id="clear-filters" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+            Réinitialiser
+          </button>
+        </div>
+
+        <!-- Affiliation -->
+        <div class="mb-3">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+            Affiliation
+          </label>
+          <select id="f-affiliation" class="filter-select">
+            <option value="">Tous</option>
+            <option value="internal">Core (Interne)</option>
+            <option value="partner">Partenaire</option>
+          </select>
+        </div>
+
+        <!-- Seniority -->
+        <div class="mb-3">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+            Niveau
+          </label>
+          <select id="f-seniority" class="filter-select">
+            <option value="">Tous</option>
+            <option value="principal_expert">Principal Expert</option>
+            <option value="senior">Senior</option>
+            <option value="intermediary">Intermediary</option>
+            <option value="junior">Junior</option>
+          </select>
+        </div>
+
+        <!-- Sector -->
+        <div class="mb-3">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+            Secteur
+          </label>
+          <select id="f-sector" class="filter-select">
+            <option value="">Tous</option>
+          </select>
+        </div>
+
+        <!-- Geography -->
+        <div class="mb-3">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+            Pays
+          </label>
+          <select id="f-geography" class="filter-select">
+            <option value="">Tous</option>
+          </select>
+        </div>
+
+        <!-- Language -->
+        <div class="mb-3">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+            Langue
+          </label>
+          <select id="f-language" class="filter-select">
+            <option value="">Toutes</option>
+          </select>
+        </div>
+
+        <!-- Donor -->
+        <div class="mb-3">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+            Bailleur
+          </label>
+          <select id="f-donor" class="filter-select">
+            <option value="">Tous</option>
+          </select>
+        </div>
+
+        <!-- Role -->
+        <div class="mb-3">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+            Type de mission
+          </label>
+          <select id="f-role" class="filter-select">
+            <option value="">Tous</option>
+          </select>
+        </div>
+
+        <!-- Availability -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+            Disponibilité
+          </label>
+          <select id="f-availability" class="filter-select">
+            <option value="">Tous</option>
+            <option value="available">Disponible</option>
+            <option value="assigned">En mission</option>
+            <option value="unavailable">Indisponible</option>
+            <option value="unknown">Non renseigné</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="mt-3 text-xs text-gray-400 space-y-1 px-1">
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> Disponible</div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span> En mission</div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500"></span>  Indisponible</div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-gray-300"></span> Non renseigné</div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 min-w-0">
+      <!-- Search bar -->
+      <div class="mb-4 relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+          fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input id="search-input" type="search"
+          placeholder="Rechercher par nom, titre, biographie…"
+          class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg
+                 shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500
+                 focus:border-transparent">
+      </div>
+
+      <!-- Count + spinner -->
+      <div class="flex items-center justify-between mb-4 h-5">
+        <p id="results-count" class="text-sm text-gray-500 font-medium"></p>
+        <div id="loading-indicator" class="hidden flex items-center gap-1.5 text-xs text-blue-600">
+          <svg class="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          Chargement…
+        </div>
+      </div>
+
+      <!-- Cards grid -->
+      <div id="experts-grid"
+        class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+      </div>
+
+      <!-- Empty state -->
+      <div id="empty-state" class="hidden text-center py-20 text-gray-400">
+        <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857
+               M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857
+               m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <p class="font-medium text-sm">Aucun expert trouvé</p>
+        <p class="text-xs mt-1">Essayez de modifier vos filtres ou votre recherche.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- ── Expert detail modal ── -->
+  <div id="modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <!-- Backdrop -->
+    <div id="modal-backdrop"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm">
+    </div>
+    <!-- Panel -->
+    <div class="relative flex items-start justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-6">
+        <!-- Close button -->
+        <button id="modal-close"
+          class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 p-1 rounded-lg
+                 hover:bg-gray-100 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+        <!-- Dynamic content injected by app.js -->
+        <div id="modal-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

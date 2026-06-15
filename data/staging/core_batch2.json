@@ -1,0 +1,208 @@
+{
+  "batch": "Core Consultants - Batch 2 of 3",
+  "experts": [
+    {
+      "source_cv": "CV Francois Djissou Happi .pdf",
+      "full_name": "Francois Djissou Happi",
+      "title": "Senior Environmental, Health, Safety, Social & Sustainability (EHS&S) Specialist",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 24,
+      "availability_status": "unknown",
+      "bio_summary": "Senior Environmental, Health, Safety, Social and Sustainability (EHS&S) professional with 24+ years of field-based experience leading ESHSS management for major oil and gas development projects across North and Central Africa, ensuring compliance with IFC Performance Standards and Equator Principles, including the Chad-Cameroon Development Project.",
+      "sectors": {
+        "primary": "Access and safety",
+        "secondary": ["Core Humanitarian Standards", "Protection"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "fluent"},
+        {"name": "Arabic", "proficiency": "professional"},
+        {"name": "Hausa", "proficiency": "professional"},
+        {"name": "Fulfulde", "proficiency": "professional"}
+      ],
+      "geographies": ["Chad", "Cameroon"],
+      "donor_experience": [],
+      "education_certifications": [
+        {"type": "education", "title": "M.Sc., Environmental Science and Ecology", "institution": "University of Douala, Cameroon", "year": null},
+        {"type": "education", "title": "B.Sc., Botany, Ecology, and Plant Physiology", "institution": "University of Douala, Cameroon", "year": null},
+        {"type": "certification", "title": "Hostile Environment Training (HET)", "institution": null, "year": null},
+        {"type": "certification", "title": "Personal Survival Techniques - Fire Prevention & Fighting (PST-FPF)", "institution": null, "year": null},
+        {"type": "certification", "title": "Emergency Preparedness & Response (ERT)", "institution": null, "year": null},
+        {"type": "certification", "title": "Chemical Hazards Awareness Training (CHAT)", "institution": null, "year": null}
+      ],
+      "activity_experience": ["Technical review reports", "Field monitoring reports", "Training materials"],
+      "role_fit": ["Field technical monitoring"],
+      "needs_review": [
+        "Profile is oil/gas/chemical-sector EHS&S - does not map cleanly to the TOR's 23 humanitarian/development sectors. Primary sector 'Access and safety' and secondary 'Core Humanitarian Standards'/'Protection' are best-guess fits; confirm with team.",
+        "No donor_experience recorded - career is private-sector/EPC oil & gas (ExxonMobil, Petrofac, international operators), not donor-funded humanitarian/development programs; none of the seeded donors apply.",
+        "Geography limited to Chad and Cameroon (Chad-Cameroon Development Project) per West/Central Africa+Sahel policy; Algeria and Egypt assignments (El Merk, In Salah Gas, Salam Gas Trains) not recorded - outside policy scope and not in the geographies lookup table.",
+        "Languages: excluded Spanish and German per language policy. 'Fondo-/Fefe/Fufulde' in the CV is ambiguous (Fe'fe' is a Cameroonian Grassfields language, not regional Sahel) - retained as 'Fulfulde' assuming OCR/typo for that language; confirm.",
+        "role_fit 'Field technical monitoring' is a guess based on EHSS field-monitoring/audit-readiness background - confirm.",
+        "affiliation_type set to 'internal' based on folder placement - confirm."
+      ]
+    },
+    {
+      "source_cv": "CV Gerard Yesse.pdf",
+      "full_name": "Gerard Kesse Yesse",
+      "title": "Senior Conflict, Stabilization and Natural Resources Governance Specialist",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 15,
+      "availability_status": "unknown",
+      "bio_summary": "Conflict, stabilization, and natural resources governance specialist with 15+ years designing and managing donor-funded programs across West Africa (Burkina Faso, Cote d'Ivoire, Mali, Niger), with extensive USAID, World Bank, GIZ, and DANIDA experience in conflict early warning, CVE/DDR, cross-border governance, and social cohesion.",
+      "sectors": {
+        "primary": "Conflict sensitivity",
+        "secondary": ["Peacebuilding", "Economic recovery and livelihoods"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "professional"},
+        {"name": "Dioula", "proficiency": "professional"}
+      ],
+      "geographies": ["Burkina Faso", "Cote d'Ivoire", "Mali", "Niger"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Project Director, USAID/SRO-funded LCapS Activity, ACSD (2024-2025); Director, Stabilization and Social Cohesion, USAID-funded IGR Project, Creative Associates (2022-2023); Program Manager, USAID/OTI-funded Burkina Faso Regional Program (BFRP), Chemonics (2019-2021)"},
+        {"donor": "World Bank", "category": "Development", "notes": "Rehabilitation Consultant, World Bank-funded Post-Conflict Assistance Project, Cote d'Ivoire (2012-2013)"},
+        {"donor": "GIZ", "category": "Development", "notes": "Deputy Director, Daloa Regional Service Center / Bouake Regional Monitoring Office, EU and World Bank-funded Programme de Reinsertion des Ex-Combattants, executed by GIZ, Cote d'Ivoire (2009-2010)"},
+        {"donor": "DANIDA", "category": "Development", "notes": "Program Coordinator, DANIDA-funded Border and Security Management Program, Danish Demining Group, Burkina Faso/Mali/Niger (2014-2019); Project Coordinator, DANIDA-funded Community Safety Project, DDG, Cote d'Ivoire (2013-2014)"},
+        {"donor": "EU", "category": "Development", "notes": "Co-funder (with World Bank) of Programme de Reinsertion des Ex-Combattants executed by GIZ, Cote d'Ivoire (2009-2010)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "M.S., International Strategy Analysis (Geopolitics and Foresight)", "institution": "Institute of International and Strategic Relations, Paris", "year": null},
+        {"type": "education", "title": "B.S., History", "institution": "Felix Houphouet-Boigny University, Abidjan, Cote d'Ivoire", "year": null},
+        {"type": "certification", "title": "PRINCE2", "institution": null, "year": null},
+        {"type": "certification", "title": "Personal Field Security Training", "institution": null, "year": null},
+        {"type": "certification", "title": "Natural Resources for Sustainable Development", "institution": "SDG AcademyX / edX", "year": null}
+      ],
+      "activity_experience": ["Narrative technical assessments", "Methodological frameworks", "Training materials", "Recommendations for programme improvement"],
+      "role_fit": ["Capacity-strengthening assignment", "Field technical monitoring"],
+      "needs_review": [
+        "Primary sector 'Conflict sensitivity' chosen given the strong conflict analysis/early-warning/CVE focus; secondary sectors ('Peacebuilding' for DDR/reintegration, 'Economic recovery and livelihoods' for women's/youth income-generation grants) are judgment calls - confirm best fit, including whether 'Peacebuilding' should be primary.",
+        "GIZ/EU donor entries reflect a role on an EU and World Bank co-funded program executed by GIZ (2009-2010) - donor attribution (funder vs implementer) may need refinement.",
+        "affiliation_type set to 'internal' based on folder placement - confirm."
+      ]
+    },
+    {
+      "source_cv": "CV Gnoumou.pdf",
+      "full_name": "Nikiegnounou Gnoumou",
+      "title": "Senior Land Tenure, Natural Resource Management and Conflict Specialist",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 15,
+      "availability_status": "unknown",
+      "bio_summary": "Senior researcher with 15+ years leading policy-relevant studies on land tenure as a driver of violent extremism in Burkina Faso, including evaluation of major donor-funded interventions (USAID, World Bank), with deep expertise in land governance, IDP land access, and community/project-level MEAL systems.",
+      "sectors": {
+        "primary": "Conflict sensitivity",
+        "secondary": ["Migration and displacement", "MEAL technical integration"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "professional"},
+        {"name": "Dioula", "proficiency": "professional"},
+        {"name": "Bwamou", "proficiency": "professional"},
+        {"name": "Moore", "proficiency": "professional"}
+      ],
+      "geographies": ["Burkina Faso"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Land Use and NRM Specialist, USAID-funded RISE II Terres Eau Vie Project, Winrock/TetraTech (2023-2024); Deputy Chief of Party, USAID-funded RISE II ASTER Project, ONF-BF (2020-2021)"},
+        {"donor": "World Bank", "category": "Development", "notes": "Regional M&E/Land Officer then Regional Coordinator, World Bank-funded PNGT Phase III Project (2014-2019)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "B.S. & M.S., Economics and Non-Profit Business Management", "institution": "University Thomas Sankara of Ouagadougou, Burkina Faso", "year": null},
+        {"type": "certification", "title": "Project Management with MS-Project", "institution": null, "year": null},
+        {"type": "certification", "title": "Private Public Partnerships: How to Provide Better Infrastructures for Public Services", "institution": null, "year": null},
+        {"type": "certification", "title": "Institutional Communication for Development", "institution": null, "year": null}
+      ],
+      "activity_experience": ["Evaluation reports", "Recommendations for programme improvement", "Field monitoring reports", "Methodological frameworks"],
+      "role_fit": ["Sectoral evaluation - Senior evaluator", "Field technical monitoring"],
+      "needs_review": [
+        "Primary sector 'Conflict sensitivity' is a judgment call given the land-tenure/CVE research focus; 'Migration and displacement' (IDP land access/titling work) or 'MEAL technical integration' could alternatively be primary - confirm best fit.",
+        "Other donors/funders mentioned (U.S. State Department via IRI, Canadian Cooperation via Oxfam, MCA/BF) intentionally not added as donor tags - not in TOR/RFP/proposal donor list (per project policy); retained in bio context only.",
+        "'Bwamou' (Bwamu) added to the languages lookup table as a regional Burkina Faso/Sahel language (per project policy) - confirm spelling/inclusion.",
+        "affiliation_type set to 'internal' based on folder placement - confirm."
+      ]
+    },
+    {
+      "source_cv": "CV Haoua Ango Sawadogo.pdf",
+      "full_name": "Haoua Ango Sawadogo",
+      "title": "Senior Communication, Collaboration-Learning-Adaptation (CLA) and Knowledge Management Specialist",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "senior",
+      "years_experience": 10,
+      "availability_status": "unknown",
+      "bio_summary": "Senior bilingual (French/English) communication, Collaboration-Learning-Adaptation (CLA), and information/knowledge management specialist with more than 10 years on USAID-funded governance, stabilization and gender/social-inclusion programs in Burkina Faso; Gender and Social Inclusion (GESI) focal point; recognized as a 2022 Goalkeeper by the Bill & Melinda Gates Foundation.",
+      "sectors": {
+        "primary": "Gender equality and social inclusion",
+        "secondary": ["Accountability to affected populations", "MEAL technical integration"]
+      },
+      "languages": [
+        {"name": "English", "proficiency": "fluent"},
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "Moore", "proficiency": "native"},
+        {"name": "Dioula", "proficiency": "fluent"}
+      ],
+      "geographies": ["Burkina Faso"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Communication/CLA Manager, USAID's Inclusive Governance for Resilience (IGR) Activity, Creative Associates (2024-2025); Information Management Specialist (incl. GESI focal point), USAID's On Est Ensemble (OEE) Activity, Chemonics (2022-2024); Information Management Specialist, USAID/OTI Burkina Faso Regional Program (BFRP), Chemonics (2018-2022)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Master in Translation and Interpretation", "institution": "Universite Joseph KI-ZERBO, Ouagadougou, Burkina Faso", "year": null},
+        {"type": "education", "title": "Bachelor Degree in English (Foreign Letters and Civilizations)", "institution": "Universite Joseph KI-ZERBO, Ouagadougou, Burkina Faso", "year": null},
+        {"type": "certification", "title": "Senior Accredited Expert in Communication, Education and Training", "institution": null, "year": null},
+        {"type": "certification", "title": "Gender 101", "institution": "USAID", "year": null},
+        {"type": "certification", "title": "Certificate on Protection and Resilience: A Holistic Approach to Digital, Physical, and Psychosocial Security", "institution": null, "year": null},
+        {"type": "certification", "title": "Success Stories and Story-Driven Communication", "institution": "USAID Professional Development Program", "year": null}
+      ],
+      "activity_experience": ["Training materials", "Technical guidance notes", "Workshop facilitation outputs", "Presentation materials"],
+      "role_fit": ["Capacity-strengthening assignment"],
+      "needs_review": [
+        "Seniority tier set to 'senior' based on the CV's stated 'more than 10 years of experience'; borderline with 'principal_expert' (10+ years band) - confirm against actual career span (approx. 2010-2025, ~15 years).",
+        "2022 Gates Foundation 'Goalkeeper' recognition is an award/honor, not project-funded donor experience - not added to donor_experience per policy; noted in bio_summary only.",
+        "U.S. Embassy/State Department (Mandela Washington Fellowship Liaison, 2016-2017) not added as donor experience - not in TOR/RFP/proposal donor list (per project policy).",
+        "affiliation_type set to 'internal' based on folder placement - confirm."
+      ]
+    },
+    {
+      "source_cv": "CV Harold Tarver.pdf",
+      "full_name": "Harold V. Tarver",
+      "title": "Senior Program Management Specialist - Food Security and Trade Capacity",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 30,
+      "availability_status": "unknown",
+      "bio_summary": "Strategic international development and program management leader with 30+ years advancing food security, agricultural trade capacity, and institutional resilience across Africa, the Caribbean, South America, and Asia; expert in USDA/USAID/State Department program design, grants and cooperative-agreement management, with extensive West Africa experience including Burkina Faso, Senegal, Mali, Niger, Ghana, Guinea, Liberia, Sierra Leone, Cote d'Ivoire, Togo, Cameroon, Chad, and Nigeria.",
+      "sectors": {
+        "primary": "Food security",
+        "secondary": ["Finance", "Human Resources"]
+      },
+      "languages": [
+        {"name": "English", "proficiency": "fluent"},
+        {"name": "French", "proficiency": "fluent"}
+      ],
+      "geographies": ["Burkina Faso", "Senegal", "Mali", "Niger", "Ghana", "Guinea", "Guinea-Bissau", "Liberia", "Sierra Leone", "Cote d'Ivoire", "Togo", "Cameroon", "Chad", "Nigeria"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Food for Development Manager & Fellow, oversaw 11 USAID P.L. 480 Title II programs in West Africa (1993-2000); secured $8.9M USAID multi-year grant as Country Representative, Senegal (2001-2004); led design of USDA/USAID technical assistance programs totaling $78M across nine countries incl. West Africa region as Agricultural Development Advisor, USDA Foreign Agricultural Service (2010-2025)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "M.S., International Agricultural Development", "institution": "University of California, Davis", "year": null},
+        {"type": "education", "title": "B.A., Political Science", "institution": "Tufts University, Medford, Massachusetts", "year": null},
+        {"type": "certification", "title": "Secret Security Clearance", "institution": null, "year": null},
+        {"type": "certification", "title": "Certified EMT-B", "institution": null, "year": null},
+        {"type": "certification", "title": "Firefighter II", "institution": null, "year": null}
+      ],
+      "activity_experience": ["Recommendations for programme improvement", "Field monitoring reports", "Technical review reports"],
+      "role_fit": ["Capacity-strengthening assignment"],
+      "needs_review": [
+        "Most achievements are attributed to USDA (Foreign Agricultural Service) funding, not a seeded donor; attributed to 'USAID' only where USDA programs explicitly overlapped with USAID requirements/co-funding (P.L. 480 Title II, USAID/Senegal grant) per the seeded-donors-only policy - confirm whether a separate 'USDA' donor entry should be added to the lookup table.",
+        "Geography list trimmed to West/Central Africa + Sahel countries present in the geographies table per project policy; broader career also covers the Caribbean (Haiti), South America (Brazil, Colombia, Peru), Asia (Pakistan, Vietnam), and East/Horn of Africa (Rwanda, Uganda, Eritrea, Ethiopia) - not recorded.",
+        "affiliation_type set to 'internal' based on folder placement - confirm."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "batch": "Core Consultants - Batch 1 of 3",
+  "experts": [
+    {
+      "source_cv": "CV Abdou_NDIAYE.pdf",
+      "full_name": "Abdou Ndiaye",
+      "title": "Senior Administrative Management Professional / Co-Director, ACSD",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 35,
+      "availability_status": "unknown",
+      "bio_summary": "Senior operations and administrative management executive with 35+ years leading operations, HR, procurement, compliance, facilities and IT for large-scale USAID and multilateral donor-funded programs across 15+ African countries.",
+      "sectors": {
+        "primary": "Human Resources",
+        "secondary": ["Finance", "Core Humanitarian Standards"]
+      },
+      "languages": [
+        {"name": "English", "proficiency": "fluent"},
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "Wolof", "proficiency": "fluent"}
+      ],
+      "geographies": ["Senegal", "Burkina Faso", "Chad", "Mauritania", "Niger", "Democratic Republic of the Congo", "Republic of the Congo", "Central African Republic", "Ghana", "Benin", "Cote d'Ivoire", "Cameroon", "Guinea", "Sierra Leone"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Senior operations/administration roles across Senegal, DRC, Ghana, regional Sahel platform (2003-2025)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "M.S., Computer Science (AI - Human-Computer Interaction)", "institution": "University of Sciences & Technologies, Valenciennes, France", "year": null},
+        {"type": "education", "title": "B.S., Computer Science", "institution": "Louis Pasteur University, Strasbourg, France", "year": null},
+        {"type": "education", "title": "A.A.S., Computer Science", "institution": "Ecole Polytechnique, Dakar, Senegal", "year": null},
+        {"type": "certification", "title": "Federal Acquisition Certification in Contracting (FAC-C)", "institution": null, "year": null},
+        {"type": "certification", "title": "Contracting Officer's Representative Certification (FAC-COR Level II)", "institution": null, "year": null},
+        {"type": "certification", "title": "IBM Artificial Intelligence Foundations", "institution": null, "year": null},
+        {"type": "certification", "title": "IBM Business Intelligence (BI) Analyst", "institution": null, "year": null}
+      ],
+      "activity_experience": ["Recommendations for programme improvement", "Technical guidance notes"],
+      "role_fit": [],
+      "needs_review": [
+        "Primary/secondary sector mapping is approximate - CV is operations/HR/finance focused, not a direct match to TOR's 23 sectors. Confirm 'Human Resources' as primary.",
+        "role_fit left empty - no explicit SRF/FMU work-order role stated in CV; cross-reference Technical Proposal personnel matrix.",
+        "affiliation_type set to 'internal' based on folder placement (Core Consultants) - confirm this is correct (note: this is the ACSD Co-Director, an ACSD principal)."
+      ]
+    },
+    {
+      "source_cv": "CV Alice Willard.pdf",
+      "full_name": "Alice Willard, Ph.D.",
+      "title": "Senior MEAL Professional",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 40,
+      "availability_status": "unknown",
+      "bio_summary": "Senior MEAL professional with 40+ years leading monitoring and evaluation programming in multi-sectoral development and humanitarian operations across Africa, Asia, and the Middle East, including resilience and food security evaluations in the Sahel.",
+      "sectors": {
+        "primary": "MEAL technical integration",
+        "secondary": ["Food security", "Economic recovery and livelihoods"]
+      },
+      "languages": [
+        {"name": "English", "proficiency": "fluent"},
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "Portuguese", "proficiency": "professional"},
+        {"name": "Arabic", "proficiency": "working"}
+      ],
+      "geographies": ["Burkina Faso", "Chad", "Mali", "Niger"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Resilience policy evaluation, MEL deep dive and SAREL evaluation in Burkina Faso/Mali; Senior M&E Specialist USAID/Mali (2015-2016)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Ph.D., Sociology (International and Comparative Development)", "institution": "The Johns Hopkins University", "year": null},
+        {"type": "education", "title": "M.A., Sociology", "institution": "The Johns Hopkins University", "year": null},
+        {"type": "education", "title": "M.A., International Development", "institution": "The American University, Washington D.C.", "year": null},
+        {"type": "education", "title": "B.A., Latin and French", "institution": "SUNY/Albany", "year": null}
+      ],
+      "activity_experience": ["Evaluation reports", "Methodological frameworks", "Training materials", "Field monitoring reports"],
+      "role_fit": ["Sectoral evaluation - Team Leader", "Sectoral evaluation - Senior evaluator"],
+      "needs_review": [
+        "Geography trimmed to Sahel/West Africa per project policy (full career also covers Asia, Eurasia, Horn/Southern Africa - not recorded).",
+        "affiliation_type set to 'internal' based on folder placement - confirm."
+      ]
+    },
+    {
+      "source_cv": "CV Amadou ba .pdf",
+      "full_name": "Amadou Ba",
+      "title": "Program Management / DRG-CVE Specialist",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 20,
+      "availability_status": "unknown",
+      "bio_summary": "Program management specialist with 20+ years in humanitarian relief, countering violent extremism (CVE), stabilization, human rights and governance across West and Central Africa, with deep USAID and EU grant compliance and donor reporting experience.",
+      "sectors": {
+        "primary": "Conflict sensitivity",
+        "secondary": ["Peacebuilding", "Accountability to affected populations"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "fluent"},
+        {"name": "Arabic", "proficiency": "fluent"},
+        {"name": "Fulfulde", "proficiency": "fluent"},
+        {"name": "Wolof", "proficiency": "fluent"},
+        {"name": "Hassaniya", "proficiency": "fluent"}
+      ],
+      "geographies": ["Senegal", "Chad", "Niger", "Burkina Faso", "Mauritania", "Gambia"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "DRG/CVE Specialist USAID/Sahel Regional Office (2020-2025); Program Management Assistant USAID/Mauritania (2017-2020)"},
+        {"donor": "EU", "category": "Development", "notes": "Project Director, EU-funded Promotion of Human Rights and Strengthening of National Unity (Senegal River Valley); CVE coordination platform support (2018)"},
+        {"donor": "UNICEF", "category": "Humanitarian", "notes": "Supported Mauritania Demographic Health Survey design/execution (2019-2020) alongside other international partners"},
+        {"donor": "WFP", "category": "Humanitarian", "notes": "Multi-donor humanitarian flooding response in Brackna and Gorgol, Mauritania (2018)"},
+        {"donor": "GIZ", "category": "Development", "notes": "Mauritania Demographic Health Survey support (2019-2020)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "M.S.II, National Security", "institution": "Centre des Hautes Etudes de Defense et de Securite, Senegal", "year": null},
+        {"type": "education", "title": "M.S.II, Project Management", "institution": "Gaston Berger University, Senegal", "year": null},
+        {"type": "education", "title": "B.S. & M.S., Economics", "institution": "University of Nouakchott, Mauritania", "year": null}
+      ],
+      "activity_experience": ["Recommendations for programme improvement", "Narrative technical assessments"],
+      "role_fit": ["Capacity-strengthening assignment"],
+      "needs_review": [
+        "Primary sector 'Conflict sensitivity' is a judgment call - CV centers on DRG/CVE/stabilization which spans several TOR sectors (Conflict sensitivity, Peacebuilding, Accountability to affected populations, Migration and displacement). Confirm best fit.",
+        "'Hassaniya' added to languages table as a regional Sahel language (per project policy).",
+        "Other donors mentioned (UNFPA, WHO, Spanish Cooperation Agency, US Dept of State/DRL/National Endowment for Democracy, Secours Catholique/Caritas network) intentionally not added as donor tags - not in TOR/RFP/proposal donor list (per project policy); retained in bio context only.",
+        "affiliation_type set to 'internal' based on folder placement - confirm."
+      ]
+    },
+    {
+      "source_cv": "CV Della_McMillan.pdf",
+      "full_name": "Della E. McMillan, Ph.D.",
+      "title": "Senior Social Scientist / MEAL Specialist",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 30,
+      "availability_status": "unknown",
+      "bio_summary": "Senior social scientist with 30+ years supporting USAID and donor-funded programs in 28 countries, specializing in MEAL systems strengthening, adaptive management, applied qualitative research and evaluation, with deep Sahel and West Africa expertise.",
+      "sectors": {
+        "primary": "MEAL technical integration",
+        "secondary": ["Gender equality and social inclusion", "Economic recovery and livelihoods"]
+      },
+      "languages": [
+        {"name": "English", "proficiency": "fluent"},
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "Moore", "proficiency": "working"}
+      ],
+      "geographies": ["Burkina Faso", "Mali", "Niger", "Benin", "Cote d'Ivoire", "Gambia", "Ghana", "Nigeria", "Togo", "Central African Republic"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "72+ short-term assignments since 1980 across design, performance monitoring, evaluation and adaptive management for USG-funded programs; Sahel partner mapping via ACSD (2024-2025)"},
+        {"donor": "World Bank", "category": "Development", "notes": "Deputy Team Leader/consultant 1989-2004: portfolio assessments, environmental reviews, resettlement/gender analyses in Burkina Faso and Mali; River Blindness Control Program impact study"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Ph.D., Anthropology (Certificat in African Studies)", "institution": "Northwestern University", "year": null},
+        {"type": "education", "title": "M.A., Anthropology", "institution": "Northwestern University", "year": null},
+        {"type": "education", "title": "B.A., History", "institution": "Agnes Scott College", "year": null}
+      ],
+      "activity_experience": ["Evaluation reports", "Methodological frameworks", "Training materials", "Technical guidance notes"],
+      "role_fit": ["Sectoral evaluation - Team Leader", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "Geography trimmed to West/Central Africa + Sahel per project policy (also has experience in Horn of Africa, Eurasia, Iraq, Angola, Suriname, Myanmar - not recorded).",
+        "Other donors mentioned (UNDP, Millennium Challenge Corporation, USDA/FAS) intentionally not added as donor tags - not in TOR/RFP/proposal donor list (per project policy); retained in bio context only.",
+        "affiliation_type set to 'internal' based on folder placement - confirm."
+      ]
+    },
+    {
+      "source_cv": "CV Fatimata Ouilma Sinaré.pdf",
+      "full_name": "Fatimata Ouilma Sinare",
+      "title": "Senior Gender, Social Inclusion, and Human Rights Specialist",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 15,
+      "availability_status": "unknown",
+      "bio_summary": "Senior Gender, Social Inclusion and Human Rights Specialist with 15+ years designing, implementing and evaluating donor-funded programs in fragile and conflict-affected environments, integrating gender, GBV, Do No Harm and human rights into resilience, food security, WASH, health and governance programs across the Sahel and East Africa.",
+      "sectors": {
+        "primary": "Gender equality and social inclusion",
+        "secondary": ["Protection", "Health", "WASH"]
+      },
+      "languages": [
+        {"name": "English", "proficiency": "fluent"},
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "Moore", "proficiency": "fluent"},
+        {"name": "Dioula", "proficiency": "working"},
+        {"name": "Arabic", "proficiency": "working"}
+      ],
+      "geographies": ["Burkina Faso", "Mali", "Mauritania", "Niger", "Chad", "Benin", "Senegal"],
+      "donor_experience": [
+        {"donor": "EU", "category": "Development", "notes": "Fond Commun Genre evaluation (co-financed by EU and others); EU coordination platform support"},
+        {"donor": "UNICEF", "category": "Humanitarian", "notes": "Fond Commun Genre pooled fund co-financier"},
+        {"donor": "AFD", "category": "Development", "notes": "Gender Expert, AFD-funded Improve Access to Safe Drinking Water (Sikasso Region, Mali) 2022-2023"},
+        {"donor": "USAID", "category": "Development", "notes": "Project Coordinator, USAID-funded Sexual and Reproductive Health Rights Promotion Project (2015-2016); Gender Specialist, USAID/FFP VIM Project (2012-2014)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "M.S., Project Management", "institution": "Aube Nouvelle University, Ouagadougou, Burkina Faso", "year": null},
+        {"type": "education", "title": "B.S. & M.S., Law", "institution": "University of Ouagadougou, Burkina Faso", "year": null},
+        {"type": "certification", "title": "Gender", "institution": "International Training Center of the International Labour Organization", "year": null},
+        {"type": "certification", "title": "Conflict Transformation and Human Rights", "institution": "Danish Institute of Human Rights", "year": null},
+        {"type": "certification", "title": "Strategic Communication for Advocacy and Development", "institution": "Danish Institute of Communication", "year": null},
+        {"type": "certification", "title": "Coaching and International Professional Training", "institution": "Institut d'accompagnement des Carrieres Diplomatiques et Internationales, Ouagadougou", "year": null}
+      ],
+      "activity_experience": ["Evaluation reports", "Training materials", "Methodological frameworks", "Technical guidance notes"],
+      "role_fit": ["Sectoral evaluation - Team Leader", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "Other donors mentioned (BMZ, ENABEL, UNFPA, Global Affairs Canada, Global Fund, Bloomberg Foundation, governments of Canada/Denmark/Norway/Netherlands/Switzerland) intentionally not added as donor tags - not in TOR/RFP/proposal donor list (per project policy); retained in bio context only.",
+        "affiliation_type set to 'internal' based on folder placement - confirm."
+      ]
+    }
+  ]
+}

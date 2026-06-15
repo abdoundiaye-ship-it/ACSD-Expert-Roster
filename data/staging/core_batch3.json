@@ -1,0 +1,217 @@
+{
+  "batch": "Core Consultants - Batch 3 of 3",
+  "experts": [
+    {
+      "source_cv": "CV Issa_Zerbo.pdf",
+      "full_name": "Issa Zerbo",
+      "title": "Founder & ACSD Co-Director / Senior Localization, Land Tenure and Due Diligence Specialist",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 32,
+      "availability_status": "unknown",
+      "bio_summary": "Founder and ACSD Co-Director with 32+ years supporting design, execution, and evaluation of government, private-sector, NGO, and donor-funded programs in Burkina Faso, Mali, Niger, and Chad, specializing in partnership localization, organizational capacity assessments, land tenure/land use surveys for IDP resettlement, and project/grant due diligence.",
+      "sectors": {
+        "primary": "Localisation approaches",
+        "secondary": ["Migration and displacement", "Finance"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "Dioula", "proficiency": "fluent"},
+        {"name": "Moore", "proficiency": "fluent"},
+        {"name": "Marka", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "professional"}
+      ],
+      "geographies": ["Burkina Faso", "Mali", "Niger", "Chad"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Chief of Party, USAID/SRO LCapS Activity - national partner census of 647 households and OCAT of 219 organizations (2024-2025); evaluation of population and institutional resilience under USAID/Burkina Faso-funded ASTER Project, Mercy Corps (2023-2025); USAID IGR Project startup (2021-2022); Women's Voice and Leadership Program baseline/mapping (2019); USAID DRG Assessment (2016); USAID regional EFSP workshop (2016); Administrative and Financial Director, Africare - USAID/FFP-funded BOFSI Program, $22M, Chad (2013-2015)"},
+        {"donor": "UNHCR", "category": "Humanitarian", "notes": "Managed three UNHCR refugee camps with a $1M budget while Administrative and Financial Director, Africare, Chad (2013-2015)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "M.S., Sustainable Development and the Environment", "institution": "Universite de Ouagadougou Joseph Ki-Zerbo, Burkina Faso", "year": null},
+        {"type": "education", "title": "M.S., Accounting and Financial Sciences and Techniques", "institution": "IAPM, Ouagadougou, Burkina Faso", "year": null},
+        {"type": "certification", "title": "UEMOA, World Bank, and EU Procurement Systems", "institution": null, "year": null},
+        {"type": "certification", "title": "USAID Sub-Recipient and Sub-Grant Management and Audit", "institution": null, "year": null},
+        {"type": "certification", "title": "USAID Resource Management, Finance, Audit, Administration, Grants, and Procurement", "institution": null, "year": null},
+        {"type": "certification", "title": "Audit & Budget Management", "institution": null, "year": null}
+      ],
+      "activity_experience": ["Narrative technical assessments", "Field monitoring reports", "Evaluation reports", "Recommendations for programme improvement"],
+      "role_fit": ["Capacity-strengthening assignment", "Field technical monitoring"],
+      "needs_review": [
+        "Primary sector 'Localisation approaches' chosen given the Partnership Localization Advisor role and organizational capacity assessment (OCA/OCAT) focus; secondary sectors ('Migration and displacement' for land tenure/IDP resettlement, 'Finance' for due diligence/grant management) are judgment calls - confirm fit.",
+        "'Marka' added to the languages lookup table as a regional Sahel language (per project policy) - confirm spelling/inclusion.",
+        "MCC/MCA Burkina Faso land governance project (Tetra Tech ARD, 2009-2012) and ExxonMobil-funded IEEWEP II (2013-2015) not added as donor tags - MCC and ExxonMobil are not in the TOR/RFP/proposal donor list (per project policy); World Bank/UEMOA/EU procurement certifications retained as certifications only, not donor_experience.",
+        "affiliation_type set to 'internal' based on folder placement (this is the ACSD Founder/Co-Director, an ACSD principal) - confirm."
+      ]
+    },
+    {
+      "source_cv": "CV Moussa_Ouedraogo.pdf",
+      "full_name": "Moussa Ouedraogo",
+      "title": "Senior Social Safeguards and Resettlement Specialist",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 15,
+      "availability_status": "unknown",
+      "bio_summary": "Senior Social Safeguards and Resettlement Specialist with 15+ years supporting USAID, MCC, World Bank, and IFC-funded infrastructure, energy, mining, and agricultural programs across Africa, specializing in resettlement action plans, livelihood restoration, and grievance redress mechanisms under IFC Performance Standard 5 and World Bank ESS5, including work in West Africa (Benin, Burkina Faso, Guinea).",
+      "sectors": {
+        "primary": "Migration and displacement",
+        "secondary": ["Protection", "Gender equality and social inclusion"]
+      },
+      "languages": [
+        {"name": "English", "proficiency": "fluent"},
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "Moore", "proficiency": "fluent"},
+        {"name": "Dioula", "proficiency": "fluent"}
+      ],
+      "geographies": ["Benin", "Burkina Faso", "Guinea"],
+      "donor_experience": [],
+      "education_certifications": [
+        {"type": "education", "title": "B.Sc. & M.Sc., Macroeconomics and Development Planning and Management", "institution": "Universite de Ouagadougou, Burkina Faso", "year": null},
+        {"type": "certification", "title": "Advanced Training in Environmental and Social Safeguards", "institution": "World Bank Institute", "year": null},
+        {"type": "certification", "title": "IFC Performance Standards Compliance and Social Audit", "institution": null, "year": null},
+        {"type": "certification", "title": "Independent Member, International Association for Impact Assessment", "institution": null, "year": null}
+      ],
+      "activity_experience": ["Field monitoring reports", "Methodological frameworks", "Evaluation reports", "Training materials"],
+      "role_fit": ["Field technical monitoring", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "Primary sector 'Migration and displacement' (resettlement/land acquisition focus) is a judgment call vs 'Protection' - confirm best fit.",
+        "Geography limited to Benin, Burkina Faso, and Guinea per West/Central Africa+Sahel policy; Malawi (MCA Malawi II Road Upgrading Compact, MCA Malawi Power Compact) and Tanzania/Uganda (East African Crude Oil Pipeline Project) assignments excluded as outside policy scope.",
+        "No donor_experience recorded - named projects (MCA Malawi II, MCA Benin II, MCA Malawi Power Compact) are Millennium Challenge Account/MCC-funded, and Houndé Gold Operation and Rio Tinto Simandou are private-sector mining - none are in the seeded donor list. World Bank/IFC appear only as standards/frameworks (ESS5, PS5) and a training source (World Bank Institute), not as direct project funders in the achievements listed. Confirm whether MCC should be added to the donors lookup table.",
+        "affiliation_type set to 'internal' based on folder placement - confirm."
+      ]
+    },
+    {
+      "source_cv": "CV Rakiswende Leon Ouedraogo.pdf",
+      "full_name": "Rakiswende Leon Ouedraogo",
+      "title": "Senior MEAL, CLA and Knowledge Management Specialist",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 20,
+      "availability_status": "unknown",
+      "bio_summary": "Senior Monitoring, Evaluation, Accountability, and Learning (MEAL) specialist with 20+ years supporting USAID and other donor-funded programs in West Africa, designing MEAL and CLA systems for complex multi-country portfolios, strengthening partner capacity, and leading WASH and resilience/food-security knowledge management in Burkina Faso and Niger.",
+      "sectors": {
+        "primary": "MEAL technical integration",
+        "secondary": ["WASH", "Food security"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "Moore", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "fluent"}
+      ],
+      "geographies": ["Burkina Faso", "Niger"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Knowledge Management, MEAL & CLA Coordinator, USAID-funded SCC Program ($16M), Mercy Corps, Burkina Faso and Niger (2020-2024), covering 42 RISE II implementing partners"},
+        {"donor": "Gates Foundation", "category": "Private Sector & Foundations", "notes": "Documentation & Communication Officer, Gates Foundation-funded INSPIRE Project ($21M), IntraHealth International, multi-country (2018-2020)"},
+        {"donor": "EU", "category": "Development", "notes": "EU-funded WASH MEAL baselines as part of national WASH MEAL systems strengthening for WaterAid Burkina Faso (2013-2018)"},
+        {"donor": "UNICEF", "category": "Humanitarian", "notes": "UNICEF-funded WASH MEAL baselines and data verification for WaterAid Burkina Faso (2013-2018)"},
+        {"donor": "GIZ", "category": "Development", "notes": "Led baseline studies, needs assessments, and evaluations for GIZ-funded projects among other donors (short-term consultancies, 2003-2025)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "M.S., Sociology (Anthropology of Development)", "institution": "University of Ouagadougou, Burkina Faso", "year": null},
+        {"type": "education", "title": "B.S., Sociology", "institution": "University of Ouagadougou, Burkina Faso", "year": null},
+        {"type": "certification", "title": "Participatory Decentralized Development", "institution": "World Bank Institute", "year": null},
+        {"type": "certification", "title": "Results-Based Management", "institution": "Apidon Institute, Ouagadougou, Burkina Faso", "year": null},
+        {"type": "certification", "title": "Project Management (PM-DPRO)", "institution": null, "year": null},
+        {"type": "certification", "title": "CLA for Resilience (RCLA)", "institution": "Mercy Corps", "year": null}
+      ],
+      "activity_experience": ["Evaluation reports", "Methodological frameworks", "Training materials", "Workshop facilitation outputs"],
+      "role_fit": ["Sectoral evaluation - Senior evaluator", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "Primary sector 'MEAL technical integration' chosen given the role's core focus; secondary sectors ('WASH' for WaterAid programs, 'Food security' for RISE II resilience portfolio) reflect the project mix - confirm best fit.",
+        "Geography limited to Burkina Faso and Niger (named countries for SCC/RISE II and WaterAid programs) per policy; the Gates Foundation-funded INSPIRE Project's 'seven countries' are not individually named in the CV and were not recorded.",
+        "Conrad Hilton Foundation (mentioned as a funder of baseline/evaluation work) not added as a donor tag - not in TOR/RFP/proposal donor list (per project policy).",
+        "affiliation_type set to 'internal' based on folder placement - confirm."
+      ]
+    },
+    {
+      "source_cv": "CV Rodney Stubina.pdf",
+      "full_name": "Rodney Stubina, Ph.D.",
+      "title": "Senior USAID Executive / Operations and Program Management Specialist",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 20,
+      "availability_status": "unknown",
+      "bio_summary": "Accomplished senior USAID executive with 20+ years of leadership in humanitarian relief, stabilization, disaster relief, and development operations across Africa, Asia, and Eastern Europe, with deep expertise in executive management, operations oversight, HR/procurement, and crisis response, including regional mission leadership across West Africa (USAID/Senegal) and a country directorship in Chad.",
+      "sectors": {
+        "primary": "Human Resources",
+        "secondary": ["Conflict sensitivity", "Finance"]
+      },
+      "languages": [
+        {"name": "English", "proficiency": "fluent"},
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "Arabic", "proficiency": "working"},
+        {"name": "Fulfulde", "proficiency": "working"},
+        {"name": "Hausa", "proficiency": "working"},
+        {"name": "Wolof", "proficiency": "working"},
+        {"name": "Zarma", "proficiency": "working"}
+      ],
+      "geographies": ["Senegal", "Chad", "Gambia"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Supervisory Executive Officer, USAID/Cambodia (2024-2025); Supervisory Regional EXO, USAID/Senegal/Tbilisi directing operations for 12 missions across West Africa and the Caucasus (2016-2024); Country Director, USAID-funded PDEV II Project executed by IRD, Chad ($65M, 2014-2015); Regional Representative/Senior Development Foreign Service Officer, USAID/OTI Afghanistan ($97M stabilization program, 2010-2012)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Ph.D., Anthropology (African Studies & Tropical Forestry)", "institution": "University of Florida, Gainesville, Florida", "year": null},
+        {"type": "education", "title": "M.A., Anthropology", "institution": "University of Florida, Gainesville, Florida", "year": null},
+        {"type": "education", "title": "B.A., Psychology", "institution": "Montclair State University, Montclair, New Jersey", "year": null},
+        {"type": "certification", "title": "USAID FAC-C Level I", "institution": null, "year": null},
+        {"type": "certification", "title": "Certified Contracting Officer", "institution": null, "year": null},
+        {"type": "certification", "title": "District Stability Framework", "institution": null, "year": null},
+        {"type": "certification", "title": "ISAF Counterinsurgency Training", "institution": null, "year": null}
+      ],
+      "activity_experience": ["Recommendations for programme improvement", "Field monitoring reports", "Technical review reports"],
+      "role_fit": ["Capacity-strengthening assignment"],
+      "needs_review": [
+        "Primary sector 'Human Resources' reflects the EXO/operations-management core of the CV; secondary sectors ('Conflict sensitivity' for stabilization work in PDEV II Chad and OTI Afghanistan, 'Finance' for budget/procurement oversight) are judgment calls given the broad executive-management profile - confirm fit.",
+        "Geography limited to Senegal, Chad, and Gambia (named West/Central Africa+Sahel locations) per policy; Cambodia, Georgia/Tbilisi, and Afghanistan assignments excluded as outside policy scope.",
+        "'Zarma' added to the languages lookup table as a regional Sahel (Niger) language at 'working' proficiency (CV lists 'Basic'), per project policy - confirm spelling/inclusion.",
+        "Yoruba and Russian (both listed as 'Basic' in the CV) excluded per language policy (Yoruba not treated as a core regional Sahel language; Russian out of region) - confirm.",
+        "Peace Corps (Gambia, 2004-2010) not added as donor experience - not in TOR/RFP/proposal donor list (per project policy).",
+        "affiliation_type set to 'internal' based on folder placement - confirm."
+      ]
+    },
+    {
+      "source_cv": "CV mahamt Saleh.pdf",
+      "full_name": "Radjab Mahamat Saleh",
+      "title": "Senior Agricultural Engineer / Rural Infrastructure and Food Security Specialist",
+      "affiliation_type": "internal",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 30,
+      "availability_status": "unknown",
+      "bio_summary": "Experienced agricultural engineer with 30+ years designing, executing, and evaluating agricultural and rural infrastructure (roads, wells, dams, irrigated perimeters) under Food-for-Work programming and micro-finance/livelihoods projects to strengthen social cohesion in conflict- and extractive-industry-affected areas of Chad, Mali, Burkina Faso, Niger, and the Central African Republic.",
+      "sectors": {
+        "primary": "Food security",
+        "secondary": ["Economic recovery and livelihoods", "WASH"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "Arabic", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "professional"}
+      ],
+      "geographies": ["Chad", "Mali", "Burkina Faso", "Niger", "Central African Republic"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Series of USAID/FFP Food Security Programs, Africare, Chad (Ouaddai, Batha, Sila Regions) - Country Director/Technical Advisor/Project Coordinator/Agronomist/MEAL Coordinator roles (1998-2015); M&E support for three USG-funded refugee camps (Gaga, Farchana, Gore, 2005-2014)"},
+        {"donor": "WFP", "category": "Humanitarian", "notes": "Food-for-Work (FFW) programming sourced from USG and WFP for rural infrastructure (roads, wells, dams, irrigated perimeters) in Chad, Mali, Burkina Faso, and Niger"},
+        {"donor": "GIZ", "category": "Development", "notes": "Agronomist/Agricultural Extension Officer/MEAL Specialist, German-funded Projet de Developpement Rural Ouaddai/Biltine - Amenagement des Ouadis, executed by GTZ, North-East Chad (1993-1994)"},
+        {"donor": "EU", "category": "Development", "notes": "Co-facilitated pilot of FED (Fonds Europeen de Developpement)-funded self-managed credit fund (Caisse Al-Amane) benefiting three women's unions, Ouaddai Region, Chad, within the 1998-2015 Africare Title II program"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "M.S., Rural Economics and Development Planning", "institution": "Marien N'Gouabi University, Brazzaville, Republic of the Congo", "year": null},
+        {"type": "education", "title": "B.S., Mathematics and Physics", "institution": "Faculty of Exact and Applied Sciences of Farcha, N'Djamena, Chad", "year": null},
+        {"type": "certification", "title": "Sustainable Development and Project Management for the 21st Century", "institution": "Galilee International Management Institute, Israel (funded by MASHAV)", "year": null}
+      ],
+      "activity_experience": ["Field monitoring reports", "Recommendations for programme improvement", "Methodological frameworks"],
+      "role_fit": ["Field technical monitoring", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "Primary sector 'Food security' reflects the FFW/Title II program focus; secondary sectors ('Economic recovery and livelihoods' for micro-finance, 'WASH' for wells/water infrastructure) are judgment calls - confirm fit.",
+        "'FED' (Fonds Europeen de Developpement / European Development Fund) project mapped to 'EU' donor - confirm this attribution.",
+        "Islamic Relief Worldwide (IRW/UK)-funded livelihood and micro-finance projects (2015-2018, Chad and Central African Republic) not added as donor experience - not in TOR/RFP/proposal donor list (per project policy).",
+        "'Chadian Arabic' mapped to the seeded 'Arabic' language entry - confirm whether a dialect-specific distinction is needed.",
+        "affiliation_type set to 'internal' based on folder placement - confirm."
+      ]
+    }
+  ]
+}

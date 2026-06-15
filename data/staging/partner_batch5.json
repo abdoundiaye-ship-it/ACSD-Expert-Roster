@@ -1,0 +1,230 @@
+{
+  "batch": "Partner Consultants - Batch 5 of 5",
+  "experts": [
+    {
+      "source_cv": "CV SOUMANA BARAZE Seydou.pdf",
+      "source_cv_note": "Also listed as 'Soumana Seydou - Expert en Gestion de projet et developpement local' in CV Expert en Suivi & Évaluation-Kamae Mahamdou.pdf (the combined three-consultant file); confirmed same person via IOM Niger career and ONG RC2D leadership.",
+      "full_name": "Soumana Baraze Seydou",
+      "title": "Senior Project and Programme Management Specialist (Stabilization, Governance, Peacebuilding, Migration)",
+      "affiliation_type": "partner",
+      "partner_org": "ONG RC2D - Resilience Communautaire et Developpement Durable",
+      "seniority_tier": "principal_expert",
+      "years_experience": 15,
+      "availability_status": "unknown",
+      "bio_summary": "Nigerien project and programme management specialist with 15+ years of experience in community stabilization, social cohesion, governance, migration and peacebuilding across Niger's conflict-affected regions (Diffa, Maradi, Tahoua, Tillabery, Agadez and Niamey) and West Africa's coastal/Sahel transition zone; Executive Director of ONG RC2D - Resilience Communautaire et Developpement Durable (Niger, March 2025-Present), and formerly National Coordinator at IOM Niger (Nov 2020-Jan 2024), managing USAID/BAA/UNPBF/FPI-EU funded stabilization programmes with budgets exceeding $1M per project, including the IOM-UNHCR-UNODC and IOM-UNFPA consortia; also deployed as Grants Management and Activity Development Officer for IOM's Coastal States Stability Mechanism (MSSC) programme in Ghana, Togo and Benin (Feb 2024-Feb 2025). PRINCE2-certified project manager.",
+      "sectors": {
+        "primary": "Peacebuilding",
+        "secondary": ["Migration and displacement", "Economic recovery and livelihoods"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "working"},
+        {"name": "Hausa", "proficiency": "fluent"},
+        {"name": "Zarma", "proficiency": "fluent"}
+      ],
+      "geographies": ["Niger", "Benin", "Togo", "Ghana"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Piloted strategic and operational management of multiple USAID-funded stabilization and social cohesion programmes as National Coordinator, IOM Niger (Nov 2020-Jan 2024), including coordination with USAID and management of 4 regional teams (12 permanents + consultants) with budgets >$1M per project; Grants Management and Activity Development Officer, IOM MSSC (Ghana-Togo-Benin, Feb 2024-Feb 2025), assuring conformity with USAID and GFFO norms; led fund mobilization from USAID for ONG RC2D women-in-peacebuilding project (as Executive Director, Mar 2025-Present)"},
+        {"donor": "EU", "category": "Development", "notes": "Managed operational coordination under the EU-FPI (Fonds pour la Paix et la Securite Internationale / EU Instrument contributing to Stability and Peace) as National Coordinator IOM Niger (Nov 2020-Jan 2024) and Program Development Officer (Aug-Oct 2020); FPI-UE cited alongside USAID, BAA and UNPBF as co-financiers of the IOM Niger portfolio"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Master 2 en Gestion de Crise et Actions Humanitaires", "institution": "Institut International d'Ingenierie de l'Eau et de l'Environnement (2iE), Burkina Faso", "year": 2022},
+        {"type": "education", "title": "Master 2 en Gestion de Projet", "institution": "Institut International de Management (agree par l'Universite Abdou Moumouni de Niamey), Niger", "year": 2019},
+        {"type": "education", "title": "Technicien superieur en socio-economie", "institution": "Institut Pratique du Developpement Rural, Niger", "year": 2007},
+        {"type": "certification", "title": "PRINCE2 (Skill4All) - Project Management Professional (PMP in progress)", "institution": "Skill4All", "year": null},
+        {"type": "certification", "title": "Peacebuilding, UN Peacekeeping Operations, DDR (Desarmement, Demobilisation et Reintegration)", "institution": "Ecole de Maintien de la Paix (EMP) de Bamako, Mali", "year": null},
+        {"type": "certification", "title": "UN Certifications: PSEA, Security Basic & Advanced, BSafe, Active Shooter, Data Protection", "institution": "United Nations", "year": null}
+      ],
+      "activity_experience": ["Methodological frameworks", "Field monitoring reports", "Workshop facilitation outputs", "Technical guidance notes"],
+      "role_fit": ["Concept-note review", "Full-proposal review", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "partner_org set to 'ONG RC2D - Resilience Communautaire et Developpement Durable' - he is the Executive Director/founder of RC2D (since March 2025); assess whether this should be treated as his employer organization or whether to use null (independent consultant) given he is the founder; confirm.",
+        "years_experience=15 and seniority_tier='principal_expert' reflect the CV's own claim of 'plus de 15 ans d'experience'; confirm against ACSD's seniority bands.",
+        "Source CV reconciliation: The 'Soumana Seydou' profile in the combined CV file (CV Expert en Suivi & Evaluation-Kamae Mahamdou.pdf) is confirmed the same person as SOUMANA BARAZE Seydou based on the matching IOM Niger career trajectory and ONG RC2D executive director role; no separate record needed.",
+        "UNPBF (UN Peacebuilding Fund) and GFFO (German Federal Foreign Office / Auswartiges Amt) are explicitly listed as funders/financiers of IOM Niger programmes alongside USAID and EU-FPI - neither is in the seeded donors table; not added to donor_experience per policy.",
+        "'BAA' (Bureau des Affaires Africaines, US State Dept) cited alongside USAID as a funder in IOM Niger programmes - if this is a distinct, non-USAID funding instrument confirm whether it should be treated as a sub-category of the 'USAID' donor tag or excluded.",
+        "'Cabinet InnovPro' was mentioned in the combined Kamae Mahamadou file as part of Soumana Seydou's profile description but does not appear in this dedicated CV; may have been an earlier/side venture - note for QA.",
+        "Hausa proficiency listed as 'Excellent' in the CV - mapped to 'fluent'; Zerma (=Zarma, mapped to seed name 'Zarma') listed as 'Excellent' - mapped to 'fluent'; English listed as 'Intermediaire' - mapped to 'working'; confirm.",
+        "Ghana is listed as a geography based on his IOM Ghana-Togo-Benin role title (Feb 2024-Feb 2025); the CV text specifically names Parakou and Dapaong (Benin and Togo) as field locations but lists the mission as 'OIM Ghana-Togo-Benin' - confirm Ghana as an explicitly covered geography for this assignment."
+      ]
+    },
+    {
+      "source_cv": "CV Seydou Diallo 25.pdf",
+      "full_name": "Diallo Seydou",
+      "title": "Legal and Public Procurement Specialist",
+      "affiliation_type": "partner",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 15,
+      "availability_status": "unknown",
+      "bio_summary": "Burkinabe jurist and public procurement specialist with 15 years of experience managing procurement, contract law and financial controls across government ministries and international development projects in Burkina Faso; served as Responsable des Operations (Operations Director) at Creative Associates International for the $23.5M USAID-funded Inclusive Governance for Resilience (IGR) project (Aug 2021-Apr 2025), supervising procurement, human resources, IT and administration; Procurement Specialist at Chemonics International for the USAID/OTI Burkina Faso Regional Program (Oct 2018-Aug 2021); Assistant Procurement Specialist at the World Bank-financed Programme d'Appui aux Collectivites Territoriales (PACT, May 2014-Sep 2018); currently Administrator of Financial Services at the Direction Generale du Controle des Marches Publics et des Engagements Financiers, Ministry of Economy and Finance of Burkina Faso (since May 2025).",
+      "sectors": {
+        "primary": "Finance",
+        "secondary": ["Human Resources", "Core Humanitarian Standards"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "working"},
+        {"name": "Dioula", "proficiency": "professional"},
+        {"name": "Fulfulde", "proficiency": "professional"},
+        {"name": "Moore", "proficiency": "professional"}
+      ],
+      "geographies": ["Burkina Faso"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Responsable des Operations (Operations Director), Creative Associates International, USAID-funded IGR project, Burkina Faso (Aug 2021-Apr 2025, $23.5M); Procurement Specialist, Chemonics International, USAID/OTI Burkina Faso Regional Program (Oct 2018-Aug 2021) - responsible for all procurements in compliance with USAID policies and OTI regulations"},
+        {"donor": "World Bank", "category": "Development", "notes": "Assistant Specialiste en Passation des Marches, Programme d'Appui aux Collectivites Territoriales (PACT), charged with the Centre-Est region, World Bank-financed (May 2014-Sep 2018); attended World Bank new procurement regulations seminar (Nov 2018) and World Bank/CESAG procurement seminar (2014, Dakar)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "DESS en Sciences Juridique et Politique (option Droit des Affaires)", "institution": "Universite de Ouagadougou, Burkina Faso", "year": 2009},
+        {"type": "education", "title": "Maitrise es Sciences Juridique et Politique (option Droit des Affaires)", "institution": "Universite de Ouagadougou, Burkina Faso", "year": 2006},
+        {"type": "education", "title": "Licence es Sciences Juridique et Politique", "institution": "Universite de Ouagadougou, Burkina Faso", "year": 2005},
+        {"type": "education", "title": "Diplome du Cycle A, option Finance", "institution": "Ecole Nationale des Regies Financieres, Ouagadougou, Burkina Faso", "year": 2010},
+        {"type": "certification", "title": "Formation sur la gestion de la logistique humanitaire", "institution": "Institut Panafricain de Hautes Etudes et Formations (online)", "year": 2021},
+        {"type": "certification", "title": "Seminaire sur le nouveau Reglement de passation des Marches de la Banque mondiale", "institution": "Ministere des Ressources Animales et Halieutiques (MRAH) and World Bank, Burkina Faso", "year": 2018},
+        {"type": "certification", "title": "Seminaires en Audit interne des marches publics et Appels d'offres et passation des marches (Link Competence)", "institution": "Link Competence Maroc, Casablanca, Morocco", "year": 2015}
+      ],
+      "activity_experience": ["Technical review reports", "Training materials", "Methodological frameworks"],
+      "role_fit": ["Concept-note review", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "partner_org left null - as of CV date (25 July 2025), Seydou Diallo returned to the Direction Generale du Controle des Marches Publics et des Engagements Financiers of the Ministry of Economy and Finance of Burkina Faso (from 18 May 2025, following the end of his CAI/IGR role on 7 April 2025); as a permanent civil servant, his availability for short-term consultancies may be constrained - flag for QA.",
+        "years_experience=15 and seniority_tier='principal_expert' reflect the CV's career timeline from July 2010 to July 2025; the DESS (highest education degree) was obtained in 2009 and active career started July 2010 - confirm against ACSD's seniority bands.",
+        "Primary sector 'Finance' (public procurement and financial management) is a strong fit; secondary sectors 'Human Resources' (Operations Director role supervising HR/procurement/IT/admin staff at CAI/IGR) and 'Core Humanitarian Standards' (USAID/OTI compliance officer, humanitarian logistics certification) are judgment calls - confirm.",
+        "Dioula, Fulfulde and Moore proficiency mapped to 'professional' from the CV's 'bon niveau' level rating - confirm.",
+        "Cross-reference: Seydou Diallo lists 'M. Siaka OUEDRAOGO' (Country Representative, Creative Associates International) as a professional reference - same individual as Siaka Ouedraogo processed in this batch; confirms mutual IGR project history."
+      ]
+    },
+    {
+      "source_cv": "CV Siaka Ouédraogo.pdf",
+      "full_name": "Siaka Ouedraogo",
+      "title": "Senior Humanitarian and Development Programme Management Specialist",
+      "affiliation_type": "partner",
+      "partner_org": "Medicus Mundi Italia",
+      "seniority_tier": "principal_expert",
+      "years_experience": 14,
+      "availability_status": "unknown",
+      "bio_summary": "Burkinabe senior humanitarian and development programme leader with 14+ years managing multi-sectoral programmes in fragile contexts across West and Central Africa; currently Country Representative and Project Coordinator for Medicus Mundi Italia in Burkina Faso (2025-Present), leading three integrated projects in food security, health, nutrition and WASH; most recently Chief of Party for the $23.5M USAID-funded Inclusive Governance for Resilience (IGR) project (Creative Associates International, 2024-2025) and Country Representative for USAID Partnerships for Peace (Creative Associates International, 2019-2021); prior M&E Associate roles for USAID P4P across G5 Sahel countries (2018-2019) and DAI/AfricaLead supporting CILSS across 13 Sahel countries (2016-2018); areas of expertise include stabilization, P/CVE, peacebuilding, inclusive governance, food security, and M&E.",
+      "sectors": {
+        "primary": "Peacebuilding",
+        "secondary": ["Food security", "MEAL technical integration"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "fluent"},
+        {"name": "Moore", "proficiency": "working"},
+        {"name": "Dioula", "proficiency": "working"}
+      ],
+      "geographies": ["Burkina Faso", "Mali"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Chief of Party, Creative Associates International/USAID IGR project, Burkina Faso (2024-2025, $23.5M) - managed 40 staff, implemented stabilization/social cohesion/capacity-building, allocated $1.5M in grants; Deputy Chief of Party, Creative Associates International/USAID IGR (2021-2024) - directed technical strategy and start-up; Country Representative, Creative Associates International/USAID Partnerships for Peace, Burkina Faso (2019-2021) - developed national strategy for preventing radicalization and violent extremism; M&E Associate, USAID P4P, West Africa (2018-2019) - supported M&E systems across G5 Sahel countries"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "MA, Project Management", "institution": "International Institute of Management, Burkina Faso", "year": null},
+        {"type": "education", "title": "BA, Democracy, Rule of Law and Citizen Participation", "institution": "Universite d'Alexandrie, Egypt", "year": null},
+        {"type": "education", "title": "BA, Sociology", "institution": "Universite de Ouagadougou, Burkina Faso", "year": null},
+        {"type": "certification", "title": "Graduate Certificate, Humanitarian Leadership", "institution": "Deakin University, Australia", "year": null},
+        {"type": "certification", "title": "Monitoring & Evaluation", "institution": "Antwerp University, Belgium", "year": null}
+      ],
+      "activity_experience": ["Evaluation reports", "Field monitoring reports", "Methodological frameworks", "Technical review reports", "Workshop facilitation outputs"],
+      "role_fit": ["Sectoral evaluation - Team Leader", "Sectoral evaluation - Senior evaluator", "Concept-note review", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "partner_org set to 'Medicus Mundi Italia' (current employer since 2025); if he is unavailable for short-term ACSD assignments due to this role (managing 20 staff/3 integrated projects), availability_status may need to be updated to 'assigned' or 'unavailable' - confirm with ACSD.",
+        "years_experience=14 and seniority_tier='principal_expert' reflect the CV's own claim of '14+ years' and Chief of Party/Country Representative level roles managing $23.5M programmes - confirm against ACSD's seniority bands.",
+        "Geography limited to Burkina Faso and Mali based on explicit country mentions; the CILSS/AfricaLead role (2016-2018) covered 13 Sahel countries in a regional M&E capacity, not field presence in each - confirm whether additional seed-table countries (Senegal, Niger, Chad, Mauritania, etc.) should be added based on the CILSS portfolio or remain limited to explicit field country mentions.",
+        "Secondary sector 'Food security' reflects DAI/AfricaLead/CILSS agriculture and food security programs and current Medicus Mundi Italia role (food security/nutrition/WASH projects); 'MEAL technical integration' reflects extensive M&E background across P4P, CILSS, ViM and Swisscontact roles - confirm.",
+        "Moore proficiency listed in CV as a named language without a level - mapped to 'working' as a conservative default; English listed as 'fluent' - retained as stated; confirm.",
+        "Medicus Mundi Italia is funded by AICS (Agenzia Italiana per la Cooperazione allo Sviluppo - Italian Agency for Development Cooperation) - not added to donor_experience as AICS is not in the seeded donors table.",
+        "Short-term consultancy clients listed as NRC, KOICA, UN, OXFAM, IFAD across Burkina Faso and Mali - NRC, KOICA and IFAD are not seeded; UN (OCHA?) not specified - no donor tags added for these.",
+        "Cross-reference: Siaka Ouedraogo is listed as 'M. Siaka OUEDRAOGO, Deputy Chief of Party / Country Representative, Creative Associates International' in both the Yacouba KERE and Seydou Diallo CVs (professional references) - confirms shared IGR project history."
+      ]
+    },
+    {
+      "source_cv": "CV ZIDA.pdf",
+      "full_name": "Zida Boureima",
+      "title": "Senior Public Health and HIV/AIDS M&E Specialist",
+      "affiliation_type": "partner",
+      "partner_org": "HDev Support",
+      "seniority_tier": "principal_expert",
+      "years_experience": 22,
+      "availability_status": "unknown",
+      "bio_summary": "Burkinabe physician and independent senior public health consultant with 22 years of experience (CV dated July 2019; 15 years specifically in HIV/TB/malaria/community health consulting across 16 countries) in HIV/AIDS, tuberculosis, malaria and community health programming; specialisms include procurement and supply chain management (PSM), DHIS2 implementation, Global Fund grant-making support (including CCM oversight and performance frameworks), strategic and operational planning, M&E systems, and KAP/operational research; formerly HIV/AIDS PMTCT Specialist at UNICEF Chad (Aug 2013-Aug 2015) and Global M&E Advisor at the AIDS Alliance Technical Hub WCA (Oct 2011-Sept 2012); currently provides senior technical assistance under his own consultancy firm (HDev Support) to Global Fund implementers, GIZ BACKUP Initiative, UNAIDS/TSF-WCA and Management Sciences for Health/GMS across Central and West Africa.",
+      "sectors": {
+        "primary": "Health",
+        "secondary": ["MEAL technical integration"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "professional"}
+      ],
+      "geographies": ["Burkina Faso", "Cameroon", "Central African Republic", "Chad", "Cote d'Ivoire", "Democratic Republic of the Congo", "Gabon", "Guinea", "Guinea-Bissau", "Mali", "Niger", "Nigeria", "Republic of the Congo", "Togo"],
+      "donor_experience": [
+        {"donor": "UNICEF", "category": "Humanitarian", "notes": "HIV/AIDS PMTCT Specialist, UNICEF Chad (Aug 2013-Aug 2015) - provided high quality deliverables and technical support on HIV/AIDS prevention (MNCH/PMTCT, refugees/returned population and adolescents), including pediatric care, e-MTCT and Option B+; short-term consultancies: UNICEF Jan-Feb 2016 (elaborated harmonized plan of ICCM interventions, Cameroon); UNICEF/UNAIDS Dec 2015-Jan 2016 (grant making of the HIV/NFM of Cameroon for CAMNAFAW and GTC/CNLS); UNICEF Chad Aug-Oct 2015 (grant making of HIV/NFM for Chad)"},
+        {"donor": "GIZ", "category": "Development", "notes": "Multiple short-term assignments under the GIZ BACKUP Initiative (supporting Global Fund implementers in governance, risk management and PSM): Burkina Faso (Nov-Dec 2018, Operational Risk Management Plan for new HIV/TB/Malaria grants); Togo (Jan-Feb 2018, same mandate for new HIV/TB/Malaria grants); Togo (Dec 2016-Apr 2017, implementation of PR Dashboard and CCM Summary)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Doctorate in Medicine", "institution": "University of Ouagadougou, Burkina Faso", "year": 2002},
+        {"type": "certification", "title": "Global Health Procurement and Supply Chain Management (post-graduate diploma, in progress as of 2019)", "institution": "Kent University, USA", "year": 2017},
+        {"type": "certification", "title": "Management training, leadership and governance of HIV projects/programs", "institution": "CAFS, Ghana", "year": 2009},
+        {"type": "certification", "title": "Good governance and results-based management", "institution": "SETYM Canada, Burkina Faso", "year": 2008},
+        {"type": "certification", "title": "Mainstreaming HIV/AIDS into national instruments, development tools and programs", "institution": "UNDP Regional Office, Dakar, Senegal", "year": 2007},
+        {"type": "certification", "title": "Approaches and programs in PMTCT; HIV prevention among key populations; integration of HIV approaches in sexual and reproductive health services", "institution": "Alliance internationale contre le VIH/Sida, Burkina Faso", "year": 2012}
+      ],
+      "activity_experience": ["Methodological frameworks", "Evaluation reports", "Technical review reports", "Technical guidance notes", "Workshop facilitation outputs", "Field monitoring reports"],
+      "role_fit": ["Field technical monitoring", "Sectoral evaluation - Senior evaluator", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "CV is dated July 1, 2019 - this is approximately 6 years old (as of 2025/2026); the most recent experience described (GIZ BACKUP Nov-Dec 2018) ends in early 2019; current activities, employer status and availability are UNKNOWN and need QA verification before roster inclusion.",
+        "years_experience: CV states 'more than 50 consultations... during the past 15 years' (from a 2019 baseline); medical career started 2002, giving ~22 years total career from first professional post; set to 22 but note the self-reported consulting-career scope is ~15 years (2004-2019).",
+        "partner_org set to 'HDev Support' - this appears to be his own independent consultancy firm (email zidabou@hdevsupport.com in CV header) under which he operates since Sept 2015; confirm.",
+        "Global Fund (GFATM/Fonds Mondial) appears as the primary programmatic commissioning context for 50+ consultancies (CCM oversight, grant-making, PR dashboard, performance frameworks) across all 16 countries - not added to donor_experience as Global Fund is not in the seeded donors table (per project policy); UNAIDS (funder of multiple TSF-WCA short-term assignments) and Management Sciences for Health/GMS (funder of Burundi/Burkina grant-making assignments) similarly excluded.",
+        "Geography list (14 countries from the 16-country list, all within the geographies seed table): Burundi, Morocco, Rwanda and Haiti are excluded as they fall outside the West/Central Africa+Sahel geographic scope; Nigeria is included based on the PACF project (2011-2012, Burkina Faso/Cameroon/DRC/Rwanda/Nigeria) explicitly naming it.",
+        "Nutrition and OVC (orphans and vulnerable children) programming appears across his HIV/AIDS work (PMTCT, pediatric care, community-based OVC response at CECI-BF) but not added as a secondary sector tag - 'Health' fully encompasses this specialization; confirm.",
+        "English proficiency listed as 'Intermediate' across reading/speaking/writing - mapped to 'professional' as the next schema tier above 'working'; alternatively 'working' could apply - confirm."
+      ]
+    },
+    {
+      "source_cv": "Cv Yacouba KERE.pdf",
+      "full_name": "Yacouba Kere",
+      "title": "Senior Financial Management, Procurement and Health Finance Specialist",
+      "affiliation_type": "partner",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 22,
+      "availability_status": "unknown",
+      "bio_summary": "Burkinabe financial management, public procurement and health finance specialist with 22 years of experience managing public financial systems, donor grant portfolios and development project operations in Burkina Faso; most recently Directeur Programmes (Aug 2023-Apr 2025) and Directeur Technique/Expert de Mobilisation des Ressources (Aug 2021-Aug 2023) for the $23.5M USAID-funded Inclusive Governance for Resilience (IGR) project (Creative Associates International), responsible for financial planning, procurement compliance with USAID rules, and capacity-strengthening of 33 municipal delegations and 21 community-based organizations (using OCAT/OEMT tools); concurrently serving as Chef de Service de la Commande Publique at the Direction des Affaires Financieres (DAF) of the Ministry of Health of Burkina Faso (since January 2019), responsible for budget execution (37-billion-FCFA health ministry budget), public procurement planning and management for all Ministry structures.",
+      "sectors": {
+        "primary": "Finance",
+        "secondary": ["Health", "Localisation approaches"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "working"}
+      ],
+      "geographies": ["Burkina Faso"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Directeur Programmes (Aug 2023-Apr 2025) and Directeur Technique/Expert de Mobilisation des Ressources (Aug 2021-Aug 2023), Creative Associates International, USAID-funded IGR project, Burkina Faso ($23.5M) - financial reporting and compliance with USAID procurement regulations, grant management and sub-grant compliance, capacity-strengthening of 33 delegations speciales and 21 CBOs"},
+        {"donor": "World Bank", "category": "Development", "notes": "Financial and procurement grants management roles at Ministry of Health District Sanitaire de Po (2003-2009) and Saponé (2012-2013) involving World Bank-funded health grants; attended World Bank new procurement regulations seminar (Ouagadougou, 2018)"},
+        {"donor": "UNICEF", "category": "Humanitarian", "notes": "Grants management for UNICEF-funded health programmes as Responsable Administratif et Financier, District Sanitaire de Po (2003-2009) and as Gestionnaire des subventions, DRH and DGESS of the Ministry of Health (2013-2017)"},
+        {"donor": "FCDO", "category": "Development", "notes": "Grants management for DFID (now FCDO)-funded health programmes as Responsable Administratif et Financier, District Sanitaire de Po (2003-2009) and as Gestionnaire des subventions, DRH and DGESS of the Ministry of Health (2013-2017); DFID cited alongside World Bank, UNICEF, USAID and EU as grant financiers across multiple Ministry of Health financial management roles"},
+        {"donor": "EU", "category": "Development", "notes": "Grants management for EU (FED - Fonds Europeen de Developpement) funded health programmes as Responsable Administratif et Financier, District Sanitaire de Po (2003-2009) and Saponé (2012-2013); EU/FED cited alongside World Bank, UNICEF, USAID and DFID across multiple Ministry of Health financial management roles"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Master 2 Economie et Management Public (parcours Ingenierie des Projets et des Politiques Publiques)", "institution": "Universite de Montpellier, France", "year": 2018},
+        {"type": "education", "title": "MSc Management Financier et Organisationnel", "institution": "KEDGE Business School, Marseille, France", "year": 2016},
+        {"type": "education", "title": "Master Professionnel en Sciences Economiques et de Gestion (Commerce International, Marketing Global et Internationalisation)", "institution": "Universite OUAGA II / EENI The Global Business School, Spain", "year": 2015},
+        {"type": "education", "title": "Diplome d'Administrateur des Hopitaux et des services de sante", "institution": "Ecole Nationale d'Administration et de Magistrature (ENAM), Burkina Faso", "year": 2011},
+        {"type": "education", "title": "Licence Professionnelle de Gestion PME-PMI", "institution": "Ecole des Cadres 'Groupe SAFEC', Burkina Faso", "year": 2009},
+        {"type": "certification", "title": "Certification Administrateur de la Solidarite Internationale", "institution": "Institut Bioforce Developpement, Lyon, France", "year": 2015}
+      ],
+      "activity_experience": ["Field monitoring reports", "Training materials", "Methodological frameworks", "Technical review reports", "Evaluation reports"],
+      "role_fit": ["Capacity-strengthening assignment", "Concept-note review"],
+      "needs_review": [
+        "partner_org left null - as of CV date (20 October 2025), Yacouba Kere holds a dual position: he is a fonctionnaire (civil servant) at the Ministry of Health as Chef de Service de la Commande Publique (since January 2019) and concurrently served on the CAI/IGR project (Aug 2021-Apr 2025) - confirm whether he is available for short-term ACSD consultancies alongside his Ministry role.",
+        "years_experience=22 and seniority_tier='principal_expert' reflect a career from June 2003 to 2025; the CV's own expertise claim is '22 ans d'expertises' consistent with this - confirm against ACSD's seniority bands.",
+        "World Bank donor tag: the Ministry of Health financial management roles reference World Bank health grants; the most direct World Bank project engagement described is the PACT-related World Bank procurement seminar and indirect grant management; confirm whether this indirect exposure warrants a World Bank donor tag or should be noted only in bio/needs_review.",
+        "FCDO (DFID) and EU (FED) donor tags: derived from repeated explicit references in Ministry of Health District and DGESS/DRH grant management tables ('Fonds mondial, OMS, Unicef, Banque Mondiale, USAID, DFID, FED') across 5 roles spanning 2003-2017 - these represent grant compliance/financial management roles, not programme management; confirm whether this constitutes direct donor experience for the roster.",
+        "Global Fund (Fonds Mondial) appears in all Ministry of Health grant management roles as a funder - not added as a donor tag as Global Fund is not in the seeded donors table (per project policy).",
+        "Secondary sector 'Health' reflects 12+ years of health sector procurement and financial management within the Ministry of Health; 'Localisation approaches' reflects capacity-strengthening of 33 municipal delegations and 21 CBOs on OCAT/OEMT and public procurement tools under IGR - confirm.",
+        "Cross-reference: Yacouba Kere lists 'Mr. Siaka OUEDRAOGO, Deputy Chief of Party / Country Representative, Creative Associates International' as his reference for both IGR roles (Aug 2021-Apr 2025) - the same Siaka Ouedraogo processed in this batch."
+      ]
+    }
+  ]
+}

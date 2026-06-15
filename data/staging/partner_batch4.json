@@ -1,0 +1,176 @@
+{
+  "batch": "Partner Consultants - Batch 4 of 5",
+  "experts": [
+    {
+      "source_cv": "CV Kokou Zotoglo.pdf",
+      "full_name": "Kokou Zotoglo",
+      "title": "Senior Agricultural Value Chains and Agribusiness Specialist",
+      "affiliation_type": "partner",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 27,
+      "availability_status": "unknown",
+      "bio_summary": "Togolese expert agronomist with 27 years of experience in agricultural value chains development, agribusiness, agricultural productivity and food security across West Africa; Staple Crops Value Chain Specialist and Representative of the USAID West Africa Trade and Investment Hub in Burkina Faso (Abt Associates, 2014-2017) and Rice Value Chain Leader for the $21.3M USAID Expanded Agribusiness and Trade Promotion Project (ACDI/VOCA for Abt Associates, 2009-2013); extensive independent evaluation/consultancy portfolio for the World Bank, USAID, the European Union and AFD across Togo, Burkina Faso, Benin, Mali, Niger, Cote d'Ivoire, Senegal, Mauritania, Guinea-Bissau and the Central African Republic.",
+      "sectors": {
+        "primary": "Food security",
+        "secondary": ["Economic recovery and livelihoods", "MEAL technical integration"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "professional"}
+      ],
+      "geographies": ["Togo", "Burkina Faso", "Benin", "Mali", "Niger", "Cote d'Ivoire", "Senegal", "Mauritania", "Guinea-Bissau", "Central African Republic"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Staple Crops Value Chain Specialist and Representative, USAID West Africa Trade and Investment Hub, Abt Associates, Burkina Faso (Apr 2014-Nov 2017); Rice Value Chain Leader, USAID Expanded Agribusiness and Trade Promotion Project (ACDI/VOCA for Abt Associates), Burkina Faso ($21.3M, Oct 2009-Apr 2013); team member, mid-term evaluation of REGIS-AG (Burkina Faso/Niger), Mar-Sep 2018"},
+        {"donor": "World Bank", "category": "Development", "notes": "Multiple Togo-based rural finance studies/evaluations for the World Bank: national rural finance development strategy (2002), study on financing of farmers' organizations and NGOs (2001), rapid diagnosis of rural finance supply/demand (2001), inventory and diagnosis of rural financial institutions (1995); 5-year M&E (1990-1995) of small-scale development projects (PAIDB) including staple crops, livestock and socio-economic infrastructure"},
+        {"donor": "EU", "category": "Development", "notes": "Diagnosis of the commercial function of NSEC/Yarda under the 'Support to Food Security through Small Irrigation' (ASAPI) programme, Niger, European Union-funded (2006)"},
+        {"donor": "AFD", "category": "Development", "notes": "Feasibility study for a market information system (MIS) for the West Africa Grain Network (WAGN) across 8 countries, CTA/AFD (Dec 2013); final evaluation of the support programme for coffee and cocoa growers' organizations (PAOP), Togo, AFD-funded (2005)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Diploma of Agronomist", "institution": "Universite du Benin, Agronomy High School, Lome, Togo", "year": 1989},
+        {"type": "certification", "title": "Health Sector Reform", "institution": "Harvard University, HSPH, Cambridge, MA, USA", "year": 1993},
+        {"type": "certification", "title": "Intermediate Advanced C in English", "institution": "American Cultural Center, Lome, Togo", "year": 1994},
+        {"type": "certification", "title": "Technical and Financial Proposal Writing", "institution": "Federation of African Consultants, Abidjan, Cote d'Ivoire", "year": 1998},
+        {"type": "certification", "title": "Microsoft Project 2003 and Project Management", "institution": "International Institute of Management (IMA-Togo), Lome, Togo", "year": 2005}
+      ],
+      "activity_experience": ["Evaluation reports", "Technical review reports", "Methodological frameworks", "Training materials"],
+      "role_fit": ["Sectoral evaluation - Senior evaluator", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "partner_org left null - the CV positions him as an 'Independent Consultant - Agricultural Evaluations (2017-Present)'; confirm.",
+        "years_experience=27 and seniority_tier='principal_expert' reflect the CV's own claim of '27 years of professional experience' - confirm against ACSD's seniority bands.",
+        "Primary sector 'Food security' is a strong fit (agricultural value chains, rice/grain trade); secondary sectors 'Economic recovery and livelihoods' (rural incomes, microfinance, value-chain competitiveness) and 'MEAL technical integration' (extensive evaluation portfolio) are judgment calls - confirm.",
+        "FAO, IFAD, UNDP/UNCDF and USADF appear repeatedly as funders/commissioners across his ~30 assignments (e.g., FAO-funded APRAO rice evaluation 2013; multiple IFAD-funded Mali/Burkina Faso microfinance reviews 2006; UNDP/UNCDF microfinance strategy reviews in Togo/Guinea-Bissau 2001-2007; USADF-funded M&E of Songhai Centre and Mono-river project in Benin 1999-2002) - none added to donor_experience as none of FAO/IFAD/UNDP/UNCDF/USADF are in the seeded donors table (per project policy); confirm whether any should be added to the lookup table given how frequently they recur across this CV and others.",
+        "Geography list includes all 10 West/Central Africa+Sahel countries named across his career (Togo, Burkina Faso, Benin, Mali, Niger, Cote d'Ivoire, Senegal, Mauritania, Guinea-Bissau, Central African Republic) - all present in the geographies seed table; confirm this breadth is desired or should be trimmed to more recent/primary assignments.",
+        "English proficiency listed in the CV header as 'professional proficiency' - mapped directly; confirm."
+      ]
+    },
+    {
+      "source_cv": "CV Magali_Sawadogo.pdf",
+      "full_name": "Sindi Magali Sawadogo",
+      "title": "Agri-Food Engineer and Data Analyst / M&E and Data Engineering Specialist",
+      "affiliation_type": "partner",
+      "partner_org": null,
+      "seniority_tier": "senior",
+      "years_experience": 8,
+      "availability_status": "unknown",
+      "bio_summary": "Agri-food engineer and data analyst with 8 years of experience spanning monitoring & evaluation of large-scale agricultural development programmes (including the EUR 320 million POSEI France agricultural and food-security programme for the French overseas territories, 2016-2018) and data engineering/architecture roles in France; field experience in Burkina Faso includes a mango value-chain audit under the Institut 2iE BioTraQ programme (2014) and supply-chain monitoring of thermosensitive pharmaceutical products with the Directorate General of Pharmacy, Medicines and Laboratories (DGPML, 2015), plus laboratory work on food and water safety analysis in Senegal (Institut Pasteur de Dakar, 2011).",
+      "sectors": {
+        "primary": "MEAL technical integration",
+        "secondary": ["Food security", "Health"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "working"},
+        {"name": "Moore", "proficiency": "working"},
+        {"name": "Wolof", "proficiency": "working"}
+      ],
+      "geographies": ["Burkina Faso", "Senegal"],
+      "donor_experience": [],
+      "education_certifications": [
+        {"type": "education", "title": "Mastere specialise ALISeE", "institution": "AgroParisTech and Paris 1 Pantheon-Sorbonne, France", "year": null},
+        {"type": "education", "title": "Master Sciences et Technologie de l'Agriculture, de l'Alimentation et de l'Environnement", "institution": "Universite Haute-Alsace (UHA), France", "year": null},
+        {"type": "education", "title": "Brevet de Technicien Superieur en Industries Agroalimentaires", "institution": "Jeanne d'Arc, Senegal", "year": null},
+        {"type": "certification", "title": "Developpeuse Data / Intelligence Artificielle", "institution": "Ecole IA Microsoft, powered by Simplon, France", "year": null},
+        {"type": "certification", "title": "Concevoir et piloter un projet humanitaire", "institution": "Bioforce, France", "year": null},
+        {"type": "certification", "title": "Tronc commun PAC (Politique Agricole Commune)", "institution": "INFOMA, France", "year": null},
+        {"type": "certification", "title": "Audit Qualite (ISO 9001)", "institution": "ARQUA Consulting", "year": null}
+      ],
+      "activity_experience": ["Methodological frameworks", "Field monitoring reports", "Training materials", "Presentation materials"],
+      "role_fit": ["Field technical monitoring", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "partner_org left null - the CV (dated implicitly recent, with an ongoing 'Membre de 50 in Tech' association membership since 2019) does not show a current employer after the Data Engineer role at Groupe France Agricole ended in 2024; likely available as an independent consultant - confirm.",
+        "years_experience=8 and seniority_tier='senior' reflect the CV's own claim of '8 ans d'expertise'; given the mix of technician-level (2011-2012) and specialist/lead-level (2016-2024) roles, 'intermediary' could alternatively apply - confirm against ACSD's seniority bands.",
+        "Geography limited to Burkina Faso (BioTraQ mango value-chain audit 2014, DGPML pharmaceutical supply-chain monitoring 2015, and a remote feature-engineering mission for Cargitech/Ministry of Agriculture) and Senegal (Institut Pasteur de Dakar and HIDAOA laboratory roles, 2011) per West/Central Africa+Sahel policy; the POSEI France programme (DOM-TOM/France, 2016-2018) and all France-based data-engineering roles (2019-2024) are outside the policy's geographic scope and not recorded.",
+        "No donor_experience recorded - the POSEI France programme (EUR 320M, funded via the European Commission/ODEADOM for the French overseas territories) would normally suggest an 'EU' donor tag, but the assignment itself is outside West/Central Africa+Sahel (DOM-TOM/France) and is therefore not recorded as donor experience per the geography policy; the BioTraQ/DGPML and Cargitech/Ministry of Agriculture assignments in Burkina Faso do not have a stated donor - confirm this treatment.",
+        "Languages: 'Francais, anglais, moore, wolof' are listed with no proficiency levels - French mapped to 'fluent' (apparent native/primary working language) and the others to 'working' as a conservative default; confirm.",
+        "Primary sector 'MEAL technical integration' reflects the POSEI M&E/data-analysis role; secondary sectors 'Food security' (agricultural value chains/POSEI) and 'Health' (pharmaceutical supply-chain monitoring) are judgment calls - confirm.",
+        "affiliation_type set to 'partner' based on folder placement - confirm."
+      ]
+    },
+    {
+      "source_cv": "CV Mahamadi OUEDRAOGO.pdf",
+      "full_name": "Mahamadi Ouedraogo",
+      "title": "Senior Monitoring & Evaluation Specialist (Economist-Manager)",
+      "affiliation_type": "partner",
+      "partner_org": "Projet de Renforcement de la Resilience Climatique au Burkina Faso (HYDROMET)",
+      "seniority_tier": "senior",
+      "years_experience": 12,
+      "availability_status": "unknown",
+      "bio_summary": "Burkinabe economist and monitoring & evaluation specialist with 12 years of experience designing and managing M&E systems for nationally-implemented projects funded by the World Bank and the Bill & Melinda Gates Foundation, among others; currently M&E Specialist for the World Bank-financed Climate Resilience Reinforcement Project (HYDROMET, since Feb 2020), with prior M&E roles on the World Bank/DIME impact evaluation under the Programme d'Appui aux Collectivites Territoriales (PACT, 2019-2020) and the World Bank-financed PNGT2-3 (Programme National de Gestion des Terroirs, 2016-2018), plus earlier roles managing the M&E and local economic development components of the PN-PTFM/LCP multifunctional-platforms poverty-reduction programme (Bill & Melinda Gates Foundation co-financed, 2011-2015).",
+      "sectors": {
+        "primary": "MEAL technical integration",
+        "secondary": ["Climate adaptation and resilience programming", "Economic recovery and livelihoods"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "English", "proficiency": "working"},
+        {"name": "Moore", "proficiency": "professional"},
+        {"name": "Dioula", "proficiency": "working"}
+      ],
+      "geographies": ["Burkina Faso"],
+      "donor_experience": [
+        {"donor": "World Bank", "category": "Development", "notes": "M&E Specialist, Climate Resilience Reinforcement Project (HYDROMET, $18B FCFA budget), World Bank/Green Climate Fund/Government of Burkina Faso (since Feb 2020); M&E Expert, PACT Composante C4 (Approche de partenariat avec les OCB), World Bank/DIME impact evaluation with German research center GIGA (Jan 2019-Jan 2020); Chargé de Suivi-Evaluation, PNGT2-3 (Programme National de Gestion des Terroirs, $57B FCFA budget), World Bank/Fonds pour l'Environnement Mondial-financed (Feb 2016-Dec 2018); also cited preparation of the World Bank-financed Lome-Ouaga-Niamey Corridor project (>125 billion FCFA)"},
+        {"donor": "Gates Foundation", "category": "Private Sector & Foundations", "notes": "Responsable Suivi-Evaluation et Formation (Mar 2013-Dec 2015) and Responsable Developpement Economique Local (Apr 2011-Mar 2013), PN-PTFM/LCP (Programme National Plates-formes Multifonctionnelles pour la Lutte Contre la Pauvrete), co-financed by the Bill & Melinda Gates Foundation, UNDP and Luxembourg Cooperation"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Master 2 specialise en Management Strategique et Operationnel (MSO)", "institution": "Agence Universitaire de la Francophonie / Institut International d'Ingenierie de l'Eau et de l'Environnement (2iE)", "year": 2014},
+        {"type": "education", "title": "Maitrise en Economie et Science de Gestion", "institution": "Universite de Koudougou, Burkina Faso", "year": 2010},
+        {"type": "education", "title": "Licence en Economie et Science de Gestion", "institution": "Universite de Koudougou, Burkina Faso", "year": 2009},
+        {"type": "education", "title": "Baccalaureat D (Mathematiques et Sciences de la Vie et de la Terre)", "institution": "Lycee Yam-Waya, Burkina Faso", "year": 2006}
+      ],
+      "activity_experience": ["Field monitoring reports", "Evaluation reports", "Training materials", "Methodological frameworks"],
+      "role_fit": ["Field technical monitoring", "Sectoral evaluation - Senior evaluator", "Capacity-strengthening assignment"],
+      "needs_review": [
+        "partner_org set to 'Projet de Renforcement de la Resilience Climatique au Burkina Faso (HYDROMET)' based on his current role since Feb 2020 - this is a government project unit rather than a consulting firm; confirm whether this is the appropriate partner_org or whether it should be left null (independent consultant available for short-term assignments alongside this role).",
+        "years_experience=12 and seniority_tier='senior' reflect the CV's own claim of '12 ans d'experience professionnelle' - confirm against ACSD's seniority bands.",
+        "Green Climate Fund (Fonds Vert Climat) and GEF (Fonds pour l'Environnement Mondial) - both co-financiers of HYDROMET and PNGT2-3 respectively - not added as separate donor tags as neither is in the seeded donors table (per project policy); recorded only via the World Bank entry's notes.",
+        "UNDP (PNUD) and Luxembourg Cooperation - both co-financiers of PN-PTFM/LCP - not added as donor tags as neither is in the seeded donors table (per project policy); recorded only via the Gates Foundation entry's notes.",
+        "FAO (2021, Rural Invest methodology training) and several evaluation clients with unstated donors (DIAKONIA/JES 2020, SNV/V4CP 2020, OXFAM/VLF 2019, University of Ouagadougou 2019, ASECNA/BØRNE Fonden trainings 2016-2017) not added to donor_experience - FAO is not seeded, and the others have no stated funder.",
+        "Primary sector 'MEAL technical integration' is a strong fit; secondary sectors 'Climate adaptation and resilience programming' (HYDROMET) and 'Economic recovery and livelihoods' (PN-PTFM/LCP rural women's micro-enterprises) are judgment calls - confirm.",
+        "Moore proficiency: CV shows 'Excellent' oral but 'Passable' (fair) reading/writing - mapped to 'professional'; English shown as 'Passable' across all three skills - mapped to 'working'; Dioula shown as 'Passable' (oral only) - mapped to 'working'; confirm."
+      ]
+    },
+    {
+      "source_cv": "CV Ouedraogo Clemence.pdf",
+      "full_name": "Clemence Ouedraogo",
+      "title": "Senior Gender Equality, Social Inclusion and Local Governance Specialist",
+      "affiliation_type": "partner",
+      "partner_org": null,
+      "seniority_tier": "principal_expert",
+      "years_experience": 15,
+      "availability_status": "unknown",
+      "bio_summary": "Burkinabe gender equality, social inclusion and local governance specialist with 15+ years of experience integrating gender and human-rights approaches into civil-society strategies and local-authority planning/accountability processes across all 13 regions of Burkina Faso; most recently Director of Gender and Capacity Strengthening (Creative Associates International, Mar 2024-Mar 2025) and, before that, Director of Co-creation and Capacity Strengthening then Gender and Social Inclusion Advisor (Lutheran World Relief, Nov 2021-Feb 2024) on the USAID-funded Inclusive Governance for Resilience (IGR) project; prior roles include Coordinator of Local Governance for the EU Trust Fund-financed RESI SOLOR project (Fondation Terre des Hommes Italie, 2018-2019) and gender/social-inclusion roles with TREE AID/SNV/UNCDF and Association Internationale Volontaires Laics (AIVL).",
+      "sectors": {
+        "primary": "Gender equality and social inclusion",
+        "secondary": ["Localisation approaches", "Accountability to affected populations"]
+      },
+      "languages": [
+        {"name": "French", "proficiency": "fluent"},
+        {"name": "Moore", "proficiency": "fluent"},
+        {"name": "Dioula", "proficiency": "professional"}
+      ],
+      "geographies": ["Burkina Faso"],
+      "donor_experience": [
+        {"donor": "USAID", "category": "Development", "notes": "Directrice Genre et Renforcement des Capacites, Creative Associates International, USAID-funded Inclusive Governance for Resilience (IGR) project, Burkina Faso (Mar 2024-Mar 2025) - led mainstreaming of gender/human rights/conflict sensitivity, gender and social inclusion action plan, support to 15 CSO coalitions and 30 community advocacy actions; Directrice Cocreation et Renforcement des Capacites (Dec 2023-Feb 2024) and Conseillere Genre et Inclusion Sociale (Nov 2021-Nov 2023), Lutheran World Relief, on the same USAID-funded IGR project - GESI studies (phases I & II), triennial Gender and Social Inclusion action plan 2023-2025, FRAMe/PEA/SNA/IA multisectoral studies"},
+        {"donor": "EU", "category": "Development", "notes": "Coordinatrice Gouvernance Locale, Fondation Terre des Hommes Italie, RESI SOLOR project financed by the European Union Trust Fund, in consortium with REACH Italia, LVIA, CISV, IRC and Progetto Mondo MLAL, Nord/Sahel regions of Burkina Faso (Mar 2018-Sep 2019)"}
+      ],
+      "education_certifications": [
+        {"type": "education", "title": "Master II en Developpement Local et Gestion des Collectivites Territoriales", "institution": "Universite Thomas Sankara (Burkina Faso), in collaboration with the Agence Universitaire de la Francophonie", "year": 2025},
+        {"type": "education", "title": "Certificate of Advanced Studies (CAS) and Master Executif (DAS) en Genre et Developpement", "institution": "Institut des Hautes Etudes Internationales et du Developpement (IHEID), Geneva, Switzerland", "year": 2021},
+        {"type": "education", "title": "Master I en Suivi et Evaluation des Projets", "institution": "Universite Polytechnique de Turin, Italy", "year": 2012},
+        {"type": "education", "title": "Licence et Maitrise en Sociologie (Sociologie de l'Education et du Developpement)", "institution": "Universite d'Ouagadougou, Burkina Faso", "year": 2011}
+      ],
+      "activity_experience": ["Methodological frameworks", "Training materials", "Evaluation reports", "Workshop facilitation outputs"],
+      "role_fit": ["Capacity-strengthening assignment"],
+      "needs_review": [
+        "partner_org left null - the CV explicitly states her current status as 'Consultante independante, experte en genre et en gouvernance locale' (5 months freelance as of the CV date, Jan 2026), with her most recent assignment (Groupe AZIAD, Apr 2025-Jan 2026) being a short-term consultancy - confirm.",
+        "years_experience=15 and seniority_tier='principal_expert' reflect the CV's own claim of 'plus de 15 ans d'experience professionnelle' - confirm against ACSD's seniority bands.",
+        "Most recent assignment (Groupe AZIAD, Apr 2025-Jan 2026, 'Consultante experte en genre', cartographie et diagnostic organisationnel genre des OSC) was funded by the Agence Belge de Cooperation (Enabel/Belgian development cooperation) - not added as donor experience as Belgium/Enabel is not in the seeded donors table (per project policy, consistent with prior exclusion of ASDI/Sweden).",
+        "TREE AID/SNV/UNCDF project (Oct 2019-Sep 2021, Gouvernance Locale de Ressources Forestieres / WEOOG-PAANI) was financed by 'Cooperation Suedoise' (Sweden/ASDI) - not added as donor experience per the same non-seeded-Nordic-donor policy.",
+        "Primary sector 'Gender equality and social inclusion' is a strong fit; secondary sectors 'Localisation approaches' (CSO capacity-strengthening, subgrant mechanisms for youth/women's organizations) and 'Accountability to affected populations' (local-authority accountability/redevabilite, OEMT self-assessments) are judgment calls - 'Peacebuilding' (social cohesion, conflict prevention components of IGR) could alternatively be considered - confirm.",
+        "Dioula proficiency: CV shows oral only at C1 (no reading/writing) - mapped to 'professional'; Moore shown as C1 read/write and C2 oral - mapped to 'fluent'; confirm.",
+        "affiliation_type set to 'partner' based on folder placement - confirm."
+      ]
+    }
+  ]
+}

@@ -103,7 +103,12 @@ insert into languages (name) values
   ('Arabic'),
   ('Portuguese'),
   ('Lingala'),
-  ('Sango');
+  ('Sango'),
+  ('Hassaniya'),
+  ('Bwamou'),
+  ('Marka'),
+  ('Zarma'),
+  ('Bissa');
 
 -- Geographies (West & Central Africa focus per TOR; extensible lookup, not a closed enum)
 create table geographies (
