@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACSD Admin — Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>body { font-family: system-ui, -apple-system, sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-blue-950 text-white shadow sticky top-0 z-30">
+    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
+      <span class="font-bold text-sm tracking-tight">ACSD — Admin Panel</span>
+      <div class="flex items-center gap-3">
+        <span id="admin-user-email" class="text-xs text-blue-300 hidden sm:block"></span>
+        <button id="admin-logout-btn"
+          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-screen-xl mx-auto px-4 py-6 flex gap-6">
+    <aside class="w-48 flex-shrink-0">
+      <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
+      <div class="mt-4 px-1">
+        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+      </div>
+    </aside>
+
+    <main class="flex-1 min-w-0 space-y-6">
+
+      <div>
+        <h2 class="text-lg font-bold text-gray-900">Dashboard</h2>
+        <p class="text-sm text-gray-500 mt-0.5">Overview of roster data and recent activity.</p>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="stats-grid">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 animate-pulse h-24"></div>
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 animate-pulse h-24"></div>
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 animate-pulse h-24"></div>
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 animate-pulse h-24"></div>
+      </div>
+
+      <!-- Recent activity -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h3 class="font-semibold text-gray-800 text-sm">Recent Activity</h3>
+          <a href="audit.html" class="text-xs text-blue-600 hover:underline">View all →</a>
+        </div>
+        <div id="activity-table" class="divide-y divide-gray-50">
+          <div class="px-5 py-4 text-xs text-gray-400">Loading…</div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    async function loadDashboard() {
+      const session = await initAdmin('index')
+      if (!session) return
+
+      // Parallel fetches
+      const [expertRes, profileRes, auditRes] = await Promise.all([
+        sb.from('experts').select('id, is_active'),
+        sb.from('profiles').select('id, is_active'),
+        sb.from('audit_logs').select('id, timestamp, user_email, action, entity_type, entity_name')
+          .order('timestamp', { ascending: false }).limit(10),
+      ])
+
+      const experts  = expertRes.data  ?? []
+      const profiles = profileRes.data ?? []
+      const logs     = auditRes.data   ?? []
+
+      const totalExperts  = experts.length
+      const activeExperts = experts.filter(e => e.is_active).length
+      const totalUsers    = profiles.length
+      const activeUsers   = profiles.filter(p => p.is_active).length
+
+      const statCards = [
+        { label: 'Total Experts',  value: totalExperts,  sub: `${totalExperts - activeExperts} inactive`, color: 'text-blue-700' },
+        { label: 'Active Experts', value: activeExperts, sub: 'in roster',                                color: 'text-green-700' },
+        { label: 'Total Users',    value: totalUsers,    sub: `${activeUsers} active`,                    color: 'text-purple-700' },
+        { label: 'Audit Events',   value: logs.length,   sub: 'last 10 loaded',                          color: 'text-amber-700' },
+      ]
+
+      document.getElementById('stats-grid').innerHTML = statCards.map(s => `
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">${aesc(s.label)}</p>
+          <p class="text-3xl font-bold mt-1 ${s.color}">${s.value}</p>
+          <p class="text-xs text-gray-400 mt-1">${aesc(s.sub)}</p>
+        </div>`).join('')
+
+      document.getElementById('activity-table').innerHTML = logs.length === 0
+        ? '<div class="px-5 py-4 text-xs text-gray-400">No activity recorded yet.</div>'
+        : logs.map(l => `
+          <div class="px-5 py-3 flex items-start gap-4 text-sm hover:bg-gray-50 transition-colors">
+            <span class="text-xs text-gray-400 flex-shrink-0 mt-0.5 w-28">${fmtDate(l.timestamp)}</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0
+              ${actionColor(l.action)}">${aesc(l.action)}</span>
+            <span class="text-gray-700 min-w-0 truncate">
+              <span class="font-medium">${aesc(l.user_email)}</span>
+              ${l.entity_name ? `<span class="text-gray-400"> · ${aesc(l.entity_name)}</span>` : ''}
+            </span>
+          </div>`).join('')
+    }
+
+    function actionColor(a) {
+      if (!a) return 'bg-gray-100 text-gray-600'
+      if (['LOGIN','LOGOUT'].includes(a))          return 'bg-blue-100 text-blue-700'
+      if (['CREATE'].includes(a))                   return 'bg-green-100 text-green-700'
+      if (['UPDATE','ASSIGN_ROLE'].includes(a))     return 'bg-amber-100 text-amber-700'
+      if (['DELETE','REVOKE_ROLE'].includes(a))     return 'bg-red-100 text-red-700'
+      if (['ACTIVATE'].includes(a))                 return 'bg-teal-100 text-teal-700'
+      if (['DEACTIVATE','SESSION_TIMEOUT'].includes(a)) return 'bg-gray-100 text-gray-600'
+      return 'bg-gray-100 text-gray-600'
+    }
+
+    loadDashboard()
+  </script>
+</body>
+</html>

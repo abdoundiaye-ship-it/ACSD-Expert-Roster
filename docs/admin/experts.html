@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACSD Admin — Experts</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .sector-chip input:checked + label { background:#dbeafe; color:#1e40af; border-color:#93c5fd; font-weight:600; }
+    .sector-chip label { cursor:pointer; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-blue-950 text-white shadow sticky top-0 z-30">
+    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
+      <span class="font-bold text-sm tracking-tight">ACSD — Admin Panel</span>
+      <div class="flex items-center gap-3">
+        <span id="admin-user-email" class="text-xs text-blue-300 hidden sm:block"></span>
+        <button id="admin-logout-btn"
+          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-screen-xl mx-auto px-4 py-6 flex gap-6">
+    <aside class="w-48 flex-shrink-0">
+      <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
+      <div class="mt-4 px-1">
+        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+      </div>
+    </aside>
+
+    <main class="flex-1 min-w-0 space-y-5">
+
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">Experts</h2>
+          <p class="text-sm text-gray-500 mt-0.5">Create, update, activate, and delete expert records.</p>
+        </div>
+        <button onclick="openExpertModal()"
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0">
+          + Add Expert
+        </button>
+      </div>
+
+      <!-- Search + filter row -->
+      <div class="flex gap-3 items-center">
+        <div class="relative flex-1 max-w-sm">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input id="expert-search" type="search" placeholder="Search experts…"
+            class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            oninput="filterExperts()">
+        </div>
+        <select id="expert-filter-active"
+          class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onchange="filterExperts()">
+          <option value="">All</option>
+          <option value="true">Active only</option>
+          <option value="false">Inactive only</option>
+        </select>
+        <select id="expert-filter-affil"
+          class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onchange="filterExperts()">
+          <option value="">All affiliations</option>
+          <option value="internal">Core (Internal)</option>
+          <option value="partner">Partner</option>
+        </select>
+      </div>
+
+      <div id="expert-count" class="text-sm text-gray-500 font-medium"></div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              <th class="text-left px-5 py-3">Name</th>
+              <th class="text-left px-5 py-3 hidden md:table-cell">Title</th>
+              <th class="text-left px-5 py-3">Affiliation</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell">Seniority</th>
+              <th class="text-left px-5 py-3">Status</th>
+              <th class="text-right px-5 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="experts-tbody" class="divide-y divide-gray-100">
+            <tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ── Create / Edit Expert Modal ── -->
+  <div id="expert-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('expert-modal')"></div>
+    <div class="relative flex items-start justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-7">
+
+        <button onclick="closeAdminModal('expert-modal')"
+          class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 p-1 rounded-lg hover:bg-gray-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+
+        <h3 id="modal-title" class="font-bold text-gray-900 text-base mb-6">Add Expert</h3>
+
+        <div id="modal-error"
+          class="hidden mb-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg px-4 py-3"></div>
+
+        <form id="expert-form" class="space-y-5" onsubmit="return false">
+          <input type="hidden" id="ef-id">
+
+          <!-- Row 1: Names -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">First Name</label>
+              <input id="ef-firstname" type="text"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                oninput="composeName()">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Last Name</label>
+              <input id="ef-lastname" type="text"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                oninput="composeName()">
+            </div>
+          </div>
+
+          <!-- Row 2: Full name + title -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">
+                Full Name <span class="text-red-500">*</span>
+              </label>
+              <input id="ef-fullname" type="text" required
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Job Title</label>
+              <input id="ef-title" type="text"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <!-- Row 3: Affiliation + partner org -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">
+                Affiliation <span class="text-red-500">*</span>
+              </label>
+              <select id="ef-affil" required
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onchange="togglePartnerOrg()">
+                <option value="internal">Core (Internal)</option>
+                <option value="partner">Partner</option>
+              </select>
+            </div>
+            <div id="partner-org-wrap">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Organization</label>
+              <input id="ef-partnerorg" type="text"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <!-- Row 4: Seniority + years experience -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Seniority Tier</label>
+              <select id="ef-seniority"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">— not set —</option>
+                <option value="junior">Junior</option>
+                <option value="intermediary">Intermediary</option>
+                <option value="senior">Senior</option>
+                <option value="principal_expert">Principal Expert</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Years of Experience</label>
+              <input id="ef-years" type="number" min="0" max="50" step="0.5"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <!-- Row 5: Email + phone -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Email Address</label>
+              <input id="ef-email" type="email"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Phone</label>
+              <input id="ef-phone" type="tel"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <!-- Row 6: Availability + active -->
+          <div class="grid grid-cols-2 gap-4 items-end">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Availability Status</label>
+              <select id="ef-avail"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="unknown">Not specified</option>
+                <option value="available">Available</option>
+                <option value="assigned">On Assignment</option>
+                <option value="unavailable">Unavailable</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-3 pb-2">
+              <input id="ef-active" type="checkbox" checked
+                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+              <label for="ef-active" class="text-sm font-medium text-gray-700">Active in roster</label>
+            </div>
+          </div>
+
+          <!-- Bio -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Biography / Profile</label>
+            <textarea id="ef-bio" rows="3"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"></textarea>
+          </div>
+
+          <!-- Areas of Expertise -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-2">Areas of Expertise</label>
+            <div class="mb-2">
+              <p class="text-xs text-gray-500 mb-1.5">Primary sector</p>
+              <select id="ef-primary-sector"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">— none —</option>
+              </select>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1.5">Secondary sectors</p>
+              <div id="ef-secondary-sectors"
+                class="flex flex-wrap gap-2 max-h-36 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
+              </div>
+            </div>
+          </div>
+
+        </form>
+
+        <div class="flex gap-3 mt-6 pt-5 border-t border-gray-100">
+          <button onclick="saveExpert()"
+            class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+            Save Expert
+          </button>
+          <button onclick="closeAdminModal('expert-modal')"
+            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
+            Cancel
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirm modal -->
+  <div id="delete-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('delete-modal')"></div>
+    <div class="relative flex items-center justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+        <h3 class="font-bold text-gray-900 text-base mb-2">Delete Expert?</h3>
+        <p id="delete-expert-name" class="text-sm text-gray-600 mb-5"></p>
+        <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 mb-5">
+          This will permanently delete the expert record and all associated data. This action cannot be undone.
+        </p>
+        <div class="flex gap-3">
+          <button onclick="confirmDelete()"
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+            Delete Permanently
+          </button>
+          <button onclick="closeAdminModal('delete-modal')"
+            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let allExperts   = []
+    let allSectors   = []
+    let deleteTarget = null
+
+    const AFFIL_LABEL    = { internal: 'Core', partner: 'Partner' }
+    const AFFIL_COLOR    = { internal: 'bg-blue-900 text-white', partner: 'bg-emerald-700 text-white' }
+    const SENIORITY_LABEL = { principal_expert: 'Principal Expert', senior: 'Senior', intermediary: 'Intermediary', junior: 'Junior' }
+    const AVAIL_LABEL    = { available: 'Available', assigned: 'On Assignment', unavailable: 'Unavailable', unknown: 'Not specified' }
+    const AVAIL_DOT      = { available: 'bg-green-500', assigned: 'bg-amber-500', unavailable: 'bg-red-500', unknown: 'bg-gray-300' }
+
+    async function loadExperts() {
+      const session = await initAdmin('experts')
+      if (!session) return
+
+      const [expRes, secRes] = await Promise.all([
+        sb.from('experts')
+          .select('id, full_name, first_name, last_name, title, email, phone, affiliation_type, partner_org, seniority_tier, years_experience, availability_status, is_active, bio_summary, created_at, expert_sectors(priority, sectors(id, name))')
+          .order('full_name'),
+        sb.from('sectors').select('id, name').order('sort_order'),
+      ])
+
+      allExperts = expRes.data ?? []
+      allSectors = secRes.data ?? []
+
+      populateSectorSelects()
+      filterExperts()
+
+      // If opened from roster with ?edit=ID, open the edit form
+      const params = new URLSearchParams(window.location.search)
+      const editId = params.get('edit')
+      if (editId) {
+        const e = allExperts.find(x => x.id === editId)
+        if (e) openExpertModal(e)
+      }
+    }
+
+    function populateSectorSelects() {
+      const primary = document.getElementById('ef-primary-sector')
+      allSectors.forEach(s => {
+        const opt = document.createElement('option')
+        opt.value = s.id
+        opt.textContent = s.name
+        primary.appendChild(opt)
+      })
+
+      const secContainer = document.getElementById('ef-secondary-sectors')
+      secContainer.innerHTML = allSectors.map(s => `
+        <div class="sector-chip">
+          <input type="checkbox" id="sec-${s.id}" value="${aesc(s.id)}" class="sr-only">
+          <label for="sec-${s.id}"
+            class="inline-block text-xs px-3 py-1 rounded-full border border-gray-200 bg-white text-gray-600 transition-all select-none">
+            ${aesc(s.name)}
+          </label>
+        </div>`).join('')
+    }
+
+    function filterExperts() {
+      const q      = document.getElementById('expert-search').value.toLowerCase()
+      const active = document.getElementById('expert-filter-active').value
+      const affil  = document.getElementById('expert-filter-affil').value
+
+      const filtered = allExperts.filter(e => {
+        if (q && ![e.full_name, e.title, e.email].filter(Boolean).join(' ').toLowerCase().includes(q)) return false
+        if (active !== '' && String(e.is_active) !== active) return false
+        if (affil  && e.affiliation_type !== affil) return false
+        return true
+      })
+
+      document.getElementById('expert-count').textContent =
+        filtered.length === allExperts.length
+          ? `${allExperts.length} expert${allExperts.length !== 1 ? 's' : ''}`
+          : `${filtered.length} of ${allExperts.length} experts`
+
+      const tbody = document.getElementById('experts-tbody')
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">No experts match your filters.</td></tr>'
+        return
+      }
+
+      tbody.innerHTML = filtered.map(e => {
+        const dot = AVAIL_DOT[e.availability_status] ?? 'bg-gray-300'
+        return `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-5 py-3">
+            <p class="font-medium text-gray-900">${aesc(e.full_name)}</p>
+            ${e.email ? `<p class="text-xs text-gray-400">${aesc(e.email)}</p>` : ''}
+          </td>
+          <td class="px-5 py-3 text-gray-500 hidden md:table-cell">${aesc(e.title ?? '—')}</td>
+          <td class="px-5 py-3">
+            <span class="text-xs font-medium px-2 py-0.5 rounded-full ${AFFIL_COLOR[e.affiliation_type]}">
+              ${AFFIL_LABEL[e.affiliation_type]}
+            </span>
+          </td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell">${aesc(SENIORITY_LABEL[e.seniority_tier] ?? '—')}</td>
+          <td class="px-5 py-3">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full flex-shrink-0 ${dot}"></span>
+              <span class="text-xs text-gray-600">${aesc(AVAIL_LABEL[e.availability_status] ?? '—')}</span>
+            </div>
+            ${!e.is_active ? '<span class="block text-xs text-gray-400 mt-0.5">Inactive</span>' : ''}
+          </td>
+          <td class="px-5 py-3 text-right">
+            <div class="flex items-center justify-end gap-3">
+              <button onclick="openExpertModal(allExperts.find(x=>x.id==='${aesc(e.id)}'))"
+                class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</button>
+              <button onclick="toggleExpertActive('${aesc(e.id)}', ${e.is_active})"
+                class="text-xs font-medium ${e.is_active ? 'text-amber-600 hover:text-amber-800' : 'text-green-600 hover:text-green-800'}">
+                ${e.is_active ? 'Deactivate' : 'Activate'}
+              </button>
+              <button onclick="openDeleteModal('${aesc(e.id)}', '${aesc(e.full_name)}')"
+                class="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+            </div>
+          </td>
+        </tr>`
+      }).join('')
+    }
+
+    function composeName() {
+      const fn = document.getElementById('ef-firstname').value.trim()
+      const ln = document.getElementById('ef-lastname').value.trim()
+      if (fn || ln) document.getElementById('ef-fullname').value = [fn, ln].filter(Boolean).join(' ')
+    }
+
+    function togglePartnerOrg() {
+      const affil = document.getElementById('ef-affil').value
+      document.getElementById('partner-org-wrap').style.visibility = affil === 'partner' ? 'visible' : 'hidden'
+    }
+
+    function openExpertModal(expert = null) {
+      document.getElementById('modal-title').textContent = expert ? 'Edit Expert' : 'Add Expert'
+      document.getElementById('modal-error').classList.add('hidden')
+      document.getElementById('ef-id').value = expert?.id ?? ''
+
+      // Reset form
+      document.getElementById('ef-firstname').value  = expert?.first_name ?? ''
+      document.getElementById('ef-lastname').value   = expert?.last_name  ?? ''
+      document.getElementById('ef-fullname').value   = expert?.full_name  ?? ''
+      document.getElementById('ef-title').value      = expert?.title      ?? ''
+      document.getElementById('ef-affil').value      = expert?.affiliation_type ?? 'partner'
+      document.getElementById('ef-partnerorg').value = expert?.partner_org ?? ''
+      document.getElementById('ef-seniority').value  = expert?.seniority_tier ?? ''
+      document.getElementById('ef-years').value      = expert?.years_experience ?? ''
+      document.getElementById('ef-email').value      = expert?.email ?? ''
+      document.getElementById('ef-phone').value      = expert?.phone ?? ''
+      document.getElementById('ef-avail').value      = expert?.availability_status ?? 'unknown'
+      document.getElementById('ef-active').checked   = expert?.is_active ?? true
+      document.getElementById('ef-bio').value        = expert?.bio_summary ?? ''
+
+      togglePartnerOrg()
+
+      // Sector selection
+      const currentSectors = expert?.expert_sectors ?? []
+      const primaryId = currentSectors.find(s => s.priority === 'primary')?.sectors?.id ?? ''
+      document.getElementById('ef-primary-sector').value = primaryId
+
+      const secondaryIds = currentSectors.filter(s => s.priority === 'secondary').map(s => s.sectors?.id)
+      document.querySelectorAll('#ef-secondary-sectors input[type="checkbox"]').forEach(cb => {
+        cb.checked = secondaryIds.includes(cb.value)
+      })
+
+      openAdminModal('expert-modal')
+    }
+
+    async function saveExpert() {
+      const id       = document.getElementById('ef-id').value
+      const fullName = document.getElementById('ef-fullname').value.trim()
+      const errDiv   = document.getElementById('modal-error')
+      errDiv.classList.add('hidden')
+
+      if (!fullName) {
+        errDiv.textContent = 'Full Name is required.'
+        errDiv.classList.remove('hidden')
+        return
+      }
+
+      const body = {
+        full_name:          fullName,
+        first_name:         document.getElementById('ef-firstname').value.trim()  || null,
+        last_name:          document.getElementById('ef-lastname').value.trim()   || null,
+        title:              document.getElementById('ef-title').value.trim()      || null,
+        affiliation_type:   document.getElementById('ef-affil').value,
+        partner_org:        document.getElementById('ef-partnerorg').value.trim() || null,
+        seniority_tier:     document.getElementById('ef-seniority').value         || null,
+        years_experience:   document.getElementById('ef-years').value ? parseFloat(document.getElementById('ef-years').value) : null,
+        email:              document.getElementById('ef-email').value.trim()      || null,
+        phone:              document.getElementById('ef-phone').value.trim()      || null,
+        availability_status: document.getElementById('ef-avail').value,
+        is_active:          document.getElementById('ef-active').checked,
+        bio_summary:        document.getElementById('ef-bio').value.trim()        || null,
+      }
+
+      let savedId, prevVals = null
+
+      if (id) {
+        const prev = allExperts.find(e => e.id === id)
+        prevVals = prev ? { full_name: prev.full_name, title: prev.title, is_active: prev.is_active } : null
+        const { error } = await sb.from('experts').update(body).eq('id', id)
+        if (error) { errDiv.textContent = error.message; errDiv.classList.remove('hidden'); return }
+        savedId = id
+      } else {
+        const { data, error } = await sb.from('experts').insert(body).select('id').single()
+        if (error) { errDiv.textContent = error.message; errDiv.classList.remove('hidden'); return }
+        savedId = data.id
+      }
+
+      // Update sectors
+      const primaryId      = document.getElementById('ef-primary-sector').value
+      const secondaryIds   = [...document.querySelectorAll('#ef-secondary-sectors input:checked')].map(c => c.value)
+
+      await sb.from('expert_sectors').delete().eq('expert_id', savedId)
+
+      const sectorRows = []
+      if (primaryId) sectorRows.push({ expert_id: savedId, sector_id: primaryId, priority: 'primary' })
+      secondaryIds.filter(sid => sid !== primaryId).forEach(sid =>
+        sectorRows.push({ expert_id: savedId, sector_id: sid, priority: 'secondary' }))
+      if (sectorRows.length) await sb.from('expert_sectors').insert(sectorRows)
+
+      await logAudit(id ? 'UPDATE' : 'CREATE', 'expert', savedId, fullName,
+        prevVals, { full_name: fullName, is_active: body.is_active })
+
+      closeAdminModal('expert-modal')
+      showToast(id ? 'Expert updated.' : 'Expert created.')
+      await loadExperts()
+    }
+
+    async function toggleExpertActive(expertId, currentlyActive) {
+      const newState = !currentlyActive
+      const e = allExperts.find(x => x.id === expertId)
+      const { error } = await sb.from('experts').update({ is_active: newState }).eq('id', expertId)
+      if (error) { showToast('Failed: ' + error.message, 'error'); return }
+      await logAudit(newState ? 'ACTIVATE' : 'DEACTIVATE', 'expert', expertId, e?.full_name,
+        { is_active: currentlyActive }, { is_active: newState })
+      showToast(newState ? 'Expert activated.' : 'Expert deactivated.')
+      await loadExperts()
+    }
+
+    function openDeleteModal(expertId, expertName) {
+      deleteTarget = expertId
+      document.getElementById('delete-expert-name').textContent =
+        `"${expertName}" and all associated sector, language, geography, donor, education, and role data will be removed.`
+      openAdminModal('delete-modal')
+    }
+
+    async function confirmDelete() {
+      if (!deleteTarget) return
+      const e = allExperts.find(x => x.id === deleteTarget)
+
+      // Delete junction tables first (most have ON DELETE CASCADE, but be explicit)
+      const junction = ['expert_sectors','expert_languages','expert_geographies',
+        'expert_donor_experience','education_certifications','expert_activity_experience','expert_role_fit']
+      for (const tbl of junction) {
+        await sb.from(tbl).delete().eq('expert_id', deleteTarget)
+      }
+      const { error } = await sb.from('experts').delete().eq('id', deleteTarget)
+      if (error) { showToast('Delete failed: ' + error.message, 'error'); closeAdminModal('delete-modal'); return }
+
+      await logAudit('DELETE', 'expert', deleteTarget, e?.full_name, { full_name: e?.full_name }, null)
+      deleteTarget = null
+      closeAdminModal('delete-modal')
+      showToast('Expert deleted.')
+      await loadExperts()
+    }
+
+    loadExperts()
+  </script>
+</body>
+</html>

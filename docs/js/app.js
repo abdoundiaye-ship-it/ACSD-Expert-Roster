@@ -366,6 +366,19 @@ function showModal(e) {
   const activities       = e.expert_activity_experience?.map(a => a.activity_types?.name).filter(Boolean) ?? []
   const roles            = e.expert_role_fit?.map(r => r.work_order_roles?.name).filter(Boolean) ?? []
 
+  const adminBtn = isAdmin
+    ? `<div class="pt-4 border-t border-gray-100 flex items-center gap-3">
+         <a href="admin/experts.html?edit=${esc(e.id)}"
+            class="inline-flex items-center gap-1.5 text-sm text-blue-700 hover:text-blue-900 font-medium">
+           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+               d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+           </svg>
+           Edit Expert
+         </a>
+       </div>`
+    : ''
+
   const cvBtn = isAdmin && e.cv_storage_path
     ? `<div class="pt-4 border-t border-gray-100">
          <button onclick="downloadCV('${esc(e.cv_storage_path)}')"
@@ -484,6 +497,7 @@ function showModal(e) {
     </div>
   </div>` : ''}
 
+  ${adminBtn}
   ${cvBtn}
 </div>`
 

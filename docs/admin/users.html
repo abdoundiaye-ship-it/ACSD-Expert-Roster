@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACSD Admin — Users</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>body { font-family: system-ui, -apple-system, sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-blue-950 text-white shadow sticky top-0 z-30">
+    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
+      <span class="font-bold text-sm tracking-tight">ACSD — Admin Panel</span>
+      <div class="flex items-center gap-3">
+        <span id="admin-user-email" class="text-xs text-blue-300 hidden sm:block"></span>
+        <button id="admin-logout-btn"
+          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-screen-xl mx-auto px-4 py-6 flex gap-6">
+    <aside class="w-48 flex-shrink-0">
+      <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
+      <div class="mt-4 px-1">
+        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+      </div>
+    </aside>
+
+    <main class="flex-1 min-w-0 space-y-5">
+
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">Users</h2>
+          <p class="text-sm text-gray-500 mt-0.5">Manage accounts, roles, and access.</p>
+        </div>
+        <button onclick="openInviteModal()"
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+          + Invite User
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              <th class="text-left px-5 py-3">User</th>
+              <th class="text-left px-5 py-3">Role</th>
+              <th class="text-left px-5 py-3">Status</th>
+              <th class="text-left px-5 py-3">Created</th>
+              <th class="text-right px-5 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody" class="divide-y divide-gray-100">
+            <tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Invite user modal -->
+  <div id="invite-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('invite-modal')"></div>
+    <div class="relative flex items-center justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+        <h3 class="font-bold text-gray-900 text-base mb-5">Invite New User</h3>
+        <div id="invite-error" class="hidden mb-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg px-4 py-3"></div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Full Name</label>
+            <input id="inv-name" type="text" placeholder="Jane Smith"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Email Address <span class="text-red-500">*</span></label>
+            <input id="inv-email" type="email" placeholder="jane@example.com"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Role <span class="text-red-500">*</span></label>
+            <select id="inv-role"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="viewer">Viewer</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button onclick="sendInvite()"
+            class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+            Send Invitation
+          </button>
+          <button onclick="closeAdminModal('invite-modal')"
+            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit role modal -->
+  <div id="role-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('role-modal')"></div>
+    <div class="relative flex items-center justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+        <h3 class="font-bold text-gray-900 text-base mb-1">Change Role</h3>
+        <p id="role-modal-user" class="text-xs text-gray-500 mb-5"></p>
+        <select id="role-select"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-5">
+          <option value="viewer">Viewer</option>
+          <option value="admin">Admin</option>
+        </select>
+        <div class="flex gap-3">
+          <button onclick="saveRole()"
+            class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+            Save
+          </button>
+          <button onclick="closeAdminModal('role-modal')"
+            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let currentUserId = null
+    let usersCache    = []
+    let rolesCache    = {}
+
+    async function loadUsers() {
+      const session = await initAdmin('users')
+      if (!session) return
+
+      const [profRes, roleRes] = await Promise.all([
+        sb.from('profiles').select('id, email, full_name, is_active, created_at').order('created_at'),
+        sb.from('user_roles').select('user_id, role'),
+      ])
+
+      usersCache = profRes.data ?? []
+      rolesCache = {}
+      ;(roleRes.data ?? []).forEach(r => { rolesCache[r.user_id] = r.role })
+
+      renderTable()
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('users-tbody')
+      if (usersCache.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">No users found.</td></tr>'
+        return
+      }
+
+      tbody.innerHTML = usersCache.map(u => {
+        const role   = rolesCache[u.id] ?? 'viewer'
+        const active = u.is_active
+
+        return `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-5 py-3">
+            <p class="font-medium text-gray-900">${aesc(u.full_name || '—')}</p>
+            <p class="text-xs text-gray-500">${aesc(u.email)}</p>
+          </td>
+          <td class="px-5 py-3">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold
+              ${role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-blue-50 text-blue-700'}">
+              ${aesc(role)}
+            </span>
+          </td>
+          <td class="px-5 py-3">
+            <span class="inline-flex items-center gap-1.5 text-xs font-medium
+              ${active ? 'text-green-700' : 'text-gray-400'}">
+              <span class="w-1.5 h-1.5 rounded-full ${active ? 'bg-green-500' : 'bg-gray-300'}"></span>
+              ${active ? 'Active' : 'Inactive'}
+            </span>
+          </td>
+          <td class="px-5 py-3 text-xs text-gray-400">${fmtDate(u.created_at)}</td>
+          <td class="px-5 py-3 text-right">
+            <div class="flex items-center justify-end gap-2">
+              <button onclick="openRoleModal('${aesc(u.id)}', '${aesc(u.email)}')"
+                class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit Role</button>
+              <button onclick="toggleUserActive('${aesc(u.id)}', ${active})"
+                class="text-xs font-medium ${active ? 'text-amber-600 hover:text-amber-800' : 'text-green-600 hover:text-green-800'}">
+                ${active ? 'Deactivate' : 'Activate'}
+              </button>
+            </div>
+          </td>
+        </tr>`
+      }).join('')
+    }
+
+    function openInviteModal() {
+      document.getElementById('inv-name').value  = ''
+      document.getElementById('inv-email').value = ''
+      document.getElementById('inv-role').value  = 'viewer'
+      document.getElementById('invite-error').classList.add('hidden')
+      openAdminModal('invite-modal')
+    }
+
+    async function sendInvite() {
+      const name  = document.getElementById('inv-name').value.trim()
+      const email = document.getElementById('inv-email').value.trim()
+      const role  = document.getElementById('inv-role').value
+      const errDiv = document.getElementById('invite-error')
+      errDiv.classList.add('hidden')
+
+      if (!email) { errDiv.textContent = 'Email is required.'; errDiv.classList.remove('hidden'); return }
+
+      try {
+        const { data: { session } } = await sb.auth.getSession()
+        const resp = await fetch(
+          `${SUPABASE_URL}/functions/v1/admin-invite-user`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ email, fullName: name, role }),
+          }
+        )
+        const json = await resp.json()
+        if (!resp.ok) throw new Error(json.error || 'Invitation failed')
+
+        await logAudit('CREATE', 'user', json.userId, email, null, { role })
+        closeAdminModal('invite-modal')
+        showToast('Invitation sent — user will receive an email.')
+        await loadUsers()
+      } catch (err) {
+        errDiv.textContent = err.message.includes('Failed to fetch')
+          ? 'Edge Function not deployed. Go to Supabase Dashboard → Authentication → Users → Invite user.'
+          : err.message
+        errDiv.classList.remove('hidden')
+      }
+    }
+
+    function openRoleModal(userId, userEmail) {
+      currentUserId = userId
+      document.getElementById('role-modal-user').textContent = userEmail
+      document.getElementById('role-select').value = rolesCache[userId] ?? 'viewer'
+      openAdminModal('role-modal')
+    }
+
+    async function saveRole() {
+      const newRole = document.getElementById('role-select').value
+      const oldRole = rolesCache[currentUserId] ?? 'viewer'
+
+      const { error } = await sb.from('user_roles')
+        .upsert({ user_id: currentUserId, role: newRole }, { onConflict: 'user_id' })
+
+      if (error) { showToast('Failed to update role: ' + error.message, 'error'); return }
+
+      const u = usersCache.find(x => x.id === currentUserId)
+      await logAudit('ASSIGN_ROLE', 'user', currentUserId, u?.email ?? currentUserId,
+        { role: oldRole }, { role: newRole })
+
+      rolesCache[currentUserId] = newRole
+      closeAdminModal('role-modal')
+      showToast('Role updated.')
+      renderTable()
+    }
+
+    async function toggleUserActive(userId, currentlyActive) {
+      const newState = !currentlyActive
+      const u = usersCache.find(x => x.id === userId)
+
+      const { error } = await sb.from('profiles').update({ is_active: newState }).eq('id', userId)
+      if (error) { showToast('Failed: ' + error.message, 'error'); return }
+
+      await logAudit(newState ? 'ACTIVATE' : 'DEACTIVATE', 'user', userId, u?.email ?? userId,
+        { is_active: currentlyActive }, { is_active: newState })
+
+      const idx = usersCache.findIndex(x => x.id === userId)
+      if (idx !== -1) usersCache[idx].is_active = newState
+      renderTable()
+      showToast(newState ? 'User activated.' : 'User deactivated.')
+    }
+
+    loadUsers()
+  </script>
+</body>
+</html>
