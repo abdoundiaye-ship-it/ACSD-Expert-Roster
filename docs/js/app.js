@@ -2,7 +2,7 @@
 
 // ── Language ──────────────────────────────────────────────────────────────────
 
-window.LANG = localStorage.getItem('roster-lang') || 'en'
+window.LANG = 'en'
 
 const STRINGS = {
   en: {
@@ -132,7 +132,6 @@ function applyI18n() {
 
 function setLang(lang) {
   window.LANG = lang
-  localStorage.setItem('roster-lang', lang)
   applyI18n()
   renderFiltered()
 }

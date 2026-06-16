@@ -93,11 +93,10 @@
       }
     }
 
-    let LANG = localStorage.getItem('roster-lang') || 'en'
+    let LANG = 'en'
 
     function setLang(lang) {
       LANG = lang
-      localStorage.setItem('roster-lang', lang)
       const s = LOGIN_STRINGS[lang] || LOGIN_STRINGS.en
       document.getElementById('login-subtitle').textContent   = s.subtitle
       document.getElementById('label-email').textContent      = s.email
