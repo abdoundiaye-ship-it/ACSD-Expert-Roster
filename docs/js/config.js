@@ -8,5 +8,5 @@
  * Security policies enforce that only authenticated users can read data.
  */
 
-const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co'
-const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE'
+const SUPABASE_URL = 'https://bazrdeykmntponplkncc.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhenJkZXlrbW50cG9ucGxrbmNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1NjA4ODQsImV4cCI6MjA5NzEzNjg4NH0.dAmKjtgjl79r-E8DMHWDAhmhtZ2a7SWwiA1w1wMEEE4'
