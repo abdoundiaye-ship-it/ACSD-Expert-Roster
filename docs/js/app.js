@@ -174,7 +174,10 @@ async function init() {
 
   const role = await getUserRole()
   isAdmin = role === 'admin'
-  if (isAdmin) document.getElementById('admin-badge').classList.remove('hidden')
+  if (isAdmin) {
+    document.getElementById('admin-badge').classList.remove('hidden')
+    document.getElementById('admin-panel-link').classList.remove('hidden')
+  }
 
   document.getElementById('logout-btn').addEventListener('click', logout)
 
