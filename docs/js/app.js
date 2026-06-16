@@ -1,13 +1,146 @@
-/**
- * app.js — ACSD Expert Roster search interface.
- *
- * Loads all expert data from Supabase once, filters client-side, renders cards
- * and a detail modal. Works for the 37-expert dataset with no pagination needed.
- */
-
 'use strict'
 
-// ── Constants ────────────────────────────────────────────────────────────────
+// ── Language ──────────────────────────────────────────────────────────────────
+
+window.LANG = localStorage.getItem('roster-lang') || 'en'
+
+const STRINGS = {
+  en: {
+    header_subtitle:    'Expert Roster for Work Orders',
+    logout_btn:         'Sign out',
+    filters_title:      'Filters',
+    clear_filters:      'Reset',
+    label_affiliation:  'Affiliation',
+    opt_all:            'All',
+    opt_internal:       'Core (Internal)',
+    opt_partner:        'Partner',
+    label_seniority:    'Level',
+    label_sector:       'Sector',
+    label_geography:    'Country',
+    label_language:     'Language',
+    label_donor:        'Donor',
+    label_role:         'Assignment Type',
+    label_availability: 'Availability',
+    opt_available:      'Available',
+    opt_assigned:       'On Assignment',
+    opt_unavailable:    'Unavailable',
+    opt_unknown:        'Not specified',
+    search_placeholder: 'Search by name, title, bio…',
+    loading:            'Loading…',
+    empty_title:        'No experts found',
+    empty_sub:          'Try adjusting your filters or search.',
+    avail_available:    'Available',
+    avail_assigned:     'On Assignment',
+    avail_unavailable:  'Unavailable',
+    avail_unknown:      'Not specified',
+    prof_native:        'Native',
+    prof_fluent:        'Fluent',
+    prof_professional:  'Professional',
+    prof_working:       'Working',
+    count_all:          n => `${n} expert${n !== 1 ? 's' : ''}`,
+    count_filtered:     (s, tot) => `${s} of ${tot} expert${tot !== 1 ? 's' : ''}`,
+    years_exp:          n => `${n} year${n !== 1 ? 's' : ''} of experience`,
+    download_cv:        'Download CV',
+    cv_error:           'Unable to retrieve CV file: ',
+    load_error:         'Loading failed',
+    modal_profile:      'Profile',
+    modal_sectors:      'Sectors',
+    modal_languages:    'Languages',
+    modal_geo:          'Geographic Experience',
+    modal_donors:       'Donors',
+    modal_education:    'Education &amp; Certifications',
+    modal_activities:   'Activity Types',
+    modal_roles:        'Assignment Types',
+  },
+  fr: {
+    header_subtitle:    'Fichier d\'experts pour ordres de travail',
+    logout_btn:         'Déconnexion',
+    filters_title:      'Filtres',
+    clear_filters:      'Réinitialiser',
+    label_affiliation:  'Affiliation',
+    opt_all:            'Tous',
+    opt_internal:       'Core (Interne)',
+    opt_partner:        'Partenaire',
+    label_seniority:    'Niveau',
+    label_sector:       'Secteur',
+    label_geography:    'Pays',
+    label_language:     'Langue',
+    label_donor:        'Bailleur',
+    label_role:         'Type de mission',
+    label_availability: 'Disponibilité',
+    opt_available:      'Disponible',
+    opt_assigned:       'En mission',
+    opt_unavailable:    'Indisponible',
+    opt_unknown:        'Non renseigné',
+    search_placeholder: 'Rechercher par nom, titre, biographie…',
+    loading:            'Chargement…',
+    empty_title:        'Aucun expert trouvé',
+    empty_sub:          'Essayez de modifier vos filtres ou votre recherche.',
+    avail_available:    'Disponible',
+    avail_assigned:     'En mission',
+    avail_unavailable:  'Indisponible',
+    avail_unknown:      'Non renseigné',
+    prof_native:        'Natif',
+    prof_fluent:        'Courant',
+    prof_professional:  'Professionnel',
+    prof_working:       'Opérationnel',
+    count_all:          n => `${n} expert${n !== 1 ? 's' : ''}`,
+    count_filtered:     (s, tot) => `${s} sur ${tot} expert${tot !== 1 ? 's' : ''}`,
+    years_exp:          n => `${n} an${n !== 1 ? 's' : ''} d'expérience`,
+    download_cv:        'Télécharger le CV',
+    cv_error:           'Impossible de récupérer le fichier CV : ',
+    load_error:         'Erreur de chargement',
+    modal_profile:      'Profil',
+    modal_sectors:      'Secteurs',
+    modal_languages:    'Langues',
+    modal_geo:          'Expérience géographique',
+    modal_donors:       'Bailleurs',
+    modal_education:    'Formation &amp; Certifications',
+    modal_activities:   'Types de livrables',
+    modal_roles:        'Types de mission',
+  }
+}
+
+function t(key, ...args) {
+  const lang = window.LANG || 'en'
+  const s = (STRINGS[lang] || STRINGS.en)[key] ?? STRINGS.en[key] ?? key
+  return typeof s === 'function' ? s(...args) : s
+}
+
+function applyI18n() {
+  const lang = window.LANG || 'en'
+  const strings = STRINGS[lang] || STRINGS.en
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const val = strings[el.dataset.i18n]
+    if (typeof val === 'string') el.textContent = val
+  })
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const val = strings[el.dataset.i18nPlaceholder]
+    if (typeof val === 'string') el.placeholder = val
+  })
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    const active = btn.dataset.lang === lang
+    btn.classList.toggle('bg-blue-800', active)
+    btn.classList.toggle('text-white',  active)
+    btn.classList.toggle('text-blue-400', !active)
+  })
+
+  document.documentElement.lang = lang
+}
+
+function setLang(lang) {
+  window.LANG = lang
+  localStorage.setItem('roster-lang', lang)
+  applyI18n()
+  renderFiltered()
+}
+
+// Apply language immediately on script load (DOM already present — scripts are at bottom of body)
+applyI18n()
+
+// ── Display constants ─────────────────────────────────────────────────────────
 
 const SENIORITY_LABEL = {
   principal_expert: 'Principal Expert',
@@ -25,18 +158,14 @@ const SENIORITY_COLOR = {
 
 const AFFIL_LABEL = { internal: 'Core', partner: 'Partner' }
 const AFFIL_COLOR = { internal: 'bg-blue-900 text-white', partner: 'bg-emerald-700 text-white' }
-
 const AVAIL_DOT   = { available: 'bg-green-500', assigned: 'bg-amber-500', unavailable: 'bg-red-500', unknown: 'bg-gray-300' }
-const AVAIL_LABEL = { available: 'Disponible', assigned: 'En mission', unavailable: 'Indisponible', unknown: 'Non renseigné' }
 
-const PROF_LABEL  = { native: 'Natif', fluent: 'Courant', professional: 'Professionnel', working: 'Opérationnel' }
-
-// ── State ────────────────────────────────────────────────────────────────────
+// ── State ─────────────────────────────────────────────────────────────────────
 
 let allExperts = []
 let isAdmin = false
 
-// ── Bootstrap ────────────────────────────────────────────────────────────────
+// ── Bootstrap ─────────────────────────────────────────────────────────────────
 
 async function init() {
   const session = await checkAuth()
@@ -63,11 +192,11 @@ async function init() {
 
     allExperts = experts
 
-    populateSelect('f-sector',     sectors.data,     'name')
-    populateSelect('f-geography',  geographies.data, 'country_name')
-    populateSelect('f-language',   languages.data,   'name')
-    populateSelect('f-donor',      donors.data,      'name')
-    populateSelect('f-role',       roles.data,       'name')
+    populateSelect('f-sector',    sectors.data,     'name')
+    populateSelect('f-geography', geographies.data, 'country_name')
+    populateSelect('f-language',  languages.data,   'name')
+    populateSelect('f-donor',     donors.data,      'name')
+    populateSelect('f-role',      roles.data,       'name')
 
     const FILTER_IDS = ['f-affiliation','f-seniority','f-sector','f-geography',
                         'f-language','f-donor','f-role','f-availability']
@@ -85,7 +214,7 @@ async function init() {
   }
 }
 
-// ── Data ─────────────────────────────────────────────────────────────────────
+// ── Data ──────────────────────────────────────────────────────────────────────
 
 async function fetchExperts() {
   const { data, error } = await sb
@@ -133,8 +262,8 @@ function applyFilters(experts, f) {
       if (!hay.includes(f.search)) return false
     }
 
-    if (f.affiliation  && e.affiliation_type  !== f.affiliation)  return false
-    if (f.seniority    && e.seniority_tier     !== f.seniority)    return false
+    if (f.affiliation  && e.affiliation_type   !== f.affiliation)  return false
+    if (f.seniority    && e.seniority_tier      !== f.seniority)    return false
     if (f.availability && e.availability_status !== f.availability) return false
 
     if (f.sector) {
@@ -175,8 +304,8 @@ function renderFiltered() {
   const total = allExperts.length
   const shown = filtered.length
   countEl.textContent = shown === total
-    ? `${total} expert${total !== 1 ? 's' : ''}`
-    : `${shown} sur ${total} expert${total !== 1 ? 's' : ''}`
+    ? t('count_all', total)
+    : t('count_filtered', shown, total)
 
   if (shown === 0) {
     grid.innerHTML = ''
@@ -199,8 +328,8 @@ function expertCard(e) {
   const geos    = e.expert_geographies?.map(g => g.geographies?.country_name).filter(Boolean).sort() ?? []
   const MAX_GEO = 3
   const geoText = geos.slice(0, MAX_GEO).join(', ') + (geos.length > MAX_GEO ? ` +${geos.length - MAX_GEO}` : '')
-  const dot     = AVAIL_DOT[e.availability_status]   ?? 'bg-gray-300'
-  const dotTip  = AVAIL_LABEL[e.availability_status] ?? ''
+  const dot     = AVAIL_DOT[e.availability_status] ?? 'bg-gray-300'
+  const dotTip  = t('avail_' + (e.availability_status ?? 'unknown'))
 
   return `
 <div class="expert-card bg-white rounded-xl border border-gray-200 shadow-sm
@@ -247,7 +376,7 @@ function showModal(e) {
                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586
                   a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
            </svg>
-           Télécharger le CV
+           ${t('download_cv')}
          </button>
        </div>`
     : ''
@@ -255,65 +384,59 @@ function showModal(e) {
   document.getElementById('modal-content').innerHTML = `
 <div class="space-y-5">
 
-  <!-- Header -->
   <div>
     <div class="flex flex-wrap items-center gap-2 mb-2">
       <span class="text-xs font-medium px-2 py-0.5 rounded-full ${AFFIL_COLOR[e.affiliation_type]}">${AFFIL_LABEL[e.affiliation_type]}</span>
       ${e.seniority_tier ? `<span class="text-xs font-medium px-2 py-0.5 rounded-full ${SENIORITY_COLOR[e.seniority_tier]}">${SENIORITY_LABEL[e.seniority_tier]}</span>` : ''}
       <span class="text-xs text-gray-500 flex items-center gap-1">
         <span class="w-2 h-2 rounded-full ${AVAIL_DOT[e.availability_status] ?? 'bg-gray-300'}"></span>
-        ${esc(AVAIL_LABEL[e.availability_status] ?? '')}
+        ${esc(t('avail_' + (e.availability_status ?? 'unknown')))}
       </span>
     </div>
     <h2 class="text-xl font-bold text-gray-900">${esc(e.full_name)}</h2>
     ${e.title         ? `<p class="text-sm text-gray-600 mt-0.5">${esc(e.title)}</p>` : ''}
     ${e.partner_org   ? `<p class="text-xs text-gray-500 mt-1">📍 ${esc(e.partner_org)}</p>` : ''}
-    ${e.years_experience != null ? `<p class="text-xs text-gray-500 mt-0.5">⏱ ${e.years_experience} ans d'expérience</p>` : ''}
+    ${e.years_experience != null ? `<p class="text-xs text-gray-500 mt-0.5">⏱ ${t('years_exp', e.years_experience)}</p>` : ''}
   </div>
 
-  <!-- Bio -->
   ${e.bio_summary ? `
   <div>
-    <span class="section-title">Profil</span>
+    <span class="section-title">${t('modal_profile')}</span>
     <p class="text-sm text-gray-700 leading-relaxed">${esc(e.bio_summary)}</p>
   </div>` : ''}
 
-  <!-- Sectors -->
   ${(primarySector || secondarySectors.length) ? `
   <div>
-    <span class="section-title">Secteurs</span>
+    <span class="section-title">${t('modal_sectors')}</span>
     <div class="flex flex-wrap gap-1.5">
       ${primarySector ? `<span class="tag tag-primary">${esc(primarySector)}</span>` : ''}
       ${secondarySectors.map(s => `<span class="tag">${esc(s)}</span>`).join('')}
     </div>
   </div>` : ''}
 
-  <!-- Languages -->
   ${languages.length ? `
   <div>
-    <span class="section-title">Langues</span>
+    <span class="section-title">${t('modal_languages')}</span>
     <div class="flex flex-wrap gap-1.5">
       ${languages.map(l => `
         <span class="tag">
           ${esc(l.languages?.name ?? '')}
-          ${l.proficiency ? `<span class="opacity-50 ml-1">${esc(PROF_LABEL[l.proficiency] ?? l.proficiency)}</span>` : ''}
+          ${l.proficiency ? `<span class="opacity-50 ml-1">${esc(t('prof_' + l.proficiency))}</span>` : ''}
         </span>`).join('')}
     </div>
   </div>` : ''}
 
-  <!-- Geographies -->
   ${geos.length ? `
   <div>
-    <span class="section-title">Expérience géographique</span>
+    <span class="section-title">${t('modal_geo')}</span>
     <div class="flex flex-wrap gap-1.5">
       ${geos.map(g => `<span class="tag">${esc(g)}</span>`).join('')}
     </div>
   </div>` : ''}
 
-  <!-- Donors -->
   ${donors.length ? `
   <div>
-    <span class="section-title">Bailleurs</span>
+    <span class="section-title">${t('modal_donors')}</span>
     <div class="space-y-2">
       ${donors.map(d => `
         <div class="bg-gray-50 rounded-lg px-3 py-2">
@@ -323,43 +446,40 @@ function showModal(e) {
     </div>
   </div>` : ''}
 
-  <!-- Education -->
   ${eduItems.length ? `
   <div>
-    <span class="section-title">Formation &amp; Certifications</span>
+    <span class="section-title">${t('modal_education')}</span>
     <div class="space-y-2">
-      ${eduItems.filter(e => e.type === 'education').map(e => `
+      ${eduItems.filter(ed => ed.type === 'education').map(ed => `
         <div class="flex gap-2.5 items-start">
           <span class="text-blue-500 mt-0.5">🎓</span>
           <div>
-            <p class="text-sm font-medium text-gray-800">${esc(e.title)}</p>
-            ${e.institution ? `<p class="text-xs text-gray-500">${esc(e.institution)}${e.year ? ` · ${e.year}` : ''}</p>` : ''}
+            <p class="text-sm font-medium text-gray-800">${esc(ed.title)}</p>
+            ${ed.institution ? `<p class="text-xs text-gray-500">${esc(ed.institution)}${ed.year ? ` · ${ed.year}` : ''}</p>` : ''}
           </div>
         </div>`).join('')}
-      ${eduItems.filter(e => e.type === 'certification').map(e => `
+      ${eduItems.filter(ed => ed.type === 'certification').map(ed => `
         <div class="flex gap-2.5 items-start">
           <span class="text-amber-500 mt-0.5">🏅</span>
           <div>
-            <p class="text-sm font-medium text-gray-800">${esc(e.title)}</p>
-            ${e.institution ? `<p class="text-xs text-gray-500">${esc(e.institution)}${e.year ? ` · ${e.year}` : ''}</p>` : ''}
+            <p class="text-sm font-medium text-gray-800">${esc(ed.title)}</p>
+            ${ed.institution ? `<p class="text-xs text-gray-500">${esc(ed.institution)}${ed.year ? ` · ${ed.year}` : ''}</p>` : ''}
           </div>
         </div>`).join('')}
     </div>
   </div>` : ''}
 
-  <!-- Activity types -->
   ${activities.length ? `
   <div>
-    <span class="section-title">Types de livrables</span>
+    <span class="section-title">${t('modal_activities')}</span>
     <div class="flex flex-wrap gap-1.5">
       ${activities.map(a => `<span class="tag">${esc(a)}</span>`).join('')}
     </div>
   </div>` : ''}
 
-  <!-- Role fit -->
   ${roles.length ? `
   <div>
-    <span class="section-title">Types de mission</span>
+    <span class="section-title">${t('modal_roles')}</span>
     <div class="flex flex-wrap gap-1.5">
       ${roles.map(r => `<span class="tag tag-role">${esc(r)}</span>`).join('')}
     </div>
@@ -379,11 +499,11 @@ function closeModal() {
 
 async function downloadCV(storagePath) {
   const { data, error } = await sb.storage.from('expert-cvs').createSignedUrl(storagePath, 120)
-  if (error) { alert('Impossible de récupérer le fichier CV : ' + error.message); return }
+  if (error) { alert(t('cv_error') + error.message); return }
   window.open(data.signedUrl, '_blank')
 }
 
-// ── Utilities ────────────────────────────────────────────────────────────────
+// ── Utilities ─────────────────────────────────────────────────────────────────
 
 function populateSelect(id, items, key) {
   const sel = document.getElementById(id)
@@ -409,7 +529,7 @@ function setLoading(on) {
 }
 
 function debounce(fn, ms) {
-  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms) }
+  let timer; return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms) }
 }
 
 function esc(str) {
@@ -424,7 +544,7 @@ init().catch(err => {
   document.body.innerHTML = `
     <div class="min-h-screen flex items-center justify-center">
       <div class="text-center">
-        <p class="text-red-600 font-semibold">Erreur de chargement</p>
+        <p class="text-red-600 font-semibold">${t('load_error')}</p>
         <p class="text-gray-500 text-sm mt-1">${esc(err.message)}</p>
       </div>
     </div>`

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +17,7 @@
     <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
       <div>
         <h1 class="text-base font-bold tracking-tight leading-none">ACSD Expert Roster</h1>
-        <p class="text-xs text-blue-400 mt-0.5">Fichier d'experts pour ordres de travail</p>
+        <p class="text-xs text-blue-400 mt-0.5" data-i18n="header_subtitle">Expert Roster for Work Orders</p>
       </div>
       <div class="flex items-center gap-3 flex-shrink-0">
         <span id="user-email" class="text-xs text-blue-300 hidden sm:block"></span>
@@ -25,9 +25,15 @@
           class="hidden text-xs font-semibold bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full">
           Admin
         </span>
+        <!-- Language toggle -->
+        <div class="flex items-center gap-1 text-xs border border-blue-700 rounded-md overflow-hidden">
+          <button class="lang-btn px-2 py-1 transition-colors" data-lang="en" onclick="setLang('en')">EN</button>
+          <button class="lang-btn px-2 py-1 transition-colors" data-lang="fr" onclick="setLang('fr')">FR</button>
+        </div>
         <button id="logout-btn"
-          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
-          Déconnexion
+          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors"
+          data-i18n="logout_btn">
+          Sign out
         </button>
       </div>
     </div>
@@ -40,31 +46,31 @@
     <aside class="w-56 flex-shrink-0 sticky top-20">
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <div class="flex items-center justify-between mb-3">
-          <span class="text-xs font-bold text-gray-700 uppercase tracking-wide">Filtres</span>
-          <button id="clear-filters" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
-            Réinitialiser
+          <span class="text-xs font-bold text-gray-700 uppercase tracking-wide" data-i18n="filters_title">Filters</span>
+          <button id="clear-filters" class="text-xs text-blue-600 hover:text-blue-800 font-medium" data-i18n="clear_filters">
+            Reset
           </button>
         </div>
 
         <!-- Affiliation -->
         <div class="mb-3">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1" data-i18n="label_affiliation">
             Affiliation
           </label>
           <select id="f-affiliation" class="filter-select">
-            <option value="">Tous</option>
-            <option value="internal">Core (Interne)</option>
-            <option value="partner">Partenaire</option>
+            <option value="" data-i18n="opt_all">All</option>
+            <option value="internal" data-i18n="opt_internal">Core (Internal)</option>
+            <option value="partner" data-i18n="opt_partner">Partner</option>
           </select>
         </div>
 
         <!-- Seniority -->
         <div class="mb-3">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
-            Niveau
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1" data-i18n="label_seniority">
+            Level
           </label>
           <select id="f-seniority" class="filter-select">
-            <option value="">Tous</option>
+            <option value="" data-i18n="opt_all">All</option>
             <option value="principal_expert">Principal Expert</option>
             <option value="senior">Senior</option>
             <option value="intermediary">Intermediary</option>
@@ -74,75 +80,75 @@
 
         <!-- Sector -->
         <div class="mb-3">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
-            Secteur
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1" data-i18n="label_sector">
+            Sector
           </label>
           <select id="f-sector" class="filter-select">
-            <option value="">Tous</option>
+            <option value="" data-i18n="opt_all">All</option>
           </select>
         </div>
 
         <!-- Geography -->
         <div class="mb-3">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
-            Pays
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1" data-i18n="label_geography">
+            Country
           </label>
           <select id="f-geography" class="filter-select">
-            <option value="">Tous</option>
+            <option value="" data-i18n="opt_all">All</option>
           </select>
         </div>
 
         <!-- Language -->
         <div class="mb-3">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
-            Langue
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1" data-i18n="label_language">
+            Language
           </label>
           <select id="f-language" class="filter-select">
-            <option value="">Toutes</option>
+            <option value="" data-i18n="opt_all">All</option>
           </select>
         </div>
 
         <!-- Donor -->
         <div class="mb-3">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
-            Bailleur
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1" data-i18n="label_donor">
+            Donor
           </label>
           <select id="f-donor" class="filter-select">
-            <option value="">Tous</option>
+            <option value="" data-i18n="opt_all">All</option>
           </select>
         </div>
 
         <!-- Role -->
         <div class="mb-3">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
-            Type de mission
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1" data-i18n="label_role">
+            Assignment Type
           </label>
           <select id="f-role" class="filter-select">
-            <option value="">Tous</option>
+            <option value="" data-i18n="opt_all">All</option>
           </select>
         </div>
 
         <!-- Availability -->
         <div>
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
-            Disponibilité
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1" data-i18n="label_availability">
+            Availability
           </label>
           <select id="f-availability" class="filter-select">
-            <option value="">Tous</option>
-            <option value="available">Disponible</option>
-            <option value="assigned">En mission</option>
-            <option value="unavailable">Indisponible</option>
-            <option value="unknown">Non renseigné</option>
+            <option value="" data-i18n="opt_all">All</option>
+            <option value="available" data-i18n="opt_available">Available</option>
+            <option value="assigned" data-i18n="opt_assigned">On Assignment</option>
+            <option value="unavailable" data-i18n="opt_unavailable">Unavailable</option>
+            <option value="unknown" data-i18n="opt_unknown">Not specified</option>
           </select>
         </div>
       </div>
 
       <!-- Legend -->
       <div class="mt-3 text-xs text-gray-400 space-y-1 px-1">
-        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> Disponible</div>
-        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span> En mission</div>
-        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500"></span>  Indisponible</div>
-        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-gray-300"></span> Non renseigné</div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span><span data-i18n="opt_available">Available</span></div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span><span data-i18n="opt_assigned">On Assignment</span></div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500"></span> <span data-i18n="opt_unavailable">Unavailable</span></div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-gray-300"></span><span data-i18n="opt_unknown">Not specified</span></div>
       </div>
     </aside>
 
@@ -156,7 +162,8 @@
             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
         <input id="search-input" type="search"
-          placeholder="Rechercher par nom, titre, biographie…"
+          placeholder="Search by name, title, bio…"
+          data-i18n-placeholder="search_placeholder"
           class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg
                  shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500
                  focus:border-transparent">
@@ -170,7 +177,7 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
           </svg>
-          Chargement…
+          <span data-i18n="loading">Loading…</span>
         </div>
       </div>
 
@@ -187,22 +194,17 @@
                M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857
                m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
-        <p class="font-medium text-sm">Aucun expert trouvé</p>
-        <p class="text-xs mt-1">Essayez de modifier vos filtres ou votre recherche.</p>
+        <p class="font-medium text-sm" data-i18n="empty_title">No experts found</p>
+        <p class="text-xs mt-1" data-i18n="empty_sub">Try adjusting your filters or search.</p>
       </div>
     </main>
   </div>
 
   <!-- ── Expert detail modal ── -->
   <div id="modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-    <!-- Backdrop -->
-    <div id="modal-backdrop"
-      class="fixed inset-0 bg-black/50 backdrop-blur-sm">
-    </div>
-    <!-- Panel -->
+    <div id="modal-backdrop" class="fixed inset-0 bg-black/50 backdrop-blur-sm"></div>
     <div class="relative flex items-start justify-center min-h-full px-4 py-10">
       <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-6">
-        <!-- Close button -->
         <button id="modal-close"
           class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 p-1 rounded-lg
                  hover:bg-gray-100 transition-colors">
@@ -210,7 +212,6 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
-        <!-- Dynamic content injected by app.js -->
         <div id="modal-content"></div>
       </div>
     </div>
