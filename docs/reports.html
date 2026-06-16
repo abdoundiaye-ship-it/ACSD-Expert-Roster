@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACSD Expert Roster — Reports</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .animate-spin { animation: spin .75s linear infinite; }
+    .fi { width:100%; border:1px solid #d1d5db; border-radius:.5rem; padding:.375rem .75rem; font-size:.875rem; color:#111827; background:#fff; outline:none; }
+    .fi:focus { outline:2px solid #3b82f6; outline-offset:-1px; }
+    @media print {
+      body > *:not(#print-area) { display:none !important; }
+      #print-area { display:block !important; }
+      @page { margin:15mm; size:A4 landscape; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<div id="print-area" style="display:none"></div>
+
+<!-- Header -->
+<header class="bg-blue-950 text-white shadow-md sticky top-0 z-30">
+  <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="text-blue-300 hover:text-white" title="Back to Roster">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </a>
+      <div>
+        <h1 class="text-base font-bold tracking-tight leading-none">ACSD Expert Roster</h1>
+        <p class="text-xs text-blue-400 mt-0.5">Reports &amp; Exports</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3 flex-shrink-0">
+      <span id="user-email" class="text-xs text-blue-300 hidden sm:block"></span>
+      <span id="admin-badge" class="hidden text-xs font-semibold bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full">Admin</span>
+      <a id="admin-panel-link" href="admin/index.html" class="hidden text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-white px-2.5 py-1 rounded-lg transition-colors">Admin Panel</a>
+      <button id="logout-btn" class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<div class="max-w-screen-xl mx-auto px-4 py-6">
+
+  <!-- Page heading -->
+  <div class="flex items-start justify-between mb-6">
+    <div>
+      <h2 class="text-xl font-bold text-gray-900">Reports</h2>
+      <p class="text-sm text-gray-500 mt-0.5">Generate, filter, preview, and export data reports</p>
+    </div>
+    <button id="save-config-btn" onclick="openSaveModal()"
+      class="hidden text-sm font-medium text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
+      Save Configuration
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1 w-fit mb-4 shadow-sm">
+    <button id="tab-experts" onclick="switchTab('experts')"
+      class="px-4 py-2 rounded-lg text-sm font-medium bg-blue-950 text-white transition-colors">
+      Expert Roster
+    </button>
+    <button id="tab-users" onclick="switchTab('users')"
+      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+      User Directory
+    </button>
+    <button id="tab-audit" onclick="switchTab('audit')"
+      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+      Audit Log
+    </button>
+  </div>
+  <p id="admin-hint" class="hidden text-xs text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2 rounded-lg mb-4 w-fit">
+    User Directory and Audit Log reports require Admin access.
+  </p>
+
+  <!-- Filter card -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-5">
+    <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">Filters</p>
+
+    <!-- Expert filters -->
+    <div id="filters-experts">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div class="col-span-2 lg:col-span-2">
+          <label class="block text-xs font-medium text-gray-500 mb-1">Name Search</label>
+          <input id="ef-search" type="text" placeholder="Search by name…" class="fi">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Affiliation</label>
+          <select id="ef-affiliation" class="fi">
+            <option value="">All</option>
+            <option value="internal">Core (Internal)</option>
+            <option value="partner">Partner</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Level</label>
+          <select id="ef-seniority" class="fi">
+            <option value="">All</option>
+            <option value="principal_expert">Principal Expert</option>
+            <option value="senior">Senior</option>
+            <option value="intermediary">Intermediary</option>
+            <option value="junior">Junior</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Availability</label>
+          <select id="ef-availability" class="fi">
+            <option value="">All</option>
+            <option value="available">Available</option>
+            <option value="assigned">On Assignment</option>
+            <option value="unavailable">Unavailable</option>
+            <option value="unknown">Not Specified</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+          <select id="ef-active" class="fi">
+            <option value="">All</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Sector</label>
+          <select id="ef-sector" class="fi"><option value="">All</option></select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Geography</label>
+          <select id="ef-geography" class="fi"><option value="">All</option></select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Language</label>
+          <select id="ef-language" class="fi"><option value="">All</option></select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Donor</label>
+          <select id="ef-donor" class="fi"><option value="">All</option></select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Created After</label>
+          <input id="ef-date-from" type="date" class="fi">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Created Before</label>
+          <input id="ef-date-to" type="date" class="fi">
+        </div>
+      </div>
+    </div>
+
+    <!-- User filters -->
+    <div id="filters-users" class="hidden">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Role</label>
+          <select id="uf-role" class="fi">
+            <option value="">All</option>
+            <option value="admin">Admin</option>
+            <option value="viewer">Viewer</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+          <select id="uf-active" class="fi">
+            <option value="">All</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Created After</label>
+          <input id="uf-date-from" type="date" class="fi">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Created Before</label>
+          <input id="uf-date-to" type="date" class="fi">
+        </div>
+      </div>
+    </div>
+
+    <!-- Audit filters -->
+    <div id="filters-audit" class="hidden">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Action</label>
+          <select id="af-action" class="fi">
+            <option value="">All</option>
+            <option>LOGIN</option><option>LOGOUT</option><option>SESSION_TIMEOUT</option>
+            <option>CREATE</option><option>UPDATE</option><option>DELETE</option>
+            <option>ACTIVATE</option><option>DEACTIVATE</option><option>ASSIGN_ROLE</option>
+            <option>REPORT_GENERATE</option><option>REPORT_EXPORT</option><option>REPORT_PRINT</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Entity Type</label>
+          <select id="af-entity" class="fi">
+            <option value="">All</option>
+            <option>expert</option><option>user</option><option>role</option>
+            <option>session</option><option>report</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">User Email</label>
+          <input id="af-email" type="text" placeholder="user@example.com" class="fi">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Date From</label>
+          <input id="af-date-from" type="date" class="fi">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Date To</label>
+          <input id="af-date-to" type="date" class="fi">
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-3 mt-5 pt-4 border-t border-gray-100">
+      <button id="generate-btn" onclick="generateReport()"
+        class="bg-blue-900 hover:bg-blue-800 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Generate Report
+      </button>
+      <button onclick="resetFilters()"
+        class="text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+        Reset Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Saved configurations -->
+  <div class="mb-5">
+    <button onclick="toggleSaved()" class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 mb-3">
+      <svg id="saved-chevron" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+      Saved Configurations
+      <span id="saved-count" class="bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-0.5 rounded-full">0</span>
+    </button>
+    <div id="saved-list" class="hidden"></div>
+  </div>
+
+  <!-- Results -->
+  <div id="results-section" class="hidden">
+
+    <!-- Report header -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-4">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div class="min-w-0">
+          <h3 id="report-title" class="text-lg font-bold text-gray-900"></h3>
+          <div class="flex flex-wrap gap-x-5 gap-y-1 mt-1.5 text-xs text-gray-500">
+            <span id="meta-date"></span>
+            <span id="meta-user"></span>
+            <span id="meta-count" class="font-semibold text-blue-700"></span>
+          </div>
+          <div id="filter-pills" class="flex flex-wrap gap-1.5 mt-2"></div>
+        </div>
+        <div class="flex flex-wrap gap-2 flex-shrink-0">
+          <button onclick="exportReport('pdf')"
+            class="bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">
+            PDF
+          </button>
+          <button onclick="exportReport('xlsx')"
+            class="bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">
+            Excel
+          </button>
+          <button onclick="exportReport('csv')"
+            class="bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">
+            CSV
+          </button>
+          <button onclick="exportReport('docx')"
+            class="bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">
+            Word
+          </button>
+          <button onclick="printReport()"
+            class="bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">
+            Print
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div id="stats-row" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4"></div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead id="report-thead" class="bg-blue-950 text-white text-xs uppercase tracking-wide"></thead>
+          <tbody id="report-tbody" class="divide-y divide-gray-100"></tbody>
+        </table>
+      </div>
+      <div id="no-results" class="hidden text-center py-16 text-gray-400">
+        <p class="font-medium">No results match your filters</p>
+        <p class="text-xs mt-1">Try broadening your criteria.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Save modal -->
+<div id="save-modal" class="hidden fixed inset-0 z-50">
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeSaveModal()"></div>
+  <div class="fixed inset-0 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+      <h3 class="text-base font-bold text-gray-900 mb-4">Save Report Configuration</h3>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+      <input id="config-name" type="text" placeholder="e.g. Active Partners — Health Sector"
+        class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4">
+      <div class="flex gap-3">
+        <button onclick="saveConfig()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white py-2.5 rounded-lg text-sm font-semibold">Save</button>
+        <button onclick="closeSaveModal()" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 py-2.5 rounded-lg text-sm">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="hidden fixed bottom-6 right-6 z-50 text-sm px-4 py-3 rounded-xl shadow-2xl text-white max-w-sm"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/html-docx-js@0.3.1/dist/html-docx.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+'use strict'
+
+let currentTab = 'experts'
+let currentReport = null
+let isAdmin = false
+let lookups = {}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function init() {
+  const session = await checkAuth()
+  if (!session) return
+  document.getElementById('user-email').textContent = session.user.email
+  document.getElementById('logout-btn').addEventListener('click', logout)
+
+  const role = await getUserRole()
+  isAdmin = role === 'admin'
+  if (isAdmin) {
+    document.getElementById('admin-badge').classList.remove('hidden')
+    document.getElementById('admin-panel-link').classList.remove('hidden')
+  } else {
+    ;['tab-users','tab-audit'].forEach(id => {
+      const btn = document.getElementById(id)
+      btn.disabled = true
+      btn.classList.add('opacity-40','cursor-not-allowed')
+    })
+    document.getElementById('admin-hint').classList.remove('hidden')
+  }
+
+  await loadLookups()
+  renderSavedConfigs()
+  setupSessionTimeout()
+}
+
+async function loadLookups() {
+  const [s, g, l, d] = await Promise.all([
+    sb.from('sectors').select('name').order('sort_order'),
+    sb.from('geographies').select('country_name').order('country_name'),
+    sb.from('languages').select('name').order('name'),
+    sb.from('donors').select('name').order('name'),
+  ])
+  lookups = { sectors: s.data||[], geographies: g.data||[], languages: l.data||[], donors: d.data||[] }
+  fill('ef-sector',    lookups.sectors,     'name',         'name')
+  fill('ef-geography', lookups.geographies, 'country_name', 'country_name')
+  fill('ef-language',  lookups.languages,   'name',         'name')
+  fill('ef-donor',     lookups.donors,      'name',         'name')
+}
+
+function fill(id, items, vk, lk) {
+  const sel = document.getElementById(id)
+  items.forEach(it => {
+    const o = document.createElement('option')
+    o.value = it[vk]; o.textContent = it[lk]
+    sel.appendChild(o)
+  })
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  if (!isAdmin && (tab === 'users' || tab === 'audit')) return
+  currentTab = tab
+  ;['experts','users','audit'].forEach(t => {
+    const btn   = document.getElementById('tab-' + t)
+    const panel = document.getElementById('filters-' + t)
+    const active = t === tab
+    btn.classList.toggle('bg-blue-950', active)
+    btn.classList.toggle('text-white',  active)
+    btn.classList.toggle('text-gray-500', !active)
+    btn.classList.toggle('hover:bg-gray-100', !active)
+    panel.classList.toggle('hidden', !active)
+  })
+  document.getElementById('results-section').classList.add('hidden')
+}
+
+// ── Generate ──────────────────────────────────────────────────────────────────
+async function generateReport() {
+  const btn = document.getElementById('generate-btn')
+  btn.disabled = true
+  btn.innerHTML = `<svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Generating…`
+  try {
+    const filters = readFilters()
+    let data, title
+    if (currentTab === 'experts') { data = await fetchExperts(filters); title = 'Expert Roster Report' }
+    else if (currentTab === 'users')  { data = await fetchUsers(filters);   title = 'User Directory Report' }
+    else                              { data = await fetchAudit(filters);   title = 'Audit Log Report' }
+
+    const { data: { session } } = await sb.auth.getSession()
+    currentReport = { type: currentTab, title, filters, data,
+                      generatedAt: new Date(), generatedBy: session.user.email }
+    renderResults()
+    document.getElementById('save-config-btn').classList.remove('hidden')
+    await logAudit('REPORT_GENERATE','report',null,title,null,
+      { reportType: currentTab, filters: pillsFor(filters), count: data.length })
+  } catch(err) { showToast('Error: ' + err.message, 'error') }
+  finally {
+    btn.disabled = false
+    btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Generate Report`
+  }
+}
+
+function readFilters() {
+  const v = id => document.getElementById(id)?.value ?? ''
+  if (currentTab === 'experts') return {
+    search: v('ef-search').trim(), affiliation: v('ef-affiliation'), seniority: v('ef-seniority'),
+    availability: v('ef-availability'), isActive: v('ef-active'),
+    sector: v('ef-sector'), geography: v('ef-geography'), language: v('ef-language'), donor: v('ef-donor'),
+    dateFrom: v('ef-date-from'), dateTo: v('ef-date-to'),
+  }
+  if (currentTab === 'users') return {
+    role: v('uf-role'), isActive: v('uf-active'), dateFrom: v('uf-date-from'), dateTo: v('uf-date-to'),
+  }
+  return { action: v('af-action'), entity: v('af-entity'), email: v('af-email').trim(),
+           dateFrom: v('af-date-from'), dateTo: v('af-date-to') }
+}
+
+function resetFilters() {
+  document.querySelectorAll('#filters-' + currentTab + ' input, #filters-' + currentTab + ' select')
+    .forEach(el => { el.value = '' })
+}
+
+// ── Fetch ─────────────────────────────────────────────────────────────────────
+async function fetchExperts(f) {
+  let q = sb.from('experts').select(`
+    id, full_name, title, affiliation_type, partner_org,
+    seniority_tier, years_experience, availability_status, is_active, created_at, email, phone,
+    expert_sectors(priority, sectors(name)),
+    expert_geographies(geographies(country_name)),
+    expert_languages(proficiency, languages(name)),
+    expert_donor_experience(donors(name))
+  `)
+  if (f.search)       q = q.ilike('full_name', `%${f.search}%`)
+  if (f.affiliation)  q = q.eq('affiliation_type', f.affiliation)
+  if (f.seniority)    q = q.eq('seniority_tier', f.seniority)
+  if (f.availability) q = q.eq('availability_status', f.availability)
+  if (f.isActive !== '') q = q.eq('is_active', f.isActive === 'true')
+  if (f.dateFrom)     q = q.gte('created_at', f.dateFrom)
+  if (f.dateTo)       q = q.lte('created_at', f.dateTo + 'T23:59:59')
+  q = q.order('full_name')
+  const { data, error } = await q
+  if (error) throw new Error(error.message)
+  let r = data ?? []
+  if (f.sector)    r = r.filter(e => e.expert_sectors?.some(s => s.sectors?.name === f.sector))
+  if (f.geography) r = r.filter(e => e.expert_geographies?.some(g => g.geographies?.country_name === f.geography))
+  if (f.language)  r = r.filter(e => e.expert_languages?.some(l => l.languages?.name === f.language))
+  if (f.donor)     r = r.filter(e => e.expert_donor_experience?.some(d => d.donors?.name === f.donor))
+  return r
+}
+
+async function fetchUsers(f) {
+  let q = sb.from('profiles').select('id, email, full_name, is_active, created_at, user_roles(role)')
+  if (f.isActive !== '') q = q.eq('is_active', f.isActive === 'true')
+  if (f.dateFrom) q = q.gte('created_at', f.dateFrom)
+  if (f.dateTo)   q = q.lte('created_at', f.dateTo + 'T23:59:59')
+  q = q.order('email')
+  const { data, error } = await q
+  if (error) throw new Error(error.message)
+  let r = data ?? []
+  if (f.role) r = r.filter(u => (u.user_roles?.[0]?.role || 'viewer') === f.role)
+  return r
+}
+
+async function fetchAudit(f) {
+  let q = sb.from('audit_logs').select('*')
+  if (f.action)   q = q.eq('action', f.action)
+  if (f.entity)   q = q.eq('entity_type', f.entity)
+  if (f.email)    q = q.ilike('user_email', `%${f.email}%`)
+  if (f.dateFrom) q = q.gte('timestamp', f.dateFrom)
+  if (f.dateTo)   q = q.lte('timestamp', f.dateTo + 'T23:59:59')
+  q = q.order('timestamp', { ascending: false }).limit(500)
+  const { data, error } = await q
+  if (error) throw new Error(error.message)
+  return data ?? []
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function renderResults() {
+  const r = currentReport
+  document.getElementById('results-section').classList.remove('hidden')
+  document.getElementById('report-title').textContent = r.title
+  document.getElementById('meta-date').textContent    = 'Generated: ' + r.generatedAt.toLocaleString('en-GB')
+  document.getElementById('meta-user').textContent    = 'By: ' + r.generatedBy
+  document.getElementById('meta-count').textContent   = r.data.length + ' record' + (r.data.length !== 1 ? 's' : '')
+
+  const pills = pillsFor(r.filters)
+  document.getElementById('filter-pills').innerHTML = pills.length
+    ? pills.map(p => `<span class="bg-blue-50 border border-blue-200 text-blue-700 text-xs px-2 py-0.5 rounded-full">${ec(p)}</span>`).join('')
+    : `<span class="text-xs text-gray-400">No filters applied</span>`
+
+  renderStats()
+  renderTable()
+  setTimeout(() => document.getElementById('results-section').scrollIntoView({ behavior:'smooth', block:'nearest' }), 50)
+}
+
+function renderStats() {
+  const d = currentReport.data
+  let stats = []
+  if (currentReport.type === 'experts') {
+    stats = [
+      { label:'Total Experts',   value: d.length,  cls:'bg-blue-50 border-blue-200 text-blue-900' },
+      { label:'Active',          value: d.filter(x=>x.is_active).length, cls:'bg-green-50 border-green-200 text-green-900' },
+      { label:'Available',       value: d.filter(x=>x.availability_status==='available').length, cls:'bg-emerald-50 border-emerald-200 text-emerald-900' },
+      { label:'Core (Internal)', value: d.filter(x=>x.affiliation_type==='internal').length, cls:'bg-purple-50 border-purple-200 text-purple-900' },
+    ]
+  } else if (currentReport.type === 'users') {
+    const admins = d.filter(u=>u.user_roles?.[0]?.role==='admin').length
+    stats = [
+      { label:'Total Users', value: d.length, cls:'bg-blue-50 border-blue-200 text-blue-900' },
+      { label:'Active',      value: d.filter(u=>u.is_active).length, cls:'bg-green-50 border-green-200 text-green-900' },
+      { label:'Admins',      value: admins,   cls:'bg-amber-50 border-amber-200 text-amber-900' },
+      { label:'Viewers',     value: d.length-admins, cls:'bg-gray-50 border-gray-200 text-gray-900' },
+    ]
+  } else {
+    stats = [
+      { label:'Total Events', value: d.length, cls:'bg-blue-50 border-blue-200 text-blue-900' },
+      { label:'Creates',  value: d.filter(a=>a.action==='CREATE').length,  cls:'bg-green-50 border-green-200 text-green-900' },
+      { label:'Updates',  value: d.filter(a=>a.action==='UPDATE').length,  cls:'bg-amber-50 border-amber-200 text-amber-900' },
+      { label:'Deletes',  value: d.filter(a=>a.action==='DELETE').length,  cls:'bg-red-50 border-red-200 text-red-900' },
+    ]
+  }
+  document.getElementById('stats-row').innerHTML = stats.map(s =>
+    `<div class="rounded-xl border p-4 shadow-sm ${s.cls}">
+       <p class="text-xs font-semibold uppercase tracking-wide opacity-60">${ec(s.label)}</p>
+       <p class="text-3xl font-bold mt-1">${s.value}</p>
+     </div>`
+  ).join('')
+}
+
+function renderTable() {
+  const thead = document.getElementById('report-thead')
+  const tbody = document.getElementById('report-tbody')
+  const none  = document.getElementById('no-results')
+  if (!currentReport.data.length) {
+    thead.innerHTML = tbody.innerHTML = ''
+    none.classList.remove('hidden'); return
+  }
+  none.classList.add('hidden')
+  const { cols, rows } = tableData()
+  thead.innerHTML = `<tr>${cols.map(c=>`<th class="px-3 py-2.5 text-left font-medium">${ec(c)}</th>`).join('')}</tr>`
+  tbody.innerHTML  = rows.map(row =>
+    `<tr class="hover:bg-gray-50 transition-colors">${row.map(cell=>
+      `<td class="px-3 py-2 text-gray-700 whitespace-nowrap">${ec(String(cell??'—'))}</td>`
+    ).join('')}</tr>`
+  ).join('')
+}
+
+function tableData() {
+  const r = currentReport
+  if (r.type === 'experts') return {
+    cols: ['Full Name','Title','Affiliation','Organization','Level','Yrs Exp','Sectors','Availability','Active','Created'],
+    rows: r.data.map(x=>[
+      x.full_name, x.title||'', x.affiliation_type==='internal'?'Core':'Partner', x.partner_org||'',
+      fmtLevel(x.seniority_tier), x.years_experience??'',
+      (x.expert_sectors?.map(s=>s.sectors?.name).filter(Boolean)||[]).join(', '),
+      fmtAvail(x.availability_status), x.is_active?'Yes':'No', fmtDate(x.created_at),
+    ])
+  }
+  if (r.type === 'users') return {
+    cols: ['Email','Full Name','Role','Active','Created'],
+    rows: r.data.map(x=>[x.email, x.full_name||'', x.user_roles?.[0]?.role||'viewer', x.is_active?'Yes':'No', fmtDate(x.created_at)])
+  }
+  return {
+    cols: ['Timestamp','User','Action','Entity Type','Entity Name'],
+    rows: r.data.map(x=>[fmtDT(x.timestamp), x.user_email, x.action, x.entity_type||'', x.entity_name||''])
+  }
+}
+
+// ── Flat export data ──────────────────────────────────────────────────────────
+function flatData() {
+  const r = currentReport
+  if (r.type === 'experts') {
+    const cols = ['Full Name','Title','Affiliation','Organization','Level','Years Experience',
+                  'Sectors','Geographies','Languages','Donors','Availability','Active','Email','Phone','Created']
+    const rows = r.data.map(x=>[
+      x.full_name, x.title||'', x.affiliation_type==='internal'?'Core (Internal)':'Partner', x.partner_org||'',
+      fmtLevel(x.seniority_tier), x.years_experience??'',
+      (x.expert_sectors?.map(s=>s.sectors?.name).filter(Boolean)||[]).join('; '),
+      (x.expert_geographies?.map(g=>g.geographies?.country_name).filter(Boolean)||[]).join('; '),
+      (x.expert_languages?.map(l=>l.languages?.name).filter(Boolean)||[]).join('; '),
+      (x.expert_donor_experience?.map(d=>d.donors?.name).filter(Boolean)||[]).join('; '),
+      fmtAvail(x.availability_status), x.is_active?'Yes':'No',
+      x.email||'', x.phone||'', fmtDate(x.created_at),
+    ])
+    return { cols, rows }
+  }
+  if (r.type === 'users') return {
+    cols: ['Email','Full Name','Role','Active','Created'],
+    rows: r.data.map(x=>[x.email, x.full_name||'', x.user_roles?.[0]?.role||'viewer', x.is_active?'Yes':'No', fmtDate(x.created_at)])
+  }
+  return {
+    cols: ['Timestamp','User Email','Action','Entity Type','Entity Name'],
+    rows: r.data.map(x=>[fmtDT(x.timestamp), x.user_email, x.action, x.entity_type||'', x.entity_name||''])
+  }
+}
+
+// ── Exports ───────────────────────────────────────────────────────────────────
+async function exportReport(fmt) {
+  if (!currentReport) return
+  const fname = currentReport.title.replace(/\s+/g,'_') + '_' + currentReport.generatedAt.toISOString().slice(0,10)
+  try {
+    if (fmt==='csv')  doCSV(fname)
+    if (fmt==='xlsx') doExcel(fname)
+    if (fmt==='pdf')  doPDF(fname)
+    if (fmt==='docx') doWord(fname)
+    await logAudit('REPORT_EXPORT','report',null,currentReport.title,null,{ format:fmt, count:currentReport.data.length })
+    showToast('Exported as ' + fmt.toUpperCase(), 'success')
+  } catch(err) { showToast('Export failed: ' + err.message, 'error') }
+}
+
+function doCSV(fname) {
+  const { cols, rows } = flatData()
+  const q = v => `"${String(v??'').replace(/"/g,'""')}"`
+  const csv = [cols.map(q).join(','), ...rows.map(r=>r.map(q).join(','))].join('\r\n')
+  dl(new Blob(['﻿'+csv], { type:'text/csv;charset=utf-8;' }), fname+'.csv')
+}
+
+function doExcel(fname) {
+  const { cols, rows } = flatData()
+  const ws = XLSX.utils.aoa_to_sheet([cols, ...rows])
+  ws['!cols'] = cols.map((_,i) => ({ wch: Math.min(Math.max(cols[i].length, ...rows.map(r=>String(r[i]??'').length))+2, 50) }))
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Report')
+  const meta = XLSX.utils.aoa_to_sheet([
+    ['Report',        currentReport.title],
+    ['Generated By',  currentReport.generatedBy],
+    ['Generated At',  currentReport.generatedAt.toLocaleString('en-GB')],
+    ['Total Records', currentReport.data.length],
+    ['Filters',       pillsFor(currentReport.filters).join(' | ') || 'None'],
+  ])
+  XLSX.utils.book_append_sheet(wb, meta, 'Info')
+  XLSX.writeFile(wb, fname+'.xlsx')
+}
+
+function doPDF(fname) {
+  const { cols, rows } = flatData()
+  const { jsPDF } = window.jspdf
+  const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' })
+  const pw = doc.internal.pageSize.getWidth()
+  doc.setFillColor(30,58,138); doc.rect(0,0,pw,20,'F')
+  doc.setTextColor(255,255,255); doc.setFontSize(12); doc.setFont('helvetica','bold')
+  doc.text(currentReport.title, 10, 8)
+  doc.setFontSize(7); doc.setFont('helvetica','normal')
+  doc.text(`Generated: ${currentReport.generatedAt.toLocaleString('en-GB')}   By: ${currentReport.generatedBy}   Records: ${currentReport.data.length}`, 10, 15)
+  const fl = pillsFor(currentReport.filters).join('  |  ')
+  let startY = 24
+  if (fl) {
+    doc.setTextColor(80,80,80); doc.setFontSize(7)
+    doc.text('Filters: ' + fl, 10, 22)
+    startY = 28
+  }
+  doc.autoTable({
+    head: [cols], body: rows, startY,
+    styles: { fontSize:7, cellPadding:1.5, overflow:'linebreak' },
+    headStyles: { fillColor:[30,58,138], textColor:255, fontStyle:'bold' },
+    alternateRowStyles: { fillColor:[249,250,251] },
+    margin: { left:8, right:8 },
+    didDrawPage: data => {
+      doc.setFontSize(6); doc.setTextColor(160)
+      doc.text(`Page ${data.pageNumber} — ACSD Expert Roster`, pw/2,
+        doc.internal.pageSize.getHeight()-4, { align:'center' })
+    }
+  })
+  doc.save(fname+'.pdf')
+}
+
+function doWord(fname) {
+  const { cols, rows } = flatData()
+  const fl = pillsFor(currentReport.filters).join(' | ')
+  const trows = rows.map(r=>
+    `<tr>${r.map(c=>`<td style="border:1px solid #e5e7eb;padding:3pt 6pt;font-size:9pt;">${ec(String(c??''))}</td>`).join('')}</tr>`
+  ).join('')
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>body{font-family:Calibri,Arial,sans-serif;margin:2cm;font-size:11pt;}
+h1{color:#1e3a8a;font-size:15pt;border-bottom:2pt solid #1e3a8a;padding-bottom:5pt;}
+.meta{color:#6b7280;font-size:9pt;margin:6pt 0 10pt;}
+.fl{background:#eff6ff;border:1pt solid #bfdbfe;padding:5pt 9pt;font-size:9pt;margin-bottom:12pt;}
+table{border-collapse:collapse;width:100%;}
+th{background:#1e3a8a;color:#fff;padding:5pt 7pt;text-align:left;font-size:9pt;}
+td{border:1px solid #e5e7eb;padding:3pt 6pt;font-size:9pt;}
+tr:nth-child(even)td{background:#f9fafb;}</style></head><body>
+<h1>${ec(currentReport.title)}</h1>
+<div class="meta">Generated: ${ec(currentReport.generatedAt.toLocaleString('en-GB'))} &nbsp;|&nbsp;
+By: ${ec(currentReport.generatedBy)} &nbsp;|&nbsp; Records: ${currentReport.data.length}</div>
+${fl?`<div class="fl"><b>Filters:</b> ${ec(fl)}</div>`:''}
+<table><thead><tr>${cols.map(c=>`<th>${ec(c)}</th>`).join('')}</tr></thead>
+<tbody>${trows}</tbody></table></body></html>`
+  try {
+    const blob = window.htmlDocx?.asBlob(html)
+    dl(blob ?? new Blob([html],{type:'application/msword'}), fname + (blob ? '.docx' : '.doc'))
+  } catch(_) {
+    dl(new Blob([html],{type:'application/msword'}), fname+'.doc')
+  }
+}
+
+async function printReport() {
+  if (!currentReport) return
+  const { cols, rows } = flatData()
+  const fl = pillsFor(currentReport.filters).join('  |  ')
+  const trows = rows.map((r,i)=>
+    `<tr style="${i%2?'background:#f9fafb;':''}">${r.map(c=>`<td style="border:.5pt solid #d1d5db;padding:3pt 5pt;">${ec(String(c??''))}</td>`).join('')}</tr>`
+  ).join('')
+  document.getElementById('print-area').innerHTML = `
+<div style="font-family:Calibri,Arial,sans-serif;font-size:10pt;color:#111;">
+  <div style="background:#1e3a8a;color:#fff;padding:10pt 14pt;margin-bottom:10pt;">
+    <div style="font-size:13pt;font-weight:bold;">${ec(currentReport.title)}</div>
+    <div style="font-size:8pt;margin-top:3pt;opacity:.85;">
+      Generated: ${ec(currentReport.generatedAt.toLocaleString('en-GB'))} &nbsp;|&nbsp;
+      By: ${ec(currentReport.generatedBy)} &nbsp;|&nbsp; Records: ${currentReport.data.length}
+    </div>
+    ${fl?`<div style="font-size:8pt;margin-top:2pt;opacity:.7;">Filters: ${ec(fl)}</div>`:''}
+  </div>
+  <table style="width:100%;border-collapse:collapse;font-size:8pt;">
+    <thead><tr>${cols.map(c=>`<th style="background:#1e3a8a;color:#fff;padding:4pt 6pt;text-align:left;">${ec(c)}</th>`).join('')}</tr></thead>
+    <tbody>${trows}</tbody>
+  </table>
+  <div style="font-size:7pt;color:#9ca3af;margin-top:8pt;text-align:center;">
+    ACSD Expert Roster — Confidential — Printed ${new Date().toLocaleString('en-GB')}
+  </div>
+</div>`
+  window.print()
+  await logAudit('REPORT_PRINT','report',null,currentReport.title,null,{ count:currentReport.data.length })
+}
+
+// ── Saved configs ─────────────────────────────────────────────────────────────
+function openSaveModal()  { document.getElementById('save-modal').classList.remove('hidden') }
+function closeSaveModal() { document.getElementById('save-modal').classList.add('hidden') }
+
+function saveConfig() {
+  const name = document.getElementById('config-name').value.trim()
+  if (!name) return
+  const all = getConfigs()
+  all.push({ id: crypto.randomUUID(), name, type: currentTab, filters: readFilters(), createdAt: new Date().toISOString() })
+  localStorage.setItem('acsd-saved-reports', JSON.stringify(all))
+  closeSaveModal()
+  document.getElementById('config-name').value = ''
+  renderSavedConfigs()
+  showToast('Configuration saved', 'success')
+}
+
+function getConfigs() {
+  try { return JSON.parse(localStorage.getItem('acsd-saved-reports') || '[]') } catch { return [] }
+}
+
+function renderSavedConfigs() {
+  const all = getConfigs()
+  document.getElementById('saved-count').textContent = all.length
+  const list = document.getElementById('saved-list')
+  if (!all.length) {
+    list.innerHTML = '<p class="text-sm text-gray-400">No saved configurations yet.</p>'
+    return
+  }
+  list.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">${
+    all.map(c => `
+    <div class="bg-white rounded-lg border border-gray-200 p-3 flex items-start justify-between gap-2 shadow-sm">
+      <div class="min-w-0">
+        <p class="text-sm font-medium text-gray-800 truncate">${ec(c.name)}</p>
+        <p class="text-xs text-gray-400 mt-0.5 capitalize">${ec(c.type)} &middot; ${new Date(c.createdAt).toLocaleDateString('en-GB')}</p>
+      </div>
+      <div class="flex gap-1 flex-shrink-0">
+        <button onclick="loadConfig('${ec(c.id)}')" class="text-xs text-blue-600 hover:text-blue-900 px-2 py-1 rounded hover:bg-blue-50">Load</button>
+        <button onclick="delConfig('${ec(c.id)}')"  class="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50">Delete</button>
+      </div>
+    </div>`).join('')
+  }</div>`
+}
+
+function loadConfig(id) {
+  const c = getConfigs().find(x => x.id === id)
+  if (!c) return
+  switchTab(c.type)
+  const f = c.filters
+  const sv = (sel, val) => { const el = document.getElementById(sel); if (el) el.value = val || '' }
+  if (c.type === 'experts') {
+    sv('ef-search',f.search); sv('ef-affiliation',f.affiliation); sv('ef-seniority',f.seniority)
+    sv('ef-availability',f.availability); sv('ef-active',f.isActive); sv('ef-sector',f.sector)
+    sv('ef-geography',f.geography); sv('ef-language',f.language); sv('ef-donor',f.donor)
+    sv('ef-date-from',f.dateFrom); sv('ef-date-to',f.dateTo)
+  } else if (c.type === 'users') {
+    sv('uf-role',f.role); sv('uf-active',f.isActive); sv('uf-date-from',f.dateFrom); sv('uf-date-to',f.dateTo)
+  } else {
+    sv('af-action',f.action); sv('af-entity',f.entity); sv('af-email',f.email)
+    sv('af-date-from',f.dateFrom); sv('af-date-to',f.dateTo)
+  }
+  showToast('Loaded: ' + c.name, 'success')
+}
+
+function delConfig(id) {
+  localStorage.setItem('acsd-saved-reports', JSON.stringify(getConfigs().filter(c => c.id !== id)))
+  renderSavedConfigs()
+}
+
+function toggleSaved() {
+  const list    = document.getElementById('saved-list')
+  const chevron = document.getElementById('saved-chevron')
+  const nowHidden = list.classList.toggle('hidden')
+  chevron.style.transform = nowHidden ? '' : 'rotate(90deg)'
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function ec(s) {
+  return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+}
+
+function fmtLevel(s) {
+  return {principal_expert:'Principal Expert',senior:'Senior',intermediary:'Intermediary',junior:'Junior'}[s]||s||'—'
+}
+function fmtAvail(s) {
+  return {available:'Available',assigned:'On Assignment',unavailable:'Unavailable',unknown:'Not Specified'}[s]||s||'—'
+}
+function fmtDate(iso)  { return iso ? new Date(iso).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—' }
+function fmtDT(iso)    { return iso ? new Date(iso).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—' }
+
+function pillsFor(f) {
+  if (!f) return []
+  const p = []
+  if (f.search)       p.push('Name: ' + f.search)
+  if (f.affiliation)  p.push('Affiliation: ' + (f.affiliation==='internal'?'Core':'Partner'))
+  if (f.seniority)    p.push('Level: ' + fmtLevel(f.seniority))
+  if (f.availability) p.push('Availability: ' + fmtAvail(f.availability))
+  if (f.isActive !== '' && f.isActive != null) p.push('Status: ' + (f.isActive==='true'?'Active':'Inactive'))
+  if (f.sector)    p.push('Sector: '    + f.sector)
+  if (f.geography) p.push('Geography: ' + f.geography)
+  if (f.language)  p.push('Language: '  + f.language)
+  if (f.donor)     p.push('Donor: '     + f.donor)
+  if (f.dateFrom)  p.push('From: '      + f.dateFrom)
+  if (f.dateTo)    p.push('To: '        + f.dateTo)
+  if (f.role)      p.push('Role: '      + f.role)
+  if (f.action)    p.push('Action: '    + f.action)
+  if (f.entity)    p.push('Entity: '    + f.entity)
+  if (f.email)     p.push('User: '      + f.email)
+  return p
+}
+
+function dl(blob, name) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = name
+  document.body.appendChild(a); a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast')
+  el.className = `fixed bottom-6 right-6 z-50 text-sm px-4 py-3 rounded-xl shadow-2xl text-white max-w-sm
+    ${type==='error'?'bg-red-700':type==='success'?'bg-green-700':'bg-gray-900'}`
+  el.textContent = msg
+  el.classList.remove('hidden')
+  setTimeout(() => el.classList.add('hidden'), 3500)
+}
+
+init()
+</script>
+</body>
+</html>

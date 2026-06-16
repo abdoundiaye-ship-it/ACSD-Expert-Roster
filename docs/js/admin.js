@@ -32,6 +32,7 @@ function renderAdminNav(active) {
     { id: 'experts', href: 'experts.html', label: 'Experts' },
     { id: 'roles',   href: 'roles.html',   label: 'Roles & Permissions' },
     { id: 'audit',   href: 'audit.html',   label: 'Audit Logs' },
+    { id: 'reports', href: '../reports.html', label: 'Reports' },
   ]
   const nav = document.getElementById('admin-nav')
   if (!nav) return
