@@ -40,7 +40,7 @@ const STRINGS = {
     count_all:          n => `${n} expert${n !== 1 ? 's' : ''}`,
     count_filtered:     (s, tot) => `${s} of ${tot} expert${tot !== 1 ? 's' : ''}`,
     years_exp:          n => `${n} year${n !== 1 ? 's' : ''} of experience`,
-    download_cv:        'Download CV',
+    download_cv:        'Open CV',
     cv_error:           'Unable to retrieve CV file: ',
     load_error:         'Loading failed',
     modal_profile:      'Profile',
@@ -87,7 +87,7 @@ const STRINGS = {
     count_all:          n => `${n} expert${n !== 1 ? 's' : ''}`,
     count_filtered:     (s, tot) => `${s} sur ${tot} expert${tot !== 1 ? 's' : ''}`,
     years_exp:          n => `${n} an${n !== 1 ? 's' : ''} d'expérience`,
-    download_cv:        'Télécharger le CV',
+    download_cv:        'Ouvrir le CV',
     cv_error:           'Impossible de récupérer le fichier CV : ',
     load_error:         'Erreur de chargement',
     modal_profile:      'Profil',
@@ -342,7 +342,10 @@ function expertCard(e) {
       <h3 class="font-semibold text-gray-900 text-sm leading-snug">${esc(e.full_name)}</h3>
       <p class="text-xs text-gray-500 mt-0.5 line-clamp-2">${esc(e.title ?? '')}</p>
     </div>
-    <span class="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1 ${dot}" title="${esc(dotTip)}"></span>
+    <div class="flex items-center gap-1.5 flex-shrink-0 mt-0.5">
+      ${e.cv_storage_path ? `<span class="text-xs font-semibold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded" title="CV available">CV</span>` : ''}
+      <span class="w-2.5 h-2.5 rounded-full ${dot}" title="${esc(dotTip)}"></span>
+    </div>
   </div>
 
   <div class="flex flex-wrap gap-1.5">
@@ -382,14 +385,17 @@ function showModal(e) {
        </div>`
     : ''
 
-  const cvBtn = isAdmin && e.cv_storage_path
+  const cvBtn = e.cv_storage_path
     ? `<div class="pt-4 border-t border-gray-100">
          <button onclick="downloadCV('${esc(e.cv_storage_path)}')"
-           class="inline-flex items-center gap-2 text-sm text-blue-700 hover:text-blue-900 font-medium">
-           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           class="inline-flex items-center gap-2 text-sm font-semibold text-white
+                  bg-blue-800 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors">
+           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-               d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586
-                  a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+               d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0
+                  0013 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+               d="M9 13h6m-3-3v6"/>
            </svg>
            ${t('download_cv')}
          </button>
