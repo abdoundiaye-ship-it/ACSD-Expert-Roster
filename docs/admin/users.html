@@ -44,6 +44,8 @@
         </button>
       </div>
 
+      <div id="admin-count-bar" class="hidden text-xs text-gray-500 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2"></div>
+
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <table class="w-full text-sm">
           <thead>
@@ -105,44 +107,20 @@
     </div>
   </div>
 
-  <!-- Edit role modal -->
-  <div id="role-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
-    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('role-modal')"></div>
-    <div class="relative flex items-center justify-center min-h-full px-4 py-10">
-      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
-        <h3 class="font-bold text-gray-900 text-base mb-1">Change Role</h3>
-        <p id="role-modal-user" class="text-xs text-gray-500 mb-5"></p>
-        <select id="role-select"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-5">
-          <option value="viewer">Viewer</option>
-          <option value="admin">Admin</option>
-        </select>
-        <div class="flex gap-3">
-          <button onclick="saveRole()"
-            class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
-            Save
-          </button>
-          <button onclick="closeAdminModal('role-modal')"
-            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/config.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/admin.js"></script>
   <script>
-    let currentUserId = null
-    let usersCache    = []
-    let rolesCache    = {}
+    let usersCache  = []
+    let rolesCache  = {}
+    let currentUid  = null   // logged-in admin's own user id
 
     async function loadUsers() {
       const session = await initAdmin('users')
       if (!session) return
+      currentUid = session.user.id
 
       const [profRes, roleRes] = await Promise.all([
         sb.from('profiles').select('id, email, full_name, is_active, created_at').order('created_at'),
@@ -156,7 +134,16 @@
       renderTable()
     }
 
+    function adminCount() {
+      return Object.values(rolesCache).filter(r => r === 'admin').length
+    }
+
     function renderTable() {
+      const bar = document.getElementById('admin-count-bar')
+      const count = adminCount()
+      bar.textContent = `${count} admin${count !== 1 ? 's' : ''} — any number of users can hold the Admin role`
+      bar.classList.remove('hidden')
+
       const tbody = document.getElementById('users-tbody')
       if (usersCache.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">No users found.</td></tr>'
@@ -166,18 +153,27 @@
       tbody.innerHTML = usersCache.map(u => {
         const role   = rolesCache[u.id] ?? 'viewer'
         const active = u.is_active
+        const isSelf = u.id === currentUid
 
         return `
         <tr class="hover:bg-gray-50 transition-colors">
           <td class="px-5 py-3">
-            <p class="font-medium text-gray-900">${aesc(u.full_name || '—')}</p>
+            <p class="font-medium text-gray-900">${aesc(u.full_name || '—')} ${isSelf ? '<span class="text-xs text-gray-400">(you)</span>' : ''}</p>
             <p class="text-xs text-gray-500">${aesc(u.email)}</p>
           </td>
           <td class="px-5 py-3">
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold
-              ${role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-blue-50 text-blue-700'}">
-              ${aesc(role)}
-            </span>
+            <select
+              data-uid="${aesc(u.id)}"
+              onchange="changeRole(this)"
+              ${isSelf ? 'disabled title="You cannot change your own role"' : ''}
+              class="text-xs font-semibold rounded-full px-2.5 py-1 border-0 focus:ring-2 focus:ring-blue-500 cursor-pointer
+                     ${role === 'admin'
+                       ? 'bg-amber-100 text-amber-800'
+                       : 'bg-blue-50 text-blue-700'}
+                     ${isSelf ? 'opacity-60 cursor-not-allowed' : ''}">
+              <option value="viewer" ${role === 'viewer' ? 'selected' : ''}>Viewer</option>
+              <option value="admin"  ${role === 'admin'  ? 'selected' : ''}>Admin</option>
+            </select>
           </td>
           <td class="px-5 py-3">
             <span class="inline-flex items-center gap-1.5 text-xs font-medium
@@ -188,17 +184,53 @@
           </td>
           <td class="px-5 py-3 text-xs text-gray-400">${fmtDate(u.created_at)}</td>
           <td class="px-5 py-3 text-right">
-            <div class="flex items-center justify-end gap-2">
-              <button onclick="openRoleModal('${aesc(u.id)}', '${aesc(u.email)}')"
-                class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit Role</button>
-              <button onclick="toggleUserActive('${aesc(u.id)}', ${active})"
-                class="text-xs font-medium ${active ? 'text-amber-600 hover:text-amber-800' : 'text-green-600 hover:text-green-800'}">
-                ${active ? 'Deactivate' : 'Activate'}
-              </button>
-            </div>
+            <button onclick="toggleUserActive('${aesc(u.id)}', ${active})"
+              class="text-xs font-medium ${active ? 'text-amber-600 hover:text-amber-800' : 'text-green-600 hover:text-green-800'}">
+              ${active ? 'Deactivate' : 'Activate'}
+            </button>
           </td>
         </tr>`
       }).join('')
+    }
+
+    async function changeRole(selectEl) {
+      const userId  = selectEl.dataset.uid
+      const newRole = selectEl.value
+      const oldRole = rolesCache[userId] ?? 'viewer'
+      if (newRole === oldRole) return
+
+      selectEl.disabled = true
+
+      const { error } = await sb.from('user_roles')
+        .upsert({ user_id: userId, role: newRole }, { onConflict: 'user_id' })
+
+      selectEl.disabled = false
+
+      if (error) {
+        selectEl.value = oldRole   // revert dropdown
+        showToast('Failed to update role: ' + error.message, 'error')
+        return
+      }
+
+      const u = usersCache.find(x => x.id === userId)
+      await logAudit('ASSIGN_ROLE', 'user', userId, u?.email ?? userId,
+        { role: oldRole }, { role: newRole })
+
+      rolesCache[userId] = newRole
+
+      // Recolour the dropdown to match new role without full re-render
+      selectEl.className = selectEl.className
+        .replace(/bg-\w+-\d+ text-\w+-\d+/g, '')
+        .trim()
+      selectEl.classList.add(
+        ...(newRole === 'admin' ? ['bg-amber-100','text-amber-800'] : ['bg-blue-50','text-blue-700'])
+      )
+
+      const countEl = document.getElementById('admin-count-bar')
+      const count = adminCount()
+      countEl.textContent = `${count} admin${count !== 1 ? 's' : ''} — any number of users can hold the Admin role`
+
+      showToast(`${u?.email ?? 'User'} is now ${newRole}.`)
     }
 
     function openInviteModal() {
@@ -210,9 +242,9 @@
     }
 
     async function sendInvite() {
-      const name  = document.getElementById('inv-name').value.trim()
-      const email = document.getElementById('inv-email').value.trim()
-      const role  = document.getElementById('inv-role').value
+      const name   = document.getElementById('inv-name').value.trim()
+      const email  = document.getElementById('inv-email').value.trim()
+      const role   = document.getElementById('inv-role').value
       const errDiv = document.getElementById('invite-error')
       errDiv.classList.add('hidden')
 
@@ -223,12 +255,9 @@
         const resp = await fetch(
           `${SUPABASE_URL}/functions/v1/admin-invite-user`,
           {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${session.access_token}`,
-            },
-            body: JSON.stringify({ email, fullName: name, role }),
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+            body:    JSON.stringify({ email, fullName: name, role }),
           }
         )
         const json = await resp.json()
@@ -244,32 +273,6 @@
           : err.message
         errDiv.classList.remove('hidden')
       }
-    }
-
-    function openRoleModal(userId, userEmail) {
-      currentUserId = userId
-      document.getElementById('role-modal-user').textContent = userEmail
-      document.getElementById('role-select').value = rolesCache[userId] ?? 'viewer'
-      openAdminModal('role-modal')
-    }
-
-    async function saveRole() {
-      const newRole = document.getElementById('role-select').value
-      const oldRole = rolesCache[currentUserId] ?? 'viewer'
-
-      const { error } = await sb.from('user_roles')
-        .upsert({ user_id: currentUserId, role: newRole }, { onConflict: 'user_id' })
-
-      if (error) { showToast('Failed to update role: ' + error.message, 'error'); return }
-
-      const u = usersCache.find(x => x.id === currentUserId)
-      await logAudit('ASSIGN_ROLE', 'user', currentUserId, u?.email ?? currentUserId,
-        { role: oldRole }, { role: newRole })
-
-      rolesCache[currentUserId] = newRole
-      closeAdminModal('role-modal')
-      showToast('Role updated.')
-      renderTable()
     }
 
     async function toggleUserActive(userId, currentlyActive) {
