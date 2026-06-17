@@ -154,6 +154,43 @@
   </div>
 
 
+  <!-- Delete user confirmation modal -->
+  <div id="delete-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('delete-modal')"></div>
+    <div class="relative flex items-center justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+          </div>
+          <h3 class="font-bold text-gray-900 text-base">Delete user?</h3>
+        </div>
+        <p class="text-sm text-gray-600 mb-2">You are about to permanently delete:</p>
+        <div class="bg-gray-50 rounded-lg px-4 py-2.5 mb-4">
+          <p id="del-user-name" class="font-semibold text-gray-900 text-sm"></p>
+          <p id="del-user-email" class="text-xs text-gray-500"></p>
+        </div>
+        <p class="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-5">
+          This action is irreversible. The account and all associated data will be permanently removed.
+        </p>
+        <div id="delete-error" class="hidden mb-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg px-4 py-3"></div>
+        <div class="flex gap-3">
+          <button id="del-confirm-btn" onclick="confirmDeleteUser()"
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+            Delete permanently
+          </button>
+          <button onclick="closeAdminModal('delete-modal')"
+            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/config.js"></script>
   <script src="../js/auth.js"></script>
@@ -229,10 +266,15 @@
             </span>
           </td>
           <td class="px-5 py-3 text-xs text-gray-400">${fmtDate(u.created_at)}</td>
-          <td class="px-5 py-3 text-right">
+          <td class="px-5 py-3 text-right whitespace-nowrap">
             <button onclick="toggleUserActive('${aesc(u.id)}', ${active})"
               class="text-xs font-medium ${active ? 'text-amber-600 hover:text-amber-800' : 'text-green-600 hover:text-green-800'}">
               ${active ? 'Deactivate' : 'Activate'}
+            </button>
+            <button onclick="deleteUser('${aesc(u.id)}', '${aesc(u.full_name || '')}', '${aesc(u.email)}')"
+              ${isSelf ? 'disabled title="You cannot delete your own account"' : ''}
+              class="text-xs font-medium ml-3 ${isSelf ? 'text-gray-300 cursor-not-allowed' : 'text-red-500 hover:text-red-700'}">
+              Delete
             </button>
           </td>
         </tr>`
@@ -338,6 +380,57 @@
           el.classList.remove('hidden')
           setTimeout(() => el.classList.add('hidden'), 2500)
         })
+    }
+
+    let pendingDeleteId = null
+
+    function deleteUser(userId, userName, userEmail) {
+      pendingDeleteId = userId
+      document.getElementById('del-user-name').textContent  = userName || '—'
+      document.getElementById('del-user-email').textContent = userEmail
+      document.getElementById('delete-error').classList.add('hidden')
+      const btn = document.getElementById('del-confirm-btn')
+      btn.disabled = false
+      btn.textContent = 'Delete permanently'
+      openAdminModal('delete-modal')
+    }
+
+    async function confirmDeleteUser() {
+      if (!pendingDeleteId) return
+
+      const btn = document.getElementById('del-confirm-btn')
+      btn.disabled = true
+      btn.textContent = 'Deleting…'
+      document.getElementById('delete-error').classList.add('hidden')
+
+      try {
+        const { data: { session } } = await sb.auth.getSession()
+        const resp = await fetch(
+          `${SUPABASE_URL}/functions/v1/admin-delete-user`,
+          {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+            body:    JSON.stringify({ userId: pendingDeleteId }),
+          }
+        )
+        const result = await resp.json()
+        if (!resp.ok) throw new Error(result.error || 'Delete failed')
+
+        const u = usersCache.find(x => x.id === pendingDeleteId)
+        await logAudit('DELETE', 'user', pendingDeleteId, u?.email ?? pendingDeleteId, null, null)
+
+        closeAdminModal('delete-modal')
+        pendingDeleteId = null
+        await loadUsers()
+        showToast('User deleted.')
+      } catch (err) {
+        document.getElementById('delete-error').textContent = err.message.includes('Failed to fetch')
+          ? 'Edge Function not reachable. Deploy it first via the Supabase CLI.'
+          : err.message
+        document.getElementById('delete-error').classList.remove('hidden')
+        btn.disabled = false
+        btn.textContent = 'Delete permanently'
+      }
     }
 
     async function toggleUserActive(userId, currentlyActive) {
