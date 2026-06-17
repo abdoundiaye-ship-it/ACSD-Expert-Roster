@@ -303,6 +303,48 @@
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"></textarea>
           </div>
 
+          <!-- CV Document upload -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-2">CV Document</label>
+
+            <!-- Existing CV indicator (edit mode) -->
+            <div id="ef-cv-existing" class="hidden items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 mb-2">
+              <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+              </svg>
+              <span class="text-xs font-medium text-blue-800 flex-1">CV on file</span>
+              <button type="button" id="ef-cv-view-btn" onclick="viewExistingCv()"
+                class="text-xs text-blue-700 hover:text-blue-900 font-medium">View</button>
+              <span class="text-gray-300">|</span>
+              <button type="button" onclick="showCvUploadZone()"
+                class="text-xs text-gray-500 hover:text-gray-700">Replace</button>
+            </div>
+
+            <!-- Upload zone -->
+            <div id="ef-cv-upload-zone">
+              <div onclick="document.getElementById('ef-cv-file').click()"
+                class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer
+                       hover:border-blue-400 hover:bg-blue-50 transition-all">
+                <svg class="w-6 h-6 text-gray-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                <p class="text-xs font-medium text-gray-600">Click to upload PDF CV</p>
+                <p class="text-xs text-gray-400 mt-0.5">PDF only &middot; max 10 MB</p>
+              </div>
+              <input type="file" id="ef-cv-file" accept=".pdf" class="hidden" onchange="cvFileChosen(event)">
+              <div id="ef-cv-chosen" class="hidden mt-2 flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2">
+                <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                <span id="ef-cv-filename" class="flex-1 truncate text-xs font-medium text-gray-700"></span>
+                <button type="button" onclick="clearCvUpload()" class="text-gray-400 hover:text-gray-700 text-sm">&times;</button>
+              </div>
+            </div>
+          </div>
+
           <!-- Areas of Expertise -->
           <div>
             <label class="block text-xs font-semibold text-gray-600 mb-2">Areas of Expertise</label>
@@ -383,7 +425,7 @@
 
       const [expRes, secRes] = await Promise.all([
         sb.from('experts')
-          .select('id, full_name, first_name, last_name, title, email, phone, affiliation_type, partner_org, seniority_tier, years_experience, availability_status, is_active, bio_summary, created_at, expert_sectors(priority, sectors(id, name))')
+          .select('id, full_name, first_name, last_name, title, email, phone, affiliation_type, partner_org, seniority_tier, years_experience, availability_status, is_active, bio_summary, cv_storage_path, created_at, expert_sectors(priority, sectors(id, name))')
           .order('full_name'),
         sb.from('sectors').select('id, name').order('sort_order'),
       ])
@@ -524,6 +566,22 @@
       document.getElementById('ef-active').checked   = expert?.is_active ?? true
       document.getElementById('ef-bio').value        = expert?.bio_summary ?? ''
 
+      // CV section
+      const existingCv = expert?.cv_storage_path ?? null
+      const cvExisting = document.getElementById('ef-cv-existing')
+      const cvUploadZone = document.getElementById('ef-cv-upload-zone')
+      if (existingCv) {
+        cvExisting.classList.remove('hidden')
+        cvExisting.classList.add('flex')
+        cvExisting.dataset.path = existingCv
+        cvUploadZone.classList.add('hidden')
+      } else {
+        cvExisting.classList.add('hidden')
+        cvExisting.classList.remove('flex')
+        cvUploadZone.classList.remove('hidden')
+      }
+      clearCvUpload()
+
       togglePartnerOrg()
 
       // Sector selection
@@ -593,6 +651,21 @@
         sectorRows.push({ expert_id: savedId, sector_id: sid, priority: 'secondary' }))
       if (sectorRows.length) await sb.from('expert_sectors').insert(sectorRows)
 
+      // Upload CV if a file was chosen
+      const cvFile = document.getElementById('ef-cv-file').files?.[0]
+      if (cvFile) {
+        const storagePath = `${savedId}/cv.pdf`
+        const { error: upErr } = await sb.storage
+          .from('expert-cvs')
+          .upload(storagePath, cvFile, { upsert: true, contentType: 'application/pdf' })
+        if (upErr) {
+          errDiv.textContent = 'Expert saved but CV upload failed: ' + upErr.message
+          errDiv.classList.remove('hidden')
+        } else {
+          await sb.from('experts').update({ cv_storage_path: storagePath }).eq('id', savedId)
+        }
+      }
+
       await logAudit(id ? 'UPDATE' : 'CREATE', 'expert', savedId, fullName,
         prevVals, { full_name: fullName, is_active: body.is_active })
 
@@ -637,6 +710,36 @@
       closeAdminModal('delete-modal')
       showToast('Expert deleted.')
       await loadExperts()
+    }
+
+    // ── CV file upload helpers ─────────────────────────────────────────────────
+
+    function cvFileChosen(e) {
+      const f = e.target.files?.[0]
+      if (!f) return
+      if (f.size > 10 * 1024 * 1024) { showToast('File too large — max 10 MB', 'error'); clearCvUpload(); return }
+      document.getElementById('ef-cv-filename').textContent = f.name
+      document.getElementById('ef-cv-chosen').classList.remove('hidden')
+    }
+
+    function clearCvUpload() {
+      document.getElementById('ef-cv-file').value = ''
+      document.getElementById('ef-cv-filename').textContent = ''
+      document.getElementById('ef-cv-chosen').classList.add('hidden')
+    }
+
+    function showCvUploadZone() {
+      document.getElementById('ef-cv-existing').classList.add('hidden')
+      document.getElementById('ef-cv-existing').classList.remove('flex')
+      document.getElementById('ef-cv-upload-zone').classList.remove('hidden')
+    }
+
+    async function viewExistingCv() {
+      const path = document.getElementById('ef-cv-existing').dataset.path
+      if (!path) return
+      const { data, error } = await sb.storage.from('expert-cvs').createSignedUrl(path, 120)
+      if (error) { showToast('Could not open CV: ' + error.message, 'error'); return }
+      window.open(data.signedUrl, '_blank')
     }
 
     // ── CV Analysis ────────────────────────────────────────────────────────────
