@@ -55,7 +55,18 @@ async function checkAuth() {
 }
 
 async function getUserRole() {
-  const { data } = await sb.from('user_roles').select('role').maybeSingle()
+  // getUser() does a server-side token validation, ensuring the client
+  // has the correct auth state before the DB query runs.
+  const { data: { user }, error: authErr } = await sb.auth.getUser()
+  if (authErr || !user) return 'viewer'
+
+  const { data, error } = await sb
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (error) console.error('[getUserRole]', error.message, error)
   return data?.role ?? 'viewer'
 }
 
