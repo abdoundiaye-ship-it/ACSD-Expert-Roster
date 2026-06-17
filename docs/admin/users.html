@@ -74,38 +74,81 @@
     <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('invite-modal')"></div>
     <div class="relative flex items-center justify-center min-h-full px-4 py-10">
       <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
-        <h3 class="font-bold text-gray-900 text-base mb-5">Invite New User</h3>
-        <div id="invite-error" class="hidden mb-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg px-4 py-3"></div>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Full Name</label>
-            <input id="inv-name" type="text" placeholder="Jane Smith"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+        <!-- Form view -->
+        <div id="invite-form-view">
+          <h3 class="font-bold text-gray-900 text-base mb-5">Add New User</h3>
+          <div id="invite-error" class="hidden mb-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg px-4 py-3"></div>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Full Name</label>
+              <input id="inv-name" type="text" placeholder="Jane Smith"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Email Address <span class="text-red-500">*</span></label>
+              <input id="inv-email" type="email" placeholder="jane@example.com"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Role <span class="text-red-500">*</span></label>
+              <select id="inv-role"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="viewer">Viewer</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Email Address <span class="text-red-500">*</span></label>
-            <input id="inv-email" type="email" placeholder="jane@example.com"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Role <span class="text-red-500">*</span></label>
-            <select id="inv-role"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="viewer">Viewer</option>
-              <option value="admin">Admin</option>
-            </select>
+          <div class="flex gap-3 mt-6">
+            <button onclick="sendInvite()"
+              class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+              Create Account
+            </button>
+            <button onclick="closeAdminModal('invite-modal')"
+              class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
+              Cancel
+            </button>
           </div>
         </div>
-        <div class="flex gap-3 mt-6">
-          <button onclick="sendInvite()"
-            class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
-            Send Invitation
-          </button>
+
+        <!-- Success view — show credentials to copy -->
+        <div id="invite-success-view" class="hidden">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <h3 class="font-bold text-gray-900 text-base">Account created</h3>
+          </div>
+          <p class="text-xs text-gray-500 mb-4">
+            Share these credentials with the new user. They can change their password after logging in
+            via <strong>Forgot password</strong> on the login page.
+          </p>
+          <div class="space-y-3 bg-gray-50 rounded-xl p-4 border border-gray-200 text-sm font-mono">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-xs text-gray-400 uppercase tracking-wide w-16 flex-shrink-0">Email</span>
+              <span id="cred-email" class="flex-1 text-gray-800 text-xs break-all"></span>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-xs text-gray-400 uppercase tracking-wide w-16 flex-shrink-0">Password</span>
+              <span id="cred-password" class="flex-1 text-gray-800 text-xs font-bold tracking-wide"></span>
+              <button onclick="copyCredentials()" title="Copy to clipboard"
+                class="flex-shrink-0 text-blue-600 hover:text-blue-800 p-1 rounded transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <p id="copy-confirmation" class="hidden text-xs text-green-600 mt-2 text-center">Copied to clipboard!</p>
           <button onclick="closeAdminModal('invite-modal')"
-            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
-            Cancel
+            class="mt-5 w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+            Done
           </button>
         </div>
+
       </div>
     </div>
   </div>
@@ -241,6 +284,9 @@
       document.getElementById('inv-email').value = ''
       document.getElementById('inv-role').value  = 'viewer'
       document.getElementById('invite-error').classList.add('hidden')
+      document.getElementById('invite-form-view').classList.remove('hidden')
+      document.getElementById('invite-success-view').classList.add('hidden')
+      document.getElementById('copy-confirmation').classList.add('hidden')
       openAdminModal('invite-modal')
     }
 
@@ -254,7 +300,8 @@
       if (!email) { errDiv.textContent = 'Email is required.'; errDiv.classList.remove('hidden'); return }
 
       try {
-        const { data: { session } } = await sb.auth.getSession()
+        const { data: { user: me } } = await sb.auth.getUser()
+        const { data: { session } }  = await sb.auth.getSession()
         const resp = await fetch(
           `${SUPABASE_URL}/functions/v1/admin-invite-user`,
           {
@@ -264,18 +311,33 @@
           }
         )
         const json = await resp.json()
-        if (!resp.ok) throw new Error(json.error || 'Invitation failed')
+        if (!resp.ok) throw new Error(json.error || 'Account creation failed')
 
         await logAudit('CREATE', 'user', json.userId, email, null, { role })
-        closeAdminModal('invite-modal')
-        showToast('Invitation sent — user will receive an email.')
+
+        // Show credentials panel
+        document.getElementById('cred-email').textContent    = email
+        document.getElementById('cred-password').textContent = json.tempPassword
+        document.getElementById('invite-form-view').classList.add('hidden')
+        document.getElementById('invite-success-view').classList.remove('hidden')
         await loadUsers()
       } catch (err) {
         errDiv.textContent = err.message.includes('Failed to fetch')
-          ? 'Edge Function not deployed. Go to Supabase Dashboard → Authentication → Users → Invite user.'
+          ? 'Edge Function not reachable. Deploy it first via the Supabase CLI.'
           : err.message
         errDiv.classList.remove('hidden')
       }
+    }
+
+    function copyCredentials() {
+      const email    = document.getElementById('cred-email').textContent
+      const password = document.getElementById('cred-password').textContent
+      navigator.clipboard.writeText(`Email: ${email}\nPassword: ${password}`)
+        .then(() => {
+          const el = document.getElementById('copy-confirmation')
+          el.classList.remove('hidden')
+          setTimeout(() => el.classList.add('hidden'), 2500)
+        })
     }
 
     async function toggleUserActive(userId, currentlyActive) {

@@ -40,21 +40,36 @@ serve(async (req: Request) => {
   if (!email) return json({ error: 'email is required' }, 400)
   if (!['admin', 'viewer'].includes(role)) return json({ error: 'role must be admin or viewer' }, 400)
 
-  // ── Invite user ────────────────────────────────────────────────────────────
-  const { data: invited, error: inviteErr } = await adminClient.auth.admin.inviteUserByEmail(email, {
-    data: { full_name: fullName },
-  })
-  if (inviteErr) return json({ error: inviteErr.message }, 400)
+  // ── Create user with a temporary password (no email sent) ─────────────────
+  const tempPassword = generateTempPassword()
 
-  const newUserId = invited.user?.id
-  if (!newUserId) return json({ error: 'Invitation sent but user ID not returned' }, 500)
+  const { data: created, error: createErr } = await adminClient.auth.admin.createUser({
+    email,
+    password: tempPassword,
+    email_confirm: true,          // skip email verification entirely
+    user_metadata: { full_name: fullName },
+  })
+  if (createErr) return json({ error: createErr.message }, 400)
+
+  const newUserId = created.user?.id
+  if (!newUserId) return json({ error: 'User created but ID not returned' }, 500)
 
   // ── Assign role ────────────────────────────────────────────────────────────
   await adminClient.from('user_roles')
     .upsert({ user_id: newUserId, role }, { onConflict: 'user_id' })
 
-  return json({ success: true, userId: newUserId })
+  // Return the temp password so the admin can share it with the new user
+  return json({ success: true, userId: newUserId, tempPassword })
 })
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function generateTempPassword(): string {
+  // Unambiguous characters (no 0/O, 1/l/I)
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#'
+  const bytes = crypto.getRandomValues(new Uint8Array(14))
+  return Array.from(bytes).map(b => chars[b % chars.length]).join('')
+}
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
