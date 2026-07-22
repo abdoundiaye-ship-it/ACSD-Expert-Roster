@@ -126,7 +126,10 @@ serve(async (req: Request) => {
         const top = scored.filter(s => topIds.has(s.expert.id))
         const justificationText = await getJustifications(apiKey, opportunity.title, top)
         Object.assign(justifications, justificationText)
-      } catch (_) { /* justification is a nice-to-have; scoring must not fail if it errors */ }
+      } catch (err) {
+        // Justification is a nice-to-have; scoring must not fail if it errors — but log it so it's diagnosable.
+        console.error('[compute-matches] justification call threw', err instanceof Error ? err.message : err)
+      }
     }
   }
 
@@ -309,13 +312,24 @@ Return format: { "<expert_id>": "justification text", ... }`
       messages: [{ role: 'user', content: prompt }],
     }),
   })
-  if (!res.ok) return {}
+  if (!res.ok) {
+    console.error('[getJustifications] Claude API error', res.status, (await res.text()).slice(0, 500))
+    return {}
+  }
 
   const data = await res.json()
   const rawText: string = data.content?.[0]?.text ?? ''
   const jsonMatch = rawText.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) return {}
-  try { return JSON.parse(jsonMatch[0]) } catch { return {} }
+  if (!jsonMatch) {
+    console.error('[getJustifications] no JSON object found in Claude response', rawText.slice(0, 500))
+    return {}
+  }
+  try {
+    return JSON.parse(jsonMatch[0])
+  } catch (err) {
+    console.error('[getJustifications] failed to parse JSON', err instanceof Error ? err.message : err, jsonMatch[0].slice(0, 500))
+    return {}
+  }
 }
 
 function respond(body: unknown, status = 200): Response {
