@@ -1134,43 +1134,115 @@
       document.getElementById('report-pdf-btn').disabled = !ready
     }
 
-    function buildCombinedReportHtml() {
-      const parts = reportComponents()
+    // Scoped under .combined-report so this injected <style> can't leak
+    // out and affect the rest of the admin UI while it's briefly attached
+    // to document.body for html2canvas to capture.
+    const REPORT_STYLE = `<style>
+      .combined-report * { box-sizing: border-box; }
+      .combined-report { font-family: Calibri, Arial, sans-serif; color: #111827; }
+      .combined-report h1 { color:#1e3a8a; font-size:18pt; border-bottom:2pt solid #1e3a8a; padding-bottom:6pt; margin:0 0 14pt; }
+      .combined-report h3 { color:#374151; font-size:11pt; margin:14pt 0 6pt; }
+      .combined-report p { font-size:10.5pt; line-height:1.5; margin:0 0 10pt; }
+      .combined-report table { border-collapse:collapse; width:100%; margin:8pt 0 14pt; }
+      .combined-report th { background:#1e3a8a; color:#fff; text-align:left; padding:6pt 8pt; font-size:9pt; }
+      .combined-report td { border:1px solid #e5e7eb; padding:6pt 8pt; font-size:9pt; }
+      .combined-report tr:nth-child(even) td { background:#f9fafb; }
+      .combined-report ol, .combined-report ul { font-size:10.5pt; line-height:1.6; }
+      .combined-report .cover { text-align:center; padding-top:100px; }
+      .combined-report .cover img { height:70px; margin-bottom:40px; }
+      .combined-report .cover h1 { border:none; font-size:22pt; }
+      .combined-report .toc-row { display:flex; justify-content:space-between; border-bottom:1px dotted #d1d5db; padding:5pt 0; font-size:10.5pt; }
+      .combined-report .page-break { page-break-before: always; break-before: page; }
+    </style>`
+
+    function buildCoverHtml() {
       const today = new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })
+      return `<div class="cover">
+        <img src="../img/logo.png">
+        <h1>${aesc(opportunity.title)}</h1>
+        <p style="font-size:12pt;">Technical &amp; Financial Proposal</p>
+        <p style="font-size:11pt; margin-top:50pt;">Submitted to: <strong>${aesc(opportunity.organization)}</strong></p>
+        <p style="font-size:11pt;">Submitted by: <strong>ACSD</strong></p>
+        <p style="font-size:9pt; color:#9ca3af; margin-top:20pt;">${aesc(today)}</p>
+      </div>`
+    }
 
-      const cover = `
-        <div style="text-align:center;padding-top:80px;">
-          <img src="../img/logo.png" style="height:70px;margin-bottom:40px;">
-          <h1 style="font-size:22pt;color:#1e3a8a;">${aesc(opportunity.title)}</h1>
-          <p style="font-size:12pt;color:#374151;margin-top:20px;">Technical &amp; Financial Proposal</p>
-          <p style="font-size:11pt;color:#6b7280;margin-top:60px;">Submitted to: <strong>${aesc(opportunity.organization)}</strong></p>
-          <p style="font-size:11pt;color:#6b7280;">Submitted by: <strong>ACSD</strong></p>
-          <p style="font-size:10pt;color:#9ca3af;margin-top:20px;">${aesc(today)}</p>
-        </div>
-        <div class="page-break"></div>`
+    function reportSections() {
+      return reportComponents().map(p => ({
+        label: p.label,
+        html: `<h1>${aesc(p.label)}</h1>${p.doc.content_html}`,
+      }))
+    }
 
+    // sectionPages: array parallel to reportSections(), or null for a
+    // page-count-only placeholder pass before the real numbers are known.
+    function buildSummaryHtml(sectionPages) {
       const teamRows = selectedExperts.map(s =>
         `<tr><td>${aesc(s.assigned_role_title)}</td><td>${aesc(s.experts?.full_name ?? '')}</td><td>${aesc(s.experts?.seniority_tier ?? '')}</td></tr>`).join('')
-      const tocRows = parts.map(p => `<li>${aesc(p.label)}</li>`).join('')
-
-      const summary = `
-        <h1 style="color:#1e3a8a;">Executive Summary</h1>
+      const sections = reportSections()
+      const tocRows = sections.map((s, i) =>
+        `<div class="toc-row"><span>${aesc(s.label)}</span><span>${sectionPages ? sectionPages[i] : ''}</span></div>`).join('')
+      return `
+        <h1>Executive Summary</h1>
         <p>${aesc(opportunity.summary ?? '')}</p>
         <h3>Proposed Team</h3>
-        <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;">
-          <thead><tr><th>Role</th><th>Expert</th><th>Seniority</th></tr></thead>
-          <tbody>${teamRows || '<tr><td colspan="3">No team assigned.</td></tr>'}</tbody>
-        </table>
-        <h3>Contents</h3>
-        <ol>${tocRows}</ol>
-        <div class="page-break"></div>`
+        <table><thead><tr><th>Role</th><th>Expert</th><th>Seniority</th></tr></thead>
+        <tbody>${teamRows || '<tr><td colspan="3">No team assigned.</td></tr>'}</tbody></table>
+        <h3>Table of Contents</h3>
+        ${tocRows}`
+    }
 
-      const body = parts.map(p => `
-        <h1 style="color:#1e3a8a;">${aesc(p.label)}</h1>
-        ${p.doc.content_html}
-        <div class="page-break"></div>`).join('')
+    async function renderSectionToCanvas(innerHtml) {
+      const container = document.createElement('div')
+      container.className = 'combined-report'
+      container.style.width = '700px'
+      container.style.padding = '20px'
+      container.innerHTML = REPORT_STYLE + innerHtml
+      document.body.appendChild(container)
+      try {
+        return await window.html2canvas(container, { scale: 2 })
+      } finally {
+        document.body.removeChild(container)
+      }
+    }
 
-      return cover + summary + body
+    function canvasPageCount(canvas, pageWidthMm, pageHeightMm) {
+      const imgWidth = pageWidthMm - 20
+      const imgHeight = canvas.height * imgWidth / canvas.width
+      return Math.max(1, Math.ceil(imgHeight / (pageHeightMm - 20)))
+    }
+
+    // Two-pass layout: render the cover and each document section once to
+    // measure how many PDF pages they'll span, which tells us what page
+    // each document starts on; then render the summary/TOC a second time
+    // with those real numbers filled in (its own page count doesn't change
+    // between passes — only the digits inside existing table cells do).
+    // The resulting page numbers are reused for both the PDF and the Word
+    // export, so the two stay consistent with each other.
+    async function computeReportLayout() {
+      const probe = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' })
+      const pageWidthMm = probe.internal.pageSize.getWidth()
+      const pageHeightMm = probe.internal.pageSize.getHeight()
+      const sections = reportSections()
+
+      const coverCanvas = await renderSectionToCanvas(buildCoverHtml())
+      let page = 1 + canvasPageCount(coverCanvas, pageWidthMm, pageHeightMm)
+
+      const placeholderCanvas = await renderSectionToCanvas(buildSummaryHtml(sections.map(() => null)))
+      page += canvasPageCount(placeholderCanvas, pageWidthMm, pageHeightMm)
+
+      const sectionPages = []
+      const sectionCanvases = []
+      for (const s of sections) {
+        sectionPages.push(page)
+        const canvas = await renderSectionToCanvas(s.html)
+        sectionCanvases.push(canvas)
+        page += canvasPageCount(canvas, pageWidthMm, pageHeightMm)
+      }
+
+      const summaryCanvas = await renderSectionToCanvas(buildSummaryHtml(sectionPages))
+
+      return { pageWidthMm, pageHeightMm, coverCanvas, summaryCanvas, sections, sectionPages, sectionCanvases }
     }
 
     async function exportCombinedReport(format) {
@@ -1179,56 +1251,69 @@
         showToast('All documents must be generated and marked Reviewed/Final first.', 'error')
         return
       }
-      const html = buildCombinedReportHtml()
       const fname = `${opportunity.title} - Final Report`
+      const btn = document.getElementById(format === 'word' ? 'report-word-btn' : 'report-pdf-btn')
+      const origLabel = btn.textContent
+      btn.disabled = true
+      btn.textContent = 'Building…'
 
-      if (format === 'word') {
-        const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8">
-          <style>
-            body{font-family:Calibri,Arial,sans-serif;margin:2cm;font-size:11pt;}
-            h1{color:#1e3a8a;font-size:15pt;border-bottom:2pt solid #1e3a8a;padding-bottom:5pt;}
-            table{border-collapse:collapse;width:100%;} th{background:#1e3a8a;color:#fff;padding:5pt 7pt;text-align:left;font-size:9pt;}
-            td{border:1px solid #e5e7eb;padding:3pt 6pt;font-size:9pt;}
-            .page-break{page-break-before:always;}
-          </style></head><body>${html}</body></html>`
-        try {
-          const blob = window.htmlDocx?.asBlob(fullHtml)
-          dl(blob ?? new Blob([fullHtml], { type: 'application/msword' }), `${fname}${blob ? '.docx' : '.doc'}`)
-        } catch (_) {
-          dl(new Blob([fullHtml], { type: 'application/msword' }), `${fname}.doc`)
-        }
-        return
-      }
-
-      // PDF — same html2canvas + multi-page slicing technique used for
-      // single-document narrative exports, applied to the whole packet.
-      const container = document.createElement('div')
-      container.style.width = '700px'
-      container.style.padding = '20px'
-      container.style.fontFamily = 'Arial, sans-serif'
-      container.innerHTML = html
-      document.body.appendChild(container)
       try {
-        const canvas = await window.html2canvas(container, { scale: 2 })
+        const layout = await computeReportLayout()
+
+        if (format === 'word') {
+          const bodyHtml = layout.sections.map(s => `<div class="page-break">${s.html}</div>`).join('')
+          const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8">${REPORT_STYLE}</head>
+            <body class="combined-report">
+              ${buildCoverHtml()}
+              <div class="page-break">${buildSummaryHtml(layout.sectionPages)}</div>
+              ${bodyHtml}
+            </body></html>`
+          try {
+            const blob = window.htmlDocx?.asBlob(fullHtml)
+            dl(blob ?? new Blob([fullHtml], { type: 'application/msword' }), `${fname}${blob ? '.docx' : '.doc'}`)
+          } catch (_) {
+            dl(new Blob([fullHtml], { type: 'application/msword' }), `${fname}.doc`)
+          }
+          return
+        }
+
+        // PDF — real page break (pdf.addPage()) at the start of every
+        // section, plus a "Page X of Y" footer stamped on every page once
+        // the final page count is known.
         const { jsPDF } = window.jspdf
         const pdf = new jsPDF({ unit: 'mm', format: 'a4' })
-        const pageWidth = pdf.internal.pageSize.getWidth()
-        const pageHeight = pdf.internal.pageSize.getHeight()
-        const imgWidth = pageWidth - 20
-        const imgHeight = canvas.height * imgWidth / canvas.width
-        let heightLeft = imgHeight, position = 10
-        const imgData = canvas.toDataURL('image/png')
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight)
-        heightLeft -= (pageHeight - 20)
-        while (heightLeft > 0) {
-          position = heightLeft - imgHeight + 10
-          pdf.addPage()
+        const addCanvasPages = (canvas, isFirst) => {
+          const imgWidth = layout.pageWidthMm - 20
+          const imgHeight = canvas.height * imgWidth / canvas.width
+          let heightLeft = imgHeight, position = 10
+          const imgData = canvas.toDataURL('image/png')
+          if (!isFirst) pdf.addPage()
           pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight)
-          heightLeft -= (pageHeight - 20)
+          heightLeft -= (layout.pageHeightMm - 20)
+          while (heightLeft > 0) {
+            position = heightLeft - imgHeight + 10
+            pdf.addPage()
+            pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight)
+            heightLeft -= (layout.pageHeightMm - 20)
+          }
         }
+
+        addCanvasPages(layout.coverCanvas, true)
+        addCanvasPages(layout.summaryCanvas, false)
+        layout.sectionCanvases.forEach(c => addCanvasPages(c, false))
+
+        const totalPages = pdf.internal.getNumberOfPages()
+        for (let i = 1; i <= totalPages; i++) {
+          pdf.setPage(i)
+          pdf.setFontSize(8)
+          pdf.setTextColor(150)
+          pdf.text(`Page ${i} of ${totalPages}`, layout.pageWidthMm / 2, layout.pageHeightMm - 6, { align: 'center' })
+        }
+
         pdf.save(`${fname}.pdf`)
       } finally {
-        document.body.removeChild(container)
+        btn.disabled = false
+        btn.textContent = origLabel
       }
     }
 
