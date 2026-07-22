@@ -110,15 +110,14 @@ serve(async (req: Request) => {
     (b.expert.years_experience ?? 0) - (a.expert.years_experience ?? 0) ||
     a.expert.full_name.localeCompare(b.expert.full_name))
 
-  // ── Recompute: clear old rows for this (opportunity, position) pair ─────
-  let delQuery = adminClient.from('opportunity_expert_matches').delete().eq('opportunity_id', opportunityId)
-  delQuery = positionId ? delQuery.eq('opportunity_position_id', positionId) : delQuery.is('opportunity_position_id', null)
-  await delQuery
-
   const now = new Date().toISOString()
   const topIds = new Set(scored.slice(0, topN).map(s => s.expert.id))
 
   // ── AI justification for the top N only ──────────────────────────────────
+  // Done BEFORE the delete/insert pair below (not between them) so the two
+  // writes land back-to-back — a multi-second gap here previously left a
+  // window where an overlapping call (e.g. a second click, or a concurrent
+  // no-AI recompute) could insert first and collide with this one.
   const justifications: Record<string, string> = {}
   if (!skipJustification && scored.length > 0) {
     const apiKey = Deno.env.get('ANTHROPIC_API_KEY')
@@ -141,10 +140,21 @@ serve(async (req: Request) => {
     computed_at: now,
   }))
 
-  if (rows.length) {
-    const { error: insErr } = await adminClient.from('opportunity_expert_matches').insert(rows)
-    if (insErr) return respond({ error: insErr.message }, 500)
+  // ── Recompute: clear old rows for this (opportunity, position) pair,
+  //    then insert fresh ones. If an overlapping call still collides (23505
+  //    unique violation), retry the pair once — by then the other call's
+  //    write has settled and the retry succeeds cleanly.
+  const writeRows = async () => {
+    let delQuery = adminClient.from('opportunity_expert_matches').delete().eq('opportunity_id', opportunityId)
+    delQuery = positionId ? delQuery.eq('opportunity_position_id', positionId) : delQuery.is('opportunity_position_id', null)
+    await delQuery
+    if (!rows.length) return null
+    return (await adminClient.from('opportunity_expert_matches').insert(rows)).error
   }
+
+  let insErr = await writeRows()
+  if (insErr?.code === '23505') insErr = await writeRows()
+  if (insErr) return respond({ error: insErr.message }, 500)
 
   return respond({
     success: true,
@@ -169,7 +179,6 @@ function scoreExpert(
          activities: number[]; donorId: number | null; donorCategory: number | null; donorCategoryMap: Record<number, number> },
   position: { work_order_role_id: number | null; required_seniority_tier: string | null } | null,
 ) {
-  const expertSectorIds    = new Set((expert.expert_sectors ?? []).map((s: any) => s.sector_id))
   const expertGeoIds       = new Set((expert.expert_geographies ?? []).map((g: any) => g.geography_id))
   const expertActivityIds  = new Set((expert.expert_activity_experience ?? []).map((a: any) => a.activity_type_id))
   const expertDonorIds     = new Set((expert.expert_donor_experience ?? []).map((d: any) => d.donor_id))

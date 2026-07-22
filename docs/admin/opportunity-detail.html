@@ -664,8 +664,13 @@
       switchDetailTab('matching')
     }
 
+    const matchesInFlight = new Set()
+
     async function computeMatches(positionId, skipJustification) {
       const key = positionId ?? 'null'
+      if (matchesInFlight.has(key)) return   // ignore double-clicks / overlapping calls for the same position
+      matchesInFlight.add(key)
+
       const container = document.getElementById('matches-' + key)
       container.innerHTML = '<p class="text-xs text-gray-400">Computing…</p>'
       try {
@@ -681,6 +686,8 @@
         renderMatches(key, positionId)
       } catch (err) {
         container.innerHTML = `<p class="text-xs text-red-600">${aesc(err.message)}</p>`
+      } finally {
+        matchesInFlight.delete(key)
       }
     }
 
