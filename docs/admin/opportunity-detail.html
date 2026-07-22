@@ -855,6 +855,7 @@
           <div class="doc-content border border-gray-100 rounded-lg p-3 text-sm" contenteditable="true" id="content-${cardId}">${doc.content_html}</div>
           <div class="flex gap-2 mt-2">
             <button onclick="saveDocEdit('${docType}', ${expertId ? `'${expertId}'` : 'null'})" class="text-xs bg-blue-900 hover:bg-blue-800 text-white px-3 py-1 rounded-lg">Save Edits</button>
+            ${doc.status === 'draft' ? `<button onclick="markDocReviewed('${docType}', ${expertId ? `'${expertId}'` : 'null'})" class="text-xs bg-green-700 hover:bg-green-800 text-white px-3 py-1 rounded-lg">Mark Reviewed</button>` : ''}
             <button onclick="exportWord('${docType}', ${expertId ? `'${expertId}'` : 'null'})" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded-lg">Export Word</button>
             <button onclick="exportPdf('${docType}', ${expertId ? `'${expertId}'` : 'null'})" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded-lg">Export PDF</button>
           </div>` : `<p class="text-xs text-gray-400">Not generated yet.</p>`}
@@ -902,6 +903,16 @@
       const { error } = await sb.from('proposal_documents').update({ content_html: html, status: newStatus }).eq('id', doc.id)
       if (error) { showToast('Save failed: ' + error.message, 'error'); return }
       showToast('Document saved.')
+      await loadDetail()
+      switchDetailTab('documents')
+    }
+
+    async function markDocReviewed(docType, expertId) {
+      const doc = findDoc(docType, expertId)
+      if (!doc) return
+      const { error } = await sb.from('proposal_documents').update({ status: 'reviewed' }).eq('id', doc.id)
+      if (error) { showToast('Failed: ' + error.message, 'error'); return }
+      showToast('Marked reviewed.')
       await loadDetail()
       switchDetailTab('documents')
     }
