@@ -318,7 +318,7 @@ Return format: { "<expert_id>": "justification text", ... }`
   }
 
   const data = await res.json()
-  const rawText: string = data.content?.[0]?.text ?? ''
+  const rawText: string = extractText(data.content)
   const jsonMatch = rawText.match(/\{[\s\S]*\}/)
   if (!jsonMatch) {
     console.error('[getJustifications] no JSON object found in Claude response', rawText.slice(0, 500))
@@ -330,6 +330,15 @@ Return format: { "<expert_id>": "justification text", ... }`
     console.error('[getJustifications] failed to parse JSON', err instanceof Error ? err.message : err, jsonMatch[0].slice(0, 500))
     return {}
   }
+}
+
+// Claude's content array isn't always [textBlock] — a leading non-text
+// block (e.g. extended thinking) would silently produce an empty string
+// if we blindly read content[0].text. Find the actual text block instead.
+function extractText(content: unknown): string {
+  if (!Array.isArray(content)) return ''
+  const block = content.find((b: any) => b?.type === 'text')
+  return block?.text ?? ''
 }
 
 function respond(body: unknown, status = 200): Response {

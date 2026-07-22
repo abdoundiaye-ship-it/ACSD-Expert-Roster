@@ -210,9 +210,18 @@ async function callClaude(apiKey: string, userPrompt: string): Promise<string> {
     throw new Error(`Claude API error (${res.status}): ${errText.slice(0, 400)}`)
   }
   const data = await res.json()
-  const text: string = data.content?.[0]?.text ?? ''
+  const text: string = extractText(data.content)
   if (!text.trim()) throw new Error('AI returned an empty response')
   return text.trim()
+}
+
+// Claude's content array isn't always [textBlock] — a leading non-text
+// block (e.g. extended thinking) would silently produce an empty string
+// if we blindly read content[0].text. Find the actual text block instead.
+function extractText(content: unknown): string {
+  if (!Array.isArray(content)) return ''
+  const block = content.find((b: any) => b?.type === 'text')
+  return block?.text ?? ''
 }
 
 function escapeHtml(s: string): string {

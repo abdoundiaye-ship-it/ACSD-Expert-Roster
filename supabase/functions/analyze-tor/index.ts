@@ -121,7 +121,7 @@ serve(async (req: Request) => {
   }
 
   const claudeData = await claudeRes.json()
-  const rawText: string = claudeData.content?.[0]?.text ?? ''
+  const rawText: string = extractText(claudeData.content)
 
   const jsonMatch = rawText.match(/\{[\s\S]*\}/)
   if (!jsonMatch) return respond({ error: 'AI did not return structured data — try a different file' }, 500)
@@ -134,6 +134,15 @@ serve(async (req: Request) => {
 })
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+// Claude's content array isn't always [textBlock] — a leading non-text
+// block (e.g. extended thinking) would silently produce an empty string
+// if we blindly read content[0].text. Find the actual text block instead.
+function extractText(content: unknown): string {
+  if (!Array.isArray(content)) return ''
+  const block = content.find((b: any) => b?.type === 'text')
+  return block?.text ?? ''
+}
 
 function respond(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
