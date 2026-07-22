@@ -29,7 +29,20 @@ supabase/
 ## Status
 - [x] Phase 0 — Controlled vocabulary extracted from TOR/RFP/Financial Proposal
 - [x] Phase 1 — Database schema + RLS policies + storage bucket (`supabase/migrations/0001_init_schema.sql`)
-- [ ] Phase 2 — CV data extraction (pilot batch)
-- [ ] Phase 3 — Human QA review
-- [ ] Phase 4 — Frontend (search/filter/admin CRUD)
-- [ ] Phase 5 — Reporting/export
+- [x] Phase 2 — CV data extraction (~73 experts loaded across core/partner/KNUST-IRDIS batches)
+- [x] Phase 3 — Human QA review
+- [x] Phase 4 — Frontend (search/filter/admin CRUD)
+- [x] Phase 5 — Reporting/export
+
+## ACSD Expert Intelligence Platform (MVP v1.0)
+
+Built on top of the roster above: TOR/opportunity intake, a deterministic TOR↔expert matching engine, an AI proposal-document generator, and a Financial Proposal Assistant. See `supabase/migrations/0006_opportunities_module.sql` for schema, `supabase/functions/{analyze-tor,compute-matches,generate-proposal-doc}` for the Edge Functions, and `docs/admin/{opportunities,opportunity-detail}.html` for the UI.
+
+- [x] Opportunity/TOR intake — manual entry + AI extraction (`analyze-tor`) with strategic scoring
+- [x] TOR↔Expert matching engine — deterministic weighted scoring (`compute-matches`), AI justification for top candidates
+- [x] Team assembly — shortlist/select experts per position, assign roles
+- [x] Proposal document generator — EOI, Technical Approach, Workplan, tailored CVs (`generate-proposal-doc`), all editable AI drafts
+- [x] Financial Proposal Assistant — per-expert day-rate × days + travel/per-diem expense lines, auto-calculated budget recap
+- [x] Export — Word (all doc types) and PDF (tabular via jsPDF/autoTable, narrative via html2canvas)
+
+**Before use:** run `supabase/migrations/0006_opportunities_module.sql` in the Supabase SQL Editor and deploy the three new Edge Functions (`supabase functions deploy analyze-tor compute-matches generate-proposal-doc`) — they reuse the same `ANTHROPIC_API_KEY` secret already configured for `analyze-cv`.

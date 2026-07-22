@@ -42,7 +42,8 @@
       </div>
 
       <!-- Stat cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="stats-grid">
+      <div class="grid grid-cols-2 lg:grid-cols-5 gap-4" id="stats-grid">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 animate-pulse h-24"></div>
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 animate-pulse h-24"></div>
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 animate-pulse h-24"></div>
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 animate-pulse h-24"></div>
@@ -73,26 +74,32 @@
       if (!session) return
 
       // Parallel fetches
-      const [expertRes, profileRes, auditRes] = await Promise.all([
+      const [expertRes, profileRes, auditRes, oppRes] = await Promise.all([
         sb.from('experts').select('id, is_active'),
         sb.from('profiles').select('id, is_active'),
         sb.from('audit_logs').select('id, timestamp, user_email, action, entity_type, entity_name')
           .order('timestamp', { ascending: false }).limit(10),
+        sb.from('opportunities').select('id, status, deadline'),
       ])
 
-      const experts  = expertRes.data  ?? []
-      const profiles = profileRes.data ?? []
-      const logs     = auditRes.data   ?? []
+      const experts       = expertRes.data  ?? []
+      const profiles       = profileRes.data ?? []
+      const logs            = auditRes.data   ?? []
+      const opportunities   = oppRes.data     ?? []
 
       const totalExperts  = experts.length
       const activeExperts = experts.filter(e => e.is_active).length
       const totalUsers    = profiles.length
       const activeUsers   = profiles.filter(p => p.is_active).length
+      const openOpps       = opportunities.filter(o => ['open', 'in_progress'].includes(o.status))
+      const soonDeadline    = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+      const upcomingDeadlines = openOpps.filter(o => o.deadline && o.deadline <= soonDeadline).length
 
       const statCards = [
         { label: 'Total Experts',  value: totalExperts,  sub: `${totalExperts - activeExperts} inactive`, color: 'text-blue-700' },
         { label: 'Active Experts', value: activeExperts, sub: 'in roster',                                color: 'text-green-700' },
         { label: 'Total Users',    value: totalUsers,    sub: `${activeUsers} active`,                    color: 'text-purple-700' },
+        { label: 'Open Opportunities', value: openOpps.length, sub: `${upcomingDeadlines} due within 14 days`, color: 'text-indigo-700' },
         { label: 'Audit Events',   value: logs.length,   sub: 'last 10 loaded',                          color: 'text-amber-700' },
       ]
 

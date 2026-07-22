@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACSD Admin — Opportunities</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .tag-chip input:checked + label { background:#dbeafe; color:#1e40af; border-color:#93c5fd; font-weight:600; }
+    .tag-chip.preferred input:checked + label { background:#fef3c7; color:#92400e; border-color:#fcd34d; font-weight:600; }
+    .tag-chip label { cursor:pointer; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-blue-950 text-white shadow sticky top-0 z-30">
+    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <img src="../img/logo.png" alt="ACSD Logo" class="h-9 w-auto flex-shrink-0">
+        <span class="font-bold text-sm tracking-tight">ACSD — Admin Panel</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="admin-user-email" class="text-xs text-blue-300 hidden sm:block"></span>
+        <button id="admin-logout-btn"
+          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-screen-xl mx-auto px-4 py-6 flex gap-6">
+    <aside class="w-48 flex-shrink-0">
+      <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
+      <div class="mt-4 px-1">
+        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+      </div>
+    </aside>
+
+    <main class="flex-1 min-w-0 space-y-5">
+
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">Opportunities</h2>
+          <p class="text-sm text-gray-500 mt-0.5">Import TORs, qualify opportunities, and prepare proposals.</p>
+        </div>
+        <button onclick="openOpportunityModal()"
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0">
+          + New Opportunity
+        </button>
+      </div>
+
+      <!-- Search + filter row -->
+      <div class="flex gap-3 items-center flex-wrap">
+        <div class="relative flex-1 max-w-sm">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input id="opp-search" type="search" placeholder="Search opportunities…"
+            class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            oninput="filterOpportunities()">
+        </div>
+        <select id="opp-filter-status"
+          class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onchange="filterOpportunities()">
+          <option value="">All statuses</option>
+          <option value="open">Open</option>
+          <option value="in_progress">In Progress</option>
+          <option value="submitted">Submitted</option>
+          <option value="won">Won</option>
+          <option value="lost">Lost</option>
+          <option value="archived">Archived</option>
+        </select>
+        <select id="opp-filter-type"
+          class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onchange="filterOpportunities()">
+          <option value="">All types</option>
+          <option value="RFP">RFP</option>
+          <option value="EOI">EOI</option>
+          <option value="RFQ">RFQ</option>
+          <option value="REOI">REOI</option>
+        </select>
+      </div>
+
+      <div id="opp-count" class="text-sm text-gray-500 font-medium"></div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              <th class="text-left px-5 py-3">Title</th>
+              <th class="text-left px-5 py-3 hidden md:table-cell">Organization</th>
+              <th class="text-left px-5 py-3">Type</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell">Deadline</th>
+              <th class="text-left px-5 py-3">Status</th>
+              <th class="text-left px-5 py-3">Score</th>
+              <th class="text-right px-5 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="opps-tbody" class="divide-y divide-gray-100">
+            <tr><td colspan="7" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ── Create Opportunity Modal ── -->
+  <div id="opportunity-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('opportunity-modal')"></div>
+    <div class="relative flex items-start justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl p-7">
+
+        <button onclick="closeAdminModal('opportunity-modal')"
+          class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 p-1 rounded-lg hover:bg-gray-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+
+        <h3 class="font-bold text-gray-900 text-base mb-5">New Opportunity</h3>
+
+        <!-- ── TOR Import section ── -->
+        <div class="mb-5">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-blue-800 text-white text-xs font-bold flex items-center justify-center">1</span>
+            <span class="text-sm font-semibold text-gray-800">Upload a TOR / RFP to auto-fill the form</span>
+            <span class="text-xs font-medium bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">AI</span>
+          </div>
+
+          <div id="tor-dropzone"
+            ondragover="torDragover(event)" ondragleave="torDragleave(event)" ondrop="torDrop(event)"
+            onclick="document.getElementById('tor-file-input').click()"
+            class="border-2 border-dashed border-blue-300 rounded-xl p-6 text-center cursor-pointer
+                   hover:border-blue-600 hover:bg-blue-50 transition-all bg-gradient-to-br from-blue-50 to-indigo-50">
+            <svg class="w-8 h-8 text-blue-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            <p class="text-sm font-semibold text-blue-900">Drop a TOR/RFP here, or click to browse</p>
+            <p class="text-xs text-blue-500 mt-1">PDF, DOCX, TXT &middot; max 10 MB</p>
+          </div>
+          <input type="file" id="tor-file-input" accept=".pdf,.docx,.doc,.txt"
+            class="hidden" onchange="torFileSelected(event)">
+
+          <div id="tor-file-display" class="hidden mt-2 flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2">
+            <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span id="tor-file-name" class="flex-1 truncate text-xs font-medium text-gray-700"></span>
+            <button type="button" onclick="clearTorFile()" class="text-gray-400 hover:text-gray-700 text-xs">&times;</button>
+          </div>
+
+          <div id="tor-error" class="hidden mt-2 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></div>
+
+          <button type="button" id="tor-analyze-btn" onclick="analyzeTor()"
+            class="hidden mt-3 w-full bg-blue-800 hover:bg-blue-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+            </svg>
+            Analyze TOR with AI
+          </button>
+
+          <div id="tor-success" class="hidden mt-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+            <p class="text-sm font-semibold text-green-800">&#10003; TOR analyzed — form fields pre-filled below</p>
+            <p class="text-xs text-green-600 mt-0.5">Review every extracted field before saving — this is an AI draft.</p>
+          </div>
+
+          <div class="relative my-5">
+            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>
+            <div class="relative flex justify-center">
+              <span class="bg-white px-3 text-xs text-gray-400 font-medium">
+                <span class="flex-shrink-0 w-5 h-5 rounded-full bg-gray-200 text-gray-600 text-xs font-bold inline-flex items-center justify-center mr-1">2</span>
+                Review or fill the form below
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div id="opp-modal-error"
+          class="hidden mb-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg px-4 py-3"></div>
+
+        <form id="opportunity-form" class="space-y-5" onsubmit="return false">
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="col-span-2">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">
+                Title <span class="text-red-500">*</span>
+              </label>
+              <input id="of-title" type="text" required
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">
+                Organization / Funder <span class="text-red-500">*</span>
+              </label>
+              <input id="of-organization" type="text" required
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Donor (matched)</label>
+              <select id="of-donor"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">— none / not in list —</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">
+                Type <span class="text-red-500">*</span>
+              </label>
+              <select id="of-type" required
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="RFP">RFP</option>
+                <option value="EOI">EOI</option>
+                <option value="RFQ">RFQ</option>
+                <option value="REOI">REOI</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Primary Country</label>
+              <select id="of-country"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">— none —</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Deadline</label>
+              <input id="of-deadline" type="date"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Summary</label>
+            <textarea id="of-summary" rows="2"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"></textarea>
+          </div>
+
+          <!-- Strategic score -->
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-semibold text-gray-600">Strategic Score (0–100)</label>
+              <input id="of-score" type="number" min="0" max="100"
+                class="w-20 border border-gray-300 rounded-lg px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <textarea id="of-score-rationale" rows="2" placeholder="Rationale / justification…"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"></textarea>
+          </div>
+
+          <!-- Sectors -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-2">Sectors</label>
+            <p class="text-xs text-gray-500 mb-1.5">Required</p>
+            <div id="of-sectors-required" class="flex flex-wrap gap-2 max-h-28 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50 mb-2"></div>
+            <p class="text-xs text-gray-500 mb-1.5">Preferred</p>
+            <div id="of-sectors-preferred" class="flex flex-wrap gap-2 max-h-28 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50"></div>
+          </div>
+
+          <!-- Languages / Geographies / Activity types -->
+          <div class="grid grid-cols-1 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-2">Languages required</label>
+              <div id="of-languages" class="flex flex-wrap gap-2 max-h-28 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50"></div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-2">Geographic coverage required</label>
+              <div id="of-geographies" class="flex flex-wrap gap-2 max-h-28 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50"></div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-2">Deliverable / activity types</label>
+              <div id="of-activity-types" class="flex flex-wrap gap-2 max-h-28 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50"></div>
+            </div>
+          </div>
+
+          <!-- Positions -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-semibold text-gray-600">Positions requested</label>
+              <button type="button" onclick="addPositionRow()" class="text-xs text-blue-600 hover:text-blue-800 font-medium">+ Add Position</button>
+            </div>
+            <div id="of-positions-list" class="space-y-2"></div>
+          </div>
+
+          <!-- Evaluation criteria -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-semibold text-gray-600">Evaluation criteria</label>
+              <button type="button" onclick="addCriterionRow()" class="text-xs text-blue-600 hover:text-blue-800 font-medium">+ Add Criterion</button>
+            </div>
+            <div id="of-criteria-list" class="space-y-2"></div>
+          </div>
+
+        </form>
+
+        <div class="flex gap-3 mt-6 pt-5 border-t border-gray-100">
+          <button onclick="saveOpportunity()"
+            class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+            Save Opportunity
+          </button>
+          <button onclick="closeAdminModal('opportunity-modal')"
+            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
+            Cancel
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirm modal -->
+  <div id="delete-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('delete-modal')"></div>
+    <div class="relative flex items-center justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+        <h3 class="font-bold text-gray-900 text-base mb-2">Delete Opportunity?</h3>
+        <p id="delete-opp-name" class="text-sm text-gray-600 mb-5"></p>
+        <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 mb-5">
+          This will permanently delete the opportunity, its requirements, matches, selected team, and generated documents. This action cannot be undone.
+        </p>
+        <div class="flex gap-3">
+          <button onclick="confirmDelete()"
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+            Delete Permanently
+          </button>
+          <button onclick="closeAdminModal('delete-modal')"
+            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let allOpportunities = []
+    let allDonors        = []
+    let allGeographies    = []
+    let allSectors        = []
+    let allLanguages      = []
+    let allActivityTypes  = []
+    let allWorkOrderRoles = []
+    let deleteTarget      = null
+
+    const TYPE_COLOR   = { RFP: 'bg-blue-900 text-white', EOI: 'bg-purple-700 text-white', RFQ: 'bg-teal-700 text-white', REOI: 'bg-indigo-700 text-white' }
+    const STATUS_LABEL = { open: 'Open', in_progress: 'In Progress', submitted: 'Submitted', won: 'Won', lost: 'Lost', archived: 'Archived' }
+    const STATUS_COLOR = { open: 'bg-blue-100 text-blue-800', in_progress: 'bg-amber-100 text-amber-800', submitted: 'bg-indigo-100 text-indigo-800', won: 'bg-green-100 text-green-800', lost: 'bg-red-100 text-red-800', archived: 'bg-gray-100 text-gray-600' }
+
+    async function loadOpportunities() {
+      const session = await initAdmin('opportunities')
+      if (!session) return
+
+      const [oppRes, donorRes, geoRes, secRes, langRes, actRes, worRes] = await Promise.all([
+        sb.from('opportunities')
+          .select('id, title, organization, opportunity_type, deadline, status, strategic_score')
+          .order('created_at', { ascending: false }),
+        sb.from('donors').select('id, name').order('name'),
+        sb.from('geographies').select('id, country_name').order('country_name'),
+        sb.from('sectors').select('id, name').order('sort_order'),
+        sb.from('languages').select('id, name').order('name'),
+        sb.from('activity_types').select('id, name').order('name'),
+        sb.from('work_order_roles').select('id, name').order('name'),
+      ])
+
+      allOpportunities = oppRes.data ?? []
+      allDonors        = donorRes.data ?? []
+      allGeographies   = geoRes.data ?? []
+      allSectors       = secRes.data ?? []
+      allLanguages     = langRes.data ?? []
+      allActivityTypes = actRes.data ?? []
+      allWorkOrderRoles = worRes.data ?? []
+
+      populateLookupSelects()
+      filterOpportunities()
+    }
+
+    function populateLookupSelects() {
+      const donorSel = document.getElementById('of-donor')
+      allDonors.forEach(d => donorSel.appendChild(new Option(d.name, d.id)))
+
+      const countrySel = document.getElementById('of-country')
+      allGeographies.forEach(g => countrySel.appendChild(new Option(g.country_name, g.id)))
+
+      document.getElementById('of-sectors-required').innerHTML = sectorChips('req')
+      document.getElementById('of-sectors-preferred').innerHTML = sectorChips('pref')
+      document.getElementById('of-languages').innerHTML = tagChips(allLanguages, 'lang')
+      document.getElementById('of-geographies').innerHTML = tagChips(allGeographies.map(g => ({ id: g.id, name: g.country_name })), 'geo')
+      document.getElementById('of-activity-types').innerHTML = tagChips(allActivityTypes, 'act')
+    }
+
+    function sectorChips(prefix) {
+      return allSectors.map(s => `
+        <div class="tag-chip ${prefix === 'pref' ? 'preferred' : ''}">
+          <input type="checkbox" id="sec-${prefix}-${s.id}" value="${aesc(s.id)}" class="sr-only">
+          <label for="sec-${prefix}-${s.id}"
+            class="inline-block text-xs px-3 py-1 rounded-full border border-gray-200 bg-white text-gray-600 transition-all select-none">
+            ${aesc(s.name)}
+          </label>
+        </div>`).join('')
+    }
+
+    function tagChips(items, prefix) {
+      return items.map(i => `
+        <div class="tag-chip">
+          <input type="checkbox" id="${prefix}-${i.id}" value="${aesc(i.id)}" class="sr-only">
+          <label for="${prefix}-${i.id}"
+            class="inline-block text-xs px-3 py-1 rounded-full border border-gray-200 bg-white text-gray-600 transition-all select-none">
+            ${aesc(i.name)}
+          </label>
+        </div>`).join('')
+    }
+
+    function filterOpportunities() {
+      const q      = document.getElementById('opp-search').value.toLowerCase()
+      const status = document.getElementById('opp-filter-status').value
+      const type   = document.getElementById('opp-filter-type').value
+
+      const filtered = allOpportunities.filter(o => {
+        if (q && ![o.title, o.organization].filter(Boolean).join(' ').toLowerCase().includes(q)) return false
+        if (status && o.status !== status) return false
+        if (type && o.opportunity_type !== type) return false
+        return true
+      })
+
+      document.getElementById('opp-count').textContent =
+        filtered.length === allOpportunities.length
+          ? `${allOpportunities.length} opportunit${allOpportunities.length !== 1 ? 'ies' : 'y'}`
+          : `${filtered.length} of ${allOpportunities.length} opportunities`
+
+      const tbody = document.getElementById('opps-tbody')
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="px-5 py-6 text-center text-xs text-gray-400">No opportunities match your filters.</td></tr>'
+        return
+      }
+
+      tbody.innerHTML = filtered.map(o => `
+        <tr class="hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='opportunity-detail.html?id=${aesc(o.id)}'">
+          <td class="px-5 py-3 font-medium text-gray-900">${aesc(o.title)}</td>
+          <td class="px-5 py-3 text-gray-500 hidden md:table-cell">${aesc(o.organization)}</td>
+          <td class="px-5 py-3">
+            <span class="text-xs font-medium px-2 py-0.5 rounded-full ${TYPE_COLOR[o.opportunity_type] ?? 'bg-gray-200 text-gray-700'}">${aesc(o.opportunity_type)}</span>
+          </td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell">${o.deadline ? aesc(o.deadline) : '—'}</td>
+          <td class="px-5 py-3">
+            <span class="text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLOR[o.status] ?? 'bg-gray-100 text-gray-600'}">${STATUS_LABEL[o.status] ?? o.status}</span>
+          </td>
+          <td class="px-5 py-3 text-xs font-semibold ${o.strategic_score >= 70 ? 'text-green-700' : o.strategic_score >= 40 ? 'text-amber-700' : 'text-gray-400'}">
+            ${o.strategic_score != null ? o.strategic_score : '—'}
+          </td>
+          <td class="px-5 py-3 text-right" onclick="event.stopPropagation()">
+            <button onclick="openDeleteModal('${aesc(o.id)}', '${aesc(o.title)}')"
+              class="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+          </td>
+        </tr>`).join('')
+    }
+
+    // ── Positions & criteria dynamic rows ──────────────────────────────────────
+
+    function addPositionRow(prefill = null) {
+      const wrap = document.createElement('div')
+      wrap.className = 'position-row grid grid-cols-12 gap-2 items-center bg-gray-50 border border-gray-200 rounded-lg p-2'
+      wrap.innerHTML = `
+        <input class="pr-title col-span-4 border border-gray-300 rounded px-2 py-1 text-xs" placeholder="Role title" value="${aesc(prefill?.role_title ?? '')}">
+        <select class="pr-seniority col-span-2 border border-gray-300 rounded px-2 py-1 text-xs">
+          <option value="">Seniority</option>
+          <option value="junior">Junior</option>
+          <option value="intermediary">Intermediary</option>
+          <option value="senior">Senior</option>
+          <option value="principal_expert">Principal</option>
+        </select>
+        <select class="pr-sector col-span-3 border border-gray-300 rounded px-2 py-1 text-xs">
+          <option value="">Sector</option>
+          ${allSectors.map(s => `<option value="${s.id}">${aesc(s.name)}</option>`).join('')}
+        </select>
+        <input class="pr-qty col-span-2 border border-gray-300 rounded px-2 py-1 text-xs" type="number" min="1" value="${prefill?.quantity ?? 1}">
+        <button type="button" onclick="this.closest('.position-row').remove()" class="col-span-1 text-red-400 hover:text-red-600 text-xs">&times;</button>`
+      document.getElementById('of-positions-list').appendChild(wrap)
+      if (prefill?.required_seniority_tier) wrap.querySelector('.pr-seniority').value = prefill.required_seniority_tier
+      if (prefill?.sector_id) wrap.querySelector('.pr-sector').value = prefill.sector_id
+    }
+
+    function addCriterionRow(prefill = null) {
+      const wrap = document.createElement('div')
+      wrap.className = 'criterion-row grid grid-cols-12 gap-2 items-center bg-gray-50 border border-gray-200 rounded-lg p-2'
+      wrap.innerHTML = `
+        <input class="cr-text col-span-9 border border-gray-300 rounded px-2 py-1 text-xs" placeholder="Criterion" value="${aesc(prefill?.criterion ?? '')}">
+        <input class="cr-weight col-span-2 border border-gray-300 rounded px-2 py-1 text-xs" placeholder="Weight" value="${aesc(prefill?.weight ?? '')}">
+        <button type="button" onclick="this.closest('.criterion-row').remove()" class="col-span-1 text-red-400 hover:text-red-600 text-xs">&times;</button>`
+      document.getElementById('of-criteria-list').appendChild(wrap)
+    }
+
+    function readPositionRows() {
+      return [...document.querySelectorAll('.position-row')].map(r => ({
+        role_title: r.querySelector('.pr-title').value.trim(),
+        required_seniority_tier: r.querySelector('.pr-seniority').value || null,
+        required_sector_id: r.querySelector('.pr-sector').value || null,
+        quantity: parseInt(r.querySelector('.pr-qty').value) || 1,
+      })).filter(p => p.role_title)
+    }
+
+    function readCriteriaRows() {
+      return [...document.querySelectorAll('.criterion-row')].map(r => ({
+        criterion: r.querySelector('.cr-text').value.trim(),
+        weight: r.querySelector('.cr-weight').value.trim(),
+      })).filter(c => c.criterion)
+    }
+
+    // ── Modal open/save ─────────────────────────────────────────────────────────
+
+    function openOpportunityModal() {
+      document.getElementById('opp-modal-error').classList.add('hidden')
+      document.getElementById('opportunity-form').reset()
+      document.getElementById('of-type').value = 'RFP'
+      document.querySelectorAll('#opportunity-modal input[type=checkbox]').forEach(cb => cb.checked = false)
+      document.getElementById('of-positions-list').innerHTML = ''
+      document.getElementById('of-criteria-list').innerHTML = ''
+      resetTorPanel()
+      openAdminModal('opportunity-modal')
+    }
+
+    async function saveOpportunity() {
+      const errDiv = document.getElementById('opp-modal-error')
+      errDiv.classList.add('hidden')
+
+      const title = document.getElementById('of-title').value.trim()
+      const organization = document.getElementById('of-organization').value.trim()
+      if (!title || !organization) {
+        errDiv.textContent = 'Title and Organization are required.'
+        errDiv.classList.remove('hidden')
+        return
+      }
+
+      const body = {
+        title,
+        organization,
+        donor_id: document.getElementById('of-donor').value || null,
+        primary_country_id: document.getElementById('of-country').value || null,
+        opportunity_type: document.getElementById('of-type').value,
+        deadline: document.getElementById('of-deadline').value || null,
+        summary: document.getElementById('of-summary').value.trim() || null,
+        strategic_score: document.getElementById('of-score').value ? parseInt(document.getElementById('of-score').value) : null,
+        strategic_score_rationale: document.getElementById('of-score-rationale').value.trim() || null,
+        evaluation_criteria: readCriteriaRows(),
+      }
+
+      const { data, error } = await sb.from('opportunities').insert(body).select('id').single()
+      if (error) { errDiv.textContent = error.message; errDiv.classList.remove('hidden'); return }
+      const oppId = data.id
+
+      // Sectors (required + preferred)
+      const reqIds  = [...document.querySelectorAll('#of-sectors-required input:checked')].map(c => c.value)
+      const prefIds = [...document.querySelectorAll('#of-sectors-preferred input:checked')].map(c => c.value).filter(id => !reqIds.includes(id))
+      const sectorRows = [
+        ...reqIds.map(id => ({ opportunity_id: oppId, sector_id: id, importance: 'required' })),
+        ...prefIds.map(id => ({ opportunity_id: oppId, sector_id: id, importance: 'preferred' })),
+      ]
+      if (sectorRows.length) await sb.from('opportunity_sectors').insert(sectorRows)
+
+      // Languages / geographies / activity types
+      const langIds = [...document.querySelectorAll('#of-languages input:checked')].map(c => c.value)
+      if (langIds.length) await sb.from('opportunity_languages').insert(langIds.map(id => ({ opportunity_id: oppId, language_id: id })))
+
+      const geoIds = [...document.querySelectorAll('#of-geographies input:checked')].map(c => c.value)
+      if (geoIds.length) await sb.from('opportunity_geographies').insert(geoIds.map(id => ({ opportunity_id: oppId, geography_id: id })))
+
+      const actIds = [...document.querySelectorAll('#of-activity-types input:checked')].map(c => c.value)
+      if (actIds.length) await sb.from('opportunity_activity_types').insert(actIds.map(id => ({ opportunity_id: oppId, activity_type_id: id })))
+
+      // Positions
+      const positions = readPositionRows()
+      if (positions.length) {
+        await sb.from('opportunity_positions').insert(positions.map(p => ({ opportunity_id: oppId, ...p })))
+      }
+
+      // TOR source file upload
+      if (torFile) {
+        const ext = torFile.name.split('.').pop().toLowerCase()
+        const storagePath = `${oppId}/tor.${ext}`
+        const { error: upErr } = await sb.storage.from('opportunity-tors')
+          .upload(storagePath, torFile, { upsert: true })
+        if (!upErr) {
+          await sb.from('opportunities').update({
+            source_file_storage_path: storagePath,
+            source_file_name: torFile.name,
+            raw_extracted_json: lastTorExtraction,
+          }).eq('id', oppId)
+        }
+      }
+
+      await logAudit('CREATE', 'opportunity', oppId, title, null, { title, organization })
+
+      closeAdminModal('opportunity-modal')
+      showToast('Opportunity created.')
+      window.location.href = `opportunity-detail.html?id=${oppId}`
+    }
+
+    function openDeleteModal(oppId, oppTitle) {
+      deleteTarget = oppId
+      document.getElementById('delete-opp-name').textContent = `"${oppTitle}"`
+      openAdminModal('delete-modal')
+    }
+
+    async function confirmDelete() {
+      if (!deleteTarget) return
+      const o = allOpportunities.find(x => x.id === deleteTarget)
+      const { error } = await sb.from('opportunities').delete().eq('id', deleteTarget)
+      if (error) { showToast('Delete failed: ' + error.message, 'error'); closeAdminModal('delete-modal'); return }
+      await logAudit('DELETE', 'opportunity', deleteTarget, o?.title, { title: o?.title }, null)
+      deleteTarget = null
+      closeAdminModal('delete-modal')
+      showToast('Opportunity deleted.')
+      await loadOpportunities()
+    }
+
+    // ── TOR file + AI analysis ─────────────────────────────────────────────────
+
+    let torFile = null
+    let lastTorExtraction = null
+
+    function resetTorPanel() {
+      torFile = null
+      lastTorExtraction = null
+      document.getElementById('tor-file-display').classList.add('hidden')
+      document.getElementById('tor-file-name').textContent = ''
+      document.getElementById('tor-analyze-btn').classList.add('hidden')
+      document.getElementById('tor-error').classList.add('hidden')
+      document.getElementById('tor-success').classList.add('hidden')
+      document.getElementById('tor-file-input').value = ''
+    }
+
+    function torDragover(e) { e.preventDefault(); document.getElementById('tor-dropzone').classList.add('border-blue-500', 'bg-white/60') }
+    function torDragleave() { document.getElementById('tor-dropzone').classList.remove('border-blue-500', 'bg-white/60') }
+    function torDrop(e) { e.preventDefault(); torDragleave(); const f = e.dataTransfer.files?.[0]; if (f) setTorFile(f) }
+    function torFileSelected(e) { const f = e.target.files?.[0]; if (f) setTorFile(f) }
+
+    function setTorFile(f) {
+      document.getElementById('tor-error').classList.add('hidden')
+      document.getElementById('tor-success').classList.add('hidden')
+      const allowed = ['pdf', 'docx', 'doc', 'txt']
+      const ext = f.name.split('.').pop().toLowerCase()
+      if (!allowed.includes(ext)) { showTorError('Unsupported file type. Please upload a PDF, DOCX, DOC, or TXT file.'); return }
+      if (f.size > 10 * 1024 * 1024) { showTorError('File is too large. Maximum size is 10 MB.'); return }
+      torFile = f
+      document.getElementById('tor-file-name').textContent = f.name
+      document.getElementById('tor-file-display').classList.remove('hidden')
+      document.getElementById('tor-analyze-btn').classList.remove('hidden')
+    }
+
+    function clearTorFile() {
+      torFile = null
+      document.getElementById('tor-file-display').classList.add('hidden')
+      document.getElementById('tor-analyze-btn').classList.add('hidden')
+      document.getElementById('tor-file-input').value = ''
+    }
+
+    function showTorError(msg) {
+      const el = document.getElementById('tor-error')
+      el.textContent = msg
+      el.classList.remove('hidden')
+    }
+
+    async function analyzeTor() {
+      if (!torFile) return
+      const btn = document.getElementById('tor-analyze-btn')
+      const origHTML = btn.innerHTML
+      btn.disabled = true
+      btn.innerHTML = `<svg class="animate-spin w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+      </svg>Analyzing…`
+      document.getElementById('tor-error').classList.add('hidden')
+
+      try {
+        const { data: { session } } = await sb.auth.getSession()
+        if (!session) throw new Error('Not authenticated')
+
+        const fd = new FormData()
+        fd.append('tor', torFile)
+
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/analyze-tor`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${session.access_token}` },
+          body: fd,
+        })
+
+        const json = await res.json()
+        if (!res.ok || !json.success) throw new Error(json.error || `Server error ${res.status}`)
+
+        lastTorExtraction = json.data
+        prefillFromTor(json.data)
+        document.getElementById('tor-success').classList.remove('hidden')
+
+      } catch (err) {
+        showTorError(err.message || 'Analysis failed. Please try again or fill the form manually.')
+      } finally {
+        btn.disabled = false
+        btn.innerHTML = origHTML
+      }
+    }
+
+    function prefillFromTor(d) {
+      const set = (id, val) => { const el = document.getElementById(id); if (el && val != null && val !== '') el.value = val }
+
+      set('of-title', d.title)
+      set('of-organization', d.organization)
+      set('of-type', d.opportunity_type)
+      set('of-deadline', d.deadline)
+      set('of-summary', d.summary)
+      set('of-score', d.strategic_score)
+      set('of-score-rationale', d.strategic_score_rationale)
+
+      const normalize = s => String(s).toLowerCase().trim()
+      const matchId = (name, list, key = 'name') => {
+        const n = normalize(name)
+        const exact = list.find(x => normalize(x[key]) === n)
+        if (exact) return exact.id
+        const partial = list.find(x => normalize(x[key]).includes(n) || n.includes(normalize(x[key])))
+        return partial?.id ?? null
+      }
+
+      if (d.donor_guess) {
+        const id = matchId(d.donor_guess, allDonors)
+        if (id) document.getElementById('of-donor').value = id
+      }
+      if (d.country) {
+        const id = matchId(d.country, allGeographies, 'country_name')
+        if (id) document.getElementById('of-country').value = id
+      }
+
+      // Sectors (required/preferred)
+      (Array.isArray(d.sectors) ? d.sectors : []).forEach(s => {
+        const id = matchId(s.name, allSectors)
+        if (!id) return
+        const groupId = s.importance === 'preferred' ? `sec-pref-${id}` : `sec-req-${id}`
+        const cb = document.getElementById(groupId)
+        if (cb) cb.checked = true
+      })
+
+      // Languages
+      const langIds = (Array.isArray(d.languages) ? d.languages : []).map(n => matchId(n, allLanguages)).filter(Boolean)
+      langIds.forEach(id => { const cb = document.getElementById(`lang-${id}`); if (cb) cb.checked = true })
+
+      // Geographies
+      const geoIds = (Array.isArray(d.geographies) ? d.geographies : [])
+        .map(n => matchId(n, allGeographies.map(g => ({ id: g.id, name: g.country_name })))).filter(Boolean)
+      geoIds.forEach(id => { const cb = document.getElementById(`geo-${id}`); if (cb) cb.checked = true })
+
+      // Activity types
+      const actIds = (Array.isArray(d.activity_types) ? d.activity_types : []).map(n => matchId(n, allActivityTypes)).filter(Boolean)
+      actIds.forEach(id => { const cb = document.getElementById(`act-${id}`); if (cb) cb.checked = true })
+
+      // Positions
+      document.getElementById('of-positions-list').innerHTML = ''
+      ;(Array.isArray(d.positions) ? d.positions : []).forEach(p => {
+        const sectorId = p.required_sector_guess ? matchId(p.required_sector_guess, allSectors) : null
+        addPositionRow({ role_title: p.role_title, required_seniority_tier: p.required_seniority_tier, sector_id: sectorId, quantity: p.quantity })
+      })
+
+      // Evaluation criteria
+      document.getElementById('of-criteria-list').innerHTML = ''
+      ;(Array.isArray(d.evaluation_criteria) ? d.evaluation_criteria : []).forEach(c => addCriterionRow(c))
+    }
+
+    loadOpportunities()
+  </script>
+</body>
+</html>

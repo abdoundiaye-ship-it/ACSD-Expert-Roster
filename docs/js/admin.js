@@ -30,6 +30,7 @@ function renderAdminNav(active) {
     { id: 'index',   href: 'index.html',   label: 'Dashboard' },
     { id: 'users',   href: 'users.html',   label: 'Users' },
     { id: 'experts', href: 'experts.html', label: 'Experts' },
+    { id: 'opportunities', href: 'opportunities.html', label: 'Opportunities' },
     { id: 'roles',   href: 'roles.html',   label: 'Roles & Permissions' },
     { id: 'audit',   href: 'audit.html',   label: 'Audit Logs' },
     { id: 'reports', href: '../reports.html', label: 'Reports' },
