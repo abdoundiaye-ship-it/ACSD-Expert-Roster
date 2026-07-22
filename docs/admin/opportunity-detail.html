@@ -999,7 +999,12 @@
     async function exportPdf(docType, expertId) {
       const doc = findDoc(docType, expertId)
       if (!doc) return
-      if (docType === 'workplan' || docType === 'budget') {
+      // Budget is pure tables (no narrative), so the lightweight
+      // autoTable-only path is lossless for it. Workplan has a short
+      // narrative paragraph before its table — that path would silently
+      // drop it, so route Workplan through the narrative/html2canvas
+      // renderer instead, which captures the full content faithfully.
+      if (docType === 'budget') {
         exportPdfTable(doc)
       } else {
         await exportPdfNarrative(doc)
