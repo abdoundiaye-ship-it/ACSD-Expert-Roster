@@ -184,6 +184,7 @@ Extract structured information from this Terms of Reference / RFP document and r
 
 {
   "title": "the opportunity/assignment title as written",
+  "reference_number": "the formal RFP/TOR solicitation or reference number as printed in the document (e.g. 'RFP DDP-SEN-DKR-2026-05'), or null if the document doesn't state one",
   "organization": "the issuing organization/client exactly as written in the document",
   "donor_guess": "best-guess match from the Donors list below funding this opportunity, or null",
   "country": "best-guess match from the Geographies list below for the primary country of assignment, or null",

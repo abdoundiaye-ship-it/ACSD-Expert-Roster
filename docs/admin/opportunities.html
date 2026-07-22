@@ -198,6 +198,11 @@
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Reference / Solicitation Number</label>
+              <input id="of-reference" type="text" placeholder="e.g. RFP DDP-SEN-DKR-2026-05"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
               <label class="block text-xs font-semibold text-gray-600 mb-1">
                 Organization / Funder <span class="text-red-500">*</span>
               </label>
@@ -545,6 +550,7 @@
 
       const body = {
         title,
+        reference_number: document.getElementById('of-reference').value.trim() || null,
         organization,
         donor_id: document.getElementById('of-donor').value || null,
         primary_country_id: document.getElementById('of-country').value || null,
@@ -715,6 +721,7 @@
       const set = (id, val) => { const el = document.getElementById(id); if (el && val != null && val !== '') el.value = val }
 
       set('of-title', d.title)
+      set('of-reference', d.reference_number)
       set('of-organization', d.organization)
       set('of-type', d.opportunity_type)
       set('of-deadline', d.deadline)
