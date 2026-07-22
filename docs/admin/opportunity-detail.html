@@ -1174,22 +1174,27 @@
       }))
     }
 
-    // sectionPages: array parallel to reportSections(), or null for a
-    // page-count-only placeholder pass before the real numbers are known.
-    function buildSummaryHtml(sectionPages) {
+    // summaryPage/sectionPages: null for a page-count-only placeholder pass
+    // before the real numbers are known (this section's own page count
+    // doesn't change between passes — only the digits inside existing
+    // table cells do).
+    function buildTocHtml(summaryPage, sectionPages) {
+      const sections = reportSections()
+      const rows = [{ label: 'Executive Summary', page: summaryPage }]
+        .concat(sections.map((s, i) => ({ label: s.label, page: sectionPages ? sectionPages[i] : null })))
+      const tocRows = rows.map(r => `<div class="toc-row"><span>${aesc(r.label)}</span><span>${r.page ?? ''}</span></div>`).join('')
+      return `<h1>Table of Contents</h1>${tocRows}`
+    }
+
+    function buildSummaryHtml() {
       const teamRows = selectedExperts.map(s =>
         `<tr><td>${aesc(s.assigned_role_title)}</td><td>${aesc(s.experts?.full_name ?? '')}</td><td>${aesc(s.experts?.seniority_tier ?? '')}</td></tr>`).join('')
-      const sections = reportSections()
-      const tocRows = sections.map((s, i) =>
-        `<div class="toc-row"><span>${aesc(s.label)}</span><span>${sectionPages ? sectionPages[i] : ''}</span></div>`).join('')
       return `
         <h1>Executive Summary</h1>
         <p>${aesc(opportunity.summary ?? '')}</p>
         <h3>Proposed Team</h3>
         <table><thead><tr><th>Role</th><th>Expert</th><th>Seniority</th></tr></thead>
-        <tbody>${teamRows || '<tr><td colspan="3">No team assigned.</td></tr>'}</tbody></table>
-        <h3>Table of Contents</h3>
-        ${tocRows}`
+        <tbody>${teamRows || '<tr><td colspan="3">No team assigned.</td></tr>'}</tbody></table>`
     }
 
     async function renderSectionToCanvas(innerHtml) {
@@ -1212,11 +1217,13 @@
       return Math.max(1, Math.ceil(imgHeight / (pageHeightMm - 20)))
     }
 
-    // Two-pass layout: render the cover and each document section once to
-    // measure how many PDF pages they'll span, which tells us what page
-    // each document starts on; then render the summary/TOC a second time
-    // with those real numbers filled in (its own page count doesn't change
-    // between passes — only the digits inside existing table cells do).
+    // Order is Cover → Table of Contents (own page) → Executive Summary
+    // (own page) → each document. Two-pass layout: render the cover,
+    // Executive Summary, and each document section once to measure how
+    // many PDF pages they span — which tells us what page the Executive
+    // Summary and each document start on — then render the TOC a second
+    // time with those real numbers filled in (the TOC's own page count
+    // doesn't change between passes, only the digits inside its rows do).
     // The resulting page numbers are reused for both the PDF and the Word
     // export, so the two stay consistent with each other.
     async function computeReportLayout() {
@@ -1228,8 +1235,12 @@
       const coverCanvas = await renderSectionToCanvas(buildCoverHtml())
       let page = 1 + canvasPageCount(coverCanvas, pageWidthMm, pageHeightMm)
 
-      const placeholderCanvas = await renderSectionToCanvas(buildSummaryHtml(sections.map(() => null)))
-      page += canvasPageCount(placeholderCanvas, pageWidthMm, pageHeightMm)
+      const placeholderTocCanvas = await renderSectionToCanvas(buildTocHtml(null, sections.map(() => null)))
+      page += canvasPageCount(placeholderTocCanvas, pageWidthMm, pageHeightMm)
+
+      const summaryPage = page
+      const summaryCanvas = await renderSectionToCanvas(buildSummaryHtml())
+      page += canvasPageCount(summaryCanvas, pageWidthMm, pageHeightMm)
 
       const sectionPages = []
       const sectionCanvases = []
@@ -1240,9 +1251,9 @@
         page += canvasPageCount(canvas, pageWidthMm, pageHeightMm)
       }
 
-      const summaryCanvas = await renderSectionToCanvas(buildSummaryHtml(sectionPages))
+      const tocCanvas = await renderSectionToCanvas(buildTocHtml(summaryPage, sectionPages))
 
-      return { pageWidthMm, pageHeightMm, coverCanvas, summaryCanvas, sections, sectionPages, sectionCanvases }
+      return { pageWidthMm, pageHeightMm, coverCanvas, tocCanvas, summaryCanvas, summaryPage, sections, sectionPages, sectionCanvases }
     }
 
     async function exportCombinedReport(format) {
@@ -1265,7 +1276,8 @@
           const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8">${REPORT_STYLE}</head>
             <body class="combined-report">
               ${buildCoverHtml()}
-              <div class="page-break">${buildSummaryHtml(layout.sectionPages)}</div>
+              <div class="page-break">${buildTocHtml(layout.summaryPage, layout.sectionPages)}</div>
+              <div class="page-break">${buildSummaryHtml()}</div>
               ${bodyHtml}
             </body></html>`
           try {
@@ -1299,6 +1311,7 @@
         }
 
         addCanvasPages(layout.coverCanvas, true)
+        addCanvasPages(layout.tocCanvas, false)
         addCanvasPages(layout.summaryCanvas, false)
         layout.sectionCanvases.forEach(c => addCanvasPages(c, false))
 
