@@ -70,6 +70,8 @@
                 <option value="archived">Archived</option>
               </select>
               <span id="dh-score" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100"></span>
+              <span id="dh-confidence" class="hidden text-xs font-medium bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">À CONFIRMER</span>
+              <span id="dh-source" class="text-xs font-medium px-2 py-0.5 rounded-full"></span>
               <span id="dh-deadline" class="text-xs text-gray-400"></span>
             </div>
           </div>
@@ -380,6 +382,16 @@
     let currentTab = 'overview'
 
     const TYPE_COLOR   = { RFP: 'bg-blue-900 text-white', EOI: 'bg-purple-700 text-white', RFQ: 'bg-teal-700 text-white', REOI: 'bg-indigo-700 text-white' }
+    const SOURCE_LABEL = { manual: 'Manual', tor_upload: 'TOR Upload', quick_intake: 'Quick Intake', api_scan: 'API Scan' }
+    const SOURCE_COLOR = { manual: 'bg-gray-100 text-gray-600', tor_upload: 'bg-blue-100 text-blue-800', quick_intake: 'bg-purple-100 text-purple-800', api_scan: 'bg-teal-100 text-teal-800' }
+    const SCORE_LABELS = {
+      alignement_thematique: 'Thématique', adequation_geographique: 'Géo', eligibilite_conformite: 'Éligibilité',
+      valeur_strategique: 'Valeur', faisabilite_operationnelle: 'Faisabilité',
+    }
+    const SCORE_MAX = {
+      alignement_thematique: 30, adequation_geographique: 15, eligibilite_conformite: 20,
+      valeur_strategique: 20, faisabilite_operationnelle: 15,
+    }
     const DOC_LABEL = { eoi: 'Expression of Interest', technical_approach: 'Technical Approach', workplan: 'Workplan', expert_cv: 'Tailored CV', budget: 'Financial Proposal (Budget)' }
 
     async function loadDetail() {
@@ -444,7 +456,16 @@
       typeEl.textContent = opportunity.opportunity_type
       typeEl.className = `text-xs font-medium px-2 py-0.5 rounded-full ${TYPE_COLOR[opportunity.opportunity_type] ?? 'bg-gray-200 text-gray-700'}`
       document.getElementById('dh-status').value = opportunity.status
-      document.getElementById('dh-score').textContent = opportunity.strategic_score != null ? `Score: ${opportunity.strategic_score}` : 'Score: —'
+      const scoreEl = document.getElementById('dh-score')
+      scoreEl.textContent = opportunity.strategic_score != null ? `Score: ${opportunity.strategic_score}` : 'Score: —'
+      const breakdown = opportunity.strategic_score_breakdown
+      scoreEl.title = breakdown && typeof breakdown === 'object'
+        ? Object.entries(breakdown).map(([k, v]) => `${SCORE_LABELS[k] ?? k}: ${v}/${SCORE_MAX[k] ?? '?'}`).join(' · ')
+        : ''
+      document.getElementById('dh-confidence').classList.toggle('hidden', opportunity.strategic_score_confidence !== 'to_confirm')
+      const sourceEl = document.getElementById('dh-source')
+      sourceEl.textContent = SOURCE_LABEL[opportunity.source] ?? opportunity.source
+      sourceEl.className = `text-xs font-medium px-2 py-0.5 rounded-full ${SOURCE_COLOR[opportunity.source] ?? 'bg-gray-100 text-gray-600'}`
       document.getElementById('dh-deadline').textContent = opportunity.deadline ? `Deadline: ${opportunity.deadline}` : ''
 
       document.getElementById('tab-overview').textContent = 'Overview'

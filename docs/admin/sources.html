@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACSD Admin — Intelligence Sources</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>body { font-family: system-ui, -apple-system, sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-blue-950 text-white shadow sticky top-0 z-30">
+    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <img src="../img/logo.png" alt="ACSD Logo" class="h-9 w-auto flex-shrink-0">
+        <span class="font-bold text-sm tracking-tight">ACSD — Admin Panel</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="admin-user-email" class="text-xs text-blue-300 hidden sm:block"></span>
+        <button id="admin-logout-btn"
+          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-screen-xl mx-auto px-4 py-6 flex gap-6">
+    <aside class="w-48 flex-shrink-0">
+      <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
+      <div class="mt-4 px-1">
+        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+      </div>
+    </aside>
+
+    <main class="flex-1 min-w-0 space-y-5">
+
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">Intelligence Sources</h2>
+          <p class="text-sm text-gray-500 mt-0.5">Donor portals monitored for Module 1 — AI Opportunity Intelligence. Only sources marked "api" support the automated scan; everything else is a paste-and-score source.</p>
+        </div>
+        <button onclick="openSourceModal()"
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0">
+          + Add Source
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              <th class="text-left px-5 py-3">Name</th>
+              <th class="text-left px-5 py-3">Access Method</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell">Notes</th>
+              <th class="text-left px-5 py-3">Active</th>
+              <th class="text-right px-5 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="sources-tbody" class="divide-y divide-gray-100">
+            <tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Add/Edit Source modal -->
+  <div id="source-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('source-modal')"></div>
+    <div class="relative flex items-center justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+        <h3 id="sm-title" class="font-bold text-gray-900 text-base mb-4">Add Source</h3>
+        <input type="hidden" id="sm-id">
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Name</label>
+            <input id="sm-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Portal URL</label>
+            <input id="sm-url" type="url" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Access Method</label>
+            <select id="sm-access" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <option value="api">API (can be automated)</option>
+              <option value="rss">RSS feed</option>
+              <option value="email_digest">Email digest</option>
+              <option value="manual_paste">Manual — paste notices</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Notes</label>
+            <textarea id="sm-notes" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="sm-active" type="checkbox" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded">
+            <label for="sm-active" class="text-sm text-gray-700">Active</label>
+          </div>
+        </div>
+        <div class="flex gap-3 mt-5">
+          <button onclick="saveSource()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">Save</button>
+          <button onclick="closeAdminModal('source-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let allSources = []
+
+    const ACCESS_LABEL = { api: 'API', rss: 'RSS', email_digest: 'Email digest', manual_paste: 'Manual paste' }
+    const ACCESS_COLOR = {
+      api: 'bg-green-100 text-green-800', rss: 'bg-blue-100 text-blue-800',
+      email_digest: 'bg-indigo-100 text-indigo-800', manual_paste: 'bg-gray-100 text-gray-600',
+    }
+
+    async function loadSources() {
+      const session = await initAdmin('sources')
+      if (!session) return
+
+      const { data } = await sb.from('intelligence_sources').select('*').order('name')
+      allSources = data ?? []
+      renderSources()
+    }
+
+    function renderSources() {
+      const tbody = document.getElementById('sources-tbody')
+      if (allSources.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">No sources yet.</td></tr>'
+        return
+      }
+      tbody.innerHTML = allSources.map(s => `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-5 py-3">
+            <p class="font-medium text-gray-900">${aesc(s.name)}</p>
+            ${s.portal_url ? `<a href="${aesc(s.portal_url)}" target="_blank" class="text-xs text-blue-500 hover:underline">${aesc(s.portal_url)}</a>` : ''}
+          </td>
+          <td class="px-5 py-3">
+            <span class="text-xs font-medium px-2 py-0.5 rounded-full ${ACCESS_COLOR[s.access_method] ?? 'bg-gray-100 text-gray-600'}">${ACCESS_LABEL[s.access_method] ?? s.access_method}</span>
+          </td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell max-w-md">${aesc(s.notes ?? '')}</td>
+          <td class="px-5 py-3">
+            <button onclick="toggleSourceActive('${aesc(s.id)}', ${s.active})"
+              class="text-xs font-medium ${s.active ? 'text-green-600 hover:text-green-800' : 'text-gray-400 hover:text-gray-600'}">
+              ${s.active ? 'Active' : 'Inactive'}
+            </button>
+          </td>
+          <td class="px-5 py-3 text-right">
+            <div class="flex items-center justify-end gap-3">
+              <button onclick="openSourceModal(allSources.find(x=>x.id==='${aesc(s.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</button>
+              <button onclick="deleteSource('${aesc(s.id)}', '${aesc(s.name)}')" class="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+            </div>
+          </td>
+        </tr>`).join('')
+    }
+
+    function openSourceModal(source = null) {
+      document.getElementById('sm-title').textContent = source ? 'Edit Source' : 'Add Source'
+      document.getElementById('sm-id').value = source?.id ?? ''
+      document.getElementById('sm-name').value = source?.name ?? ''
+      document.getElementById('sm-url').value = source?.portal_url ?? ''
+      document.getElementById('sm-access').value = source?.access_method ?? 'manual_paste'
+      document.getElementById('sm-notes').value = source?.notes ?? ''
+      document.getElementById('sm-active').checked = source?.active ?? true
+      openAdminModal('source-modal')
+    }
+
+    async function saveSource() {
+      const id = document.getElementById('sm-id').value
+      const name = document.getElementById('sm-name').value.trim()
+      if (!name) { showToast('Name is required.', 'error'); return }
+
+      const body = {
+        name,
+        portal_url: document.getElementById('sm-url').value.trim() || null,
+        access_method: document.getElementById('sm-access').value,
+        notes: document.getElementById('sm-notes').value.trim() || null,
+        active: document.getElementById('sm-active').checked,
+      }
+
+      const { error } = id
+        ? await sb.from('intelligence_sources').update(body).eq('id', id)
+        : await sb.from('intelligence_sources').insert(body)
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return }
+
+      await logAudit(id ? 'UPDATE' : 'CREATE', 'intelligence_source', id || name, name, null, body)
+      closeAdminModal('source-modal')
+      showToast('Source saved.')
+      await loadSources()
+    }
+
+    async function toggleSourceActive(id, currentlyActive) {
+      const newState = !currentlyActive
+      const { error } = await sb.from('intelligence_sources').update({ active: newState }).eq('id', id)
+      if (error) { showToast('Failed: ' + error.message, 'error'); return }
+      showToast(newState ? 'Source activated.' : 'Source deactivated.')
+      await loadSources()
+    }
+
+    async function deleteSource(id, name) {
+      if (!confirm(`Delete "${name}"? This cannot be undone.`)) return
+      const { error } = await sb.from('intelligence_sources').delete().eq('id', id)
+      if (error) { showToast('Delete failed: ' + error.message, 'error'); return }
+      await logAudit('DELETE', 'intelligence_source', id, name, { name }, null)
+      showToast('Source deleted.')
+      await loadSources()
+    }
+
+    loadSources()
+  </script>
+</body>
+</html>

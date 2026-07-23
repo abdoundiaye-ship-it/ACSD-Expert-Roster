@@ -30,25 +30,63 @@ serve(async (req: Request) => {
     .from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
   if (roleRow?.role !== 'admin') return respond({ error: 'Forbidden — admin role required' }, 403)
 
-  // ── Parse uploaded file ──────────────────────────────────────────────────
+  // ── Parse input: a file upload, pasted text, or a URL to fetch ───────────
+  // Three intake modes share the rest of the pipeline (vocab fetch, ACSD
+  // profile, prompt, Claude call, cap logic) — this is the "analyse" command
+  // (pasted text/link) from the Module 1 spec, and it also covers the
+  // original TOR-upload flow. At most one of these three fields is expected.
   let formData: FormData
   try { formData = await req.formData() }
   catch { return respond({ error: 'Invalid multipart form data' }, 400) }
 
-  const file = formData.get('tor') as File | null
-  if (!file) return respond({ error: 'No file provided (field name must be "tor")' }, 400)
-  if (file.size > 10 * 1024 * 1024) return respond({ error: 'File too large — maximum 10 MB' }, 400)
-  if (file.size === 0) return respond({ error: 'File is empty' }, 400)
+  const file      = formData.get('tor') as File | null
+  const pastedText = (formData.get('text') as string | null)?.trim() || null
+  const sourceUrl  = (formData.get('source_url') as string | null)?.trim() || null
 
-  const ext  = (file.name.split('.').pop() ?? '').toLowerCase()
-  const mime = file.type || mimeFromExt(ext)
-  const isPDF  = mime === 'application/pdf'  || ext === 'pdf'
-  const isDOCX = mime.includes('wordprocessingml') || mime === 'application/msword' ||
-                 ext === 'docx' || ext === 'doc'
-  const isTXT  = mime === 'text/plain' || ext === 'txt'
+  if (!file && !pastedText && !sourceUrl) {
+    return respond({ error: 'Provide a file ("tor"), pasted text ("text"), or a URL ("source_url")' }, 400)
+  }
 
-  if (!isPDF && !isDOCX && !isTXT) {
-    return respond({ error: 'Unsupported format. Use PDF, DOCX, DOC, or TXT.' }, 400)
+  let isPDF = false
+  let pdfBytes: Uint8Array | null = null
+  let torText: string | null = null
+
+  if (file) {
+    if (file.size > 10 * 1024 * 1024) return respond({ error: 'File too large — maximum 10 MB' }, 400)
+    if (file.size === 0) return respond({ error: 'File is empty' }, 400)
+
+    const ext  = (file.name.split('.').pop() ?? '').toLowerCase()
+    const mime = file.type || mimeFromExt(ext)
+    isPDF        = mime === 'application/pdf' || ext === 'pdf'
+    const isDOCX = mime.includes('wordprocessingml') || mime === 'application/msword' || ext === 'docx' || ext === 'doc'
+    const isTXT  = mime === 'text/plain' || ext === 'txt'
+    if (!isPDF && !isDOCX && !isTXT) return respond({ error: 'Unsupported format. Use PDF, DOCX, DOC, or TXT.' }, 400)
+
+    const bytes = new Uint8Array(await file.arrayBuffer())
+    if (isPDF) {
+      pdfBytes = bytes
+    } else {
+      torText = isDOCX ? extractDocxText(bytes) : new TextDecoder('utf-8', { fatal: false }).decode(bytes)
+    }
+  } else if (pastedText) {
+    torText = pastedText
+  } else if (sourceUrl) {
+    let urlObj: URL
+    try { urlObj = new URL(sourceUrl) } catch { return respond({ error: 'Invalid URL' }, 400) }
+    if (!['http:', 'https:'].includes(urlObj.protocol)) return respond({ error: 'URL must be http(s)' }, 400)
+
+    let fetchRes: Response
+    try { fetchRes = await fetch(urlObj.toString(), { headers: { 'User-Agent': 'ACSD-Opportunity-Intelligence/1.0' } }) }
+    catch (err) { return respond({ error: `Could not fetch URL: ${err instanceof Error ? err.message : 'network error'}` }, 502) }
+    if (!fetchRes.ok) return respond({ error: `Source URL returned HTTP ${fetchRes.status}` }, 502)
+
+    const raw = await fetchRes.text()
+    torText = raw.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim()
+  }
+
+  if (torText !== null && !torText.trim()) {
+    return respond({ error: 'Could not extract any usable text from the input' }, 400)
   }
 
   // ── Fetch controlled vocabulary for extraction ───────────────────────────
@@ -71,31 +109,25 @@ serve(async (req: Request) => {
   const apiKey = Deno.env.get('ANTHROPIC_API_KEY')
   if (!apiKey) return respond({ error: 'ANTHROPIC_API_KEY is not configured on this project' }, 500)
 
-  const bytes  = new Uint8Array(await file.arrayBuffer())
-  const prompt = buildPrompt(sectors, languages, geographies, activityTypes, donors, workOrderRoles)
+  const acsdProfile = await computeAcsdProfile(adminClient)
+  const prompt = buildPrompt(sectors, languages, geographies, activityTypes, donors, workOrderRoles, acsdProfile)
 
   let messages: unknown[]
   const extraHeaders: Record<string, string> = {}
 
-  if (isPDF) {
+  if (isPDF && pdfBytes) {
     extraHeaders['anthropic-beta'] = 'pdfs-2024-09-25'
     messages = [{
       role: 'user',
       content: [
-        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: toBase64(bytes) } },
+        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: toBase64(pdfBytes) } },
         { type: 'text', text: prompt },
       ],
     }]
   } else {
-    const torText = isDOCX
-      ? extractDocxText(bytes)
-      : new TextDecoder('utf-8', { fatal: false }).decode(bytes)
-
-    if (!torText.trim()) return respond({ error: 'Could not extract any text from the file' }, 400)
-
     messages = [{
       role: 'user',
-      content: `${prompt}\n\n--- TOR TEXT ---\n${torText.slice(0, 40000)}`,
+      content: `${prompt}\n\n--- TOR TEXT ---\n${(torText ?? '').slice(0, 40000)}`,
     }]
   }
 
@@ -130,8 +162,35 @@ serve(async (req: Request) => {
   try { extracted = JSON.parse(jsonMatch[0]) }
   catch { return respond({ error: 'Could not parse AI response as JSON' }, 500) }
 
+  applyScoreCaps(extracted)
+
   return respond({ success: true, data: extracted })
 })
+
+// ── Scoring caps ─────────────────────────────────────────────────────────────
+// The rubric's cap rules are business rules, not judgment calls — kept out of
+// the model's hands the same way compute-matches keeps its scoring arithmetic
+// out of the model's hands. Claude returns raw sub-scores + two flags; this
+// function computes the total and applies the caps deterministically.
+function applyScoreCaps(extracted: Record<string, unknown>): void {
+  const breakdown = extracted.strategic_score_breakdown as Record<string, number> | undefined
+  let total = breakdown
+    ? Object.values(breakdown).reduce((sum: number, v) => sum + (Number(v) || 0), 0)
+    : 0
+
+  let confidence: 'confirmed' | 'to_confirm' = 'confirmed'
+
+  if (extracted.has_blocking_eligibility_issue === true) {
+    total = Math.min(total, 49)
+  }
+  if (extracted.source_fully_read === false) {
+    total = Math.min(total, 84)
+    confidence = 'to_confirm'
+  }
+
+  extracted.strategic_score = Math.round(Math.max(0, Math.min(100, total)))
+  extracted.strategic_score_confidence = confidence
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -174,13 +233,47 @@ function extractDocxText(bytes: Uint8Array): string {
   return raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
+// Computed live from the actual roster (not a static snapshot) so scoring
+// prompts stay current as the expert pool grows, without needing a settings
+// UI to keep a positioning blurb in sync by hand.
+async function computeAcsdProfile(adminClient: any): Promise<string> {
+  const [sectorRes, donorRes, geoRes] = await Promise.all([
+    adminClient.from('expert_sectors').select('sectors(name)'),
+    adminClient.from('expert_donor_experience').select('donors(name)'),
+    adminClient.from('expert_geographies').select('geographies(country_name)'),
+  ])
+
+  const topN = (rows: any[], pick: (r: any) => string | undefined, n: number): string[] => {
+    const counts: Record<string, number> = {}
+    for (const r of rows ?? []) {
+      const name = pick(r)
+      if (name) counts[name] = (counts[name] ?? 0) + 1
+    }
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, n).map(([name]) => name)
+  }
+
+  const topSectors      = topN(sectorRes.data ?? [], (r) => r.sectors?.name, 8)
+  const topDonors       = topN(donorRes.data ?? [], (r) => r.donors?.name, 8)
+  const topGeographies  = topN(geoRes.data ?? [], (r) => r.geographies?.country_name, 10)
+
+  return `ACSD — cabinet de conseil basé au Burkina Faso, spécialisé en management, transformation organisationnelle, gouvernance et développement institutionnel, avec une équipe de consultants seniors et un ancrage local dans plusieurs pays d'Afrique de l'Ouest et Centrale. Statut de soumission possible : cabinet en soumission propre, chef de file de groupement, ou partenaire local — selon le montage le plus pertinent pour l'opportunité.
+Secteurs dominants du vivier d'experts (par fréquence) : ${topSectors.join(', ') || 'non disponible'}.
+Bailleurs déjà servis (par expérience terrain du vivier) : ${topDonors.join(', ') || 'non disponible'}.
+Zones prioritaires (par expérience terrain du vivier) : ${topGeographies.join(', ') || 'non disponible'} — UEMOA/CEDEAO en priorité, Afrique francophone et anglophone en secondaire.
+Langues : français, anglais, langues nationales d'Afrique de l'Ouest.`
+}
+
 function buildPrompt(
   sectors: string[], languages: string[], geographies: string[],
   activityTypes: string[], donors: string[], workOrderRoles: string[],
+  acsdProfile: string,
 ): string {
-  return `You are a professional bid analyst for an international development consulting firm (ACSD) that responds to donor RFPs/TORs (UN agencies, World Bank, AfDB, EU, USAID, etc.).
+  return `Tu es analyste senior en veille et qualification d'appels d'offres pour ACSD, un cabinet de conseil ouest-africain répondant à des RFP/TOR de bailleurs (agences onusiennes, Banque mondiale, BAD, UE, USAID, etc.).
 
-Extract structured information from this Terms of Reference / RFP document and return ONLY a valid JSON object (no markdown, no explanation):
+PROFIL ACSD (pour évaluer l'alignement — dérivé du vivier d'experts réel) :
+${acsdProfile}
+
+Extrait les informations structurées de ce Terms of Reference / RFP et retourne UNIQUEMENT un objet JSON valide (pas de markdown, pas d'explication) :
 
 {
   "title": "the opportunity/assignment title as written",
@@ -197,9 +290,22 @@ Extract structured information from this Terms of Reference / RFP document and r
   "geographies": [ "country names from the Geographies list below where relevant experience or coverage is required" ],
   "activity_types": [ "names from the Activity Types list below matching deliverables this TOR asks for" ],
   "positions": [ { "role_title": "the role/position name as written (e.g. 'Team Leader', 'Senior WASH Evaluator')", "required_seniority_tier": "one of junior, intermediary, senior, principal_expert — infer from years-of-experience requirements", "required_sector_guess": "best-guess match from the Sectors list, or null", "quantity": integer number of people needed for this role, default 1 } ],
-  "strategic_score": integer 0-100 rating how strategically valuable and winnable this opportunity looks for a West/Central Africa-focused management, governance, and institutional development consultancy,
-  "strategic_score_rationale": "1-2 sentence justification for the strategic_score, referencing alignment with ACSD's sector strengths and regional presence"
+  "strategic_score_breakdown": {
+    "alignement_thematique": "integer 0-30 — objet du marché au cœur d'une expertise phare d'ACSD (30) vs lien marginal/hors périmètre (0), voir PROFIL ACSD ci-dessus",
+    "adequation_geographique": "integer 0-15 — pays UEMOA/CEDEAO où ACSD est implanté (15) vs hors Afrique de l'Ouest (0)",
+    "eligibilite_conformite": "integer 0-20 — aucun critère éliminatoire, toutes pièces disponibles (20) vs exigence non satisfaite : CA, années d'existence, enregistrement bailleur, références similaires (0)",
+    "valeur_strategique": "integer 0-20 — budget significatif, bailleur structurant, effet de levier durable (20) vs micro-marché sans suite (0)",
+    "faisabilite_operationnelle": "integer 0-15 — délai confortable, dossier léger, concurrence limitée (15) vs délai < 7 jours ou dossier très lourd (0)"
+  },
+  "has_blocking_eligibility_issue": "boolean — true if the document states an eligibility requirement ACSD cannot meet (e.g. minimum turnover, years of existence, prior donor registration, number of similar references) that is NOT satisfiable — this caps the total score regardless of thematic fit",
+  "source_fully_read": "boolean — true only if you had complete access to the document's actual content; false if the document was truncated, partially unreadable, or you had to infer significant parts",
+  "strategic_score_rationale": "2-3 phrases factuelles, en français, citant des éléments vérifiables du texte de l'avis — pas de remplissage"
 }
+
+Règles de notation impératives :
+- Chaque note doit s'appuyer sur un élément textuel vérifiable du document — ne jamais extrapoler.
+- Donnée manquante sur un critère = note basse sur ce critère spécifique (notamment un malus sur faisabilite_operationnelle si le délai ou la charge de travail ne sont pas précisés) — ne jamais deviner pour gonfler un score.
+- has_blocking_eligibility_issue et source_fully_read sont des indicateurs factuels séparés du calcul des sous-scores — ne les utilise pas pour ajuster manuellement strategic_score_breakdown, le plafonnement est appliqué automatiquement en aval.
 
 Use semantic/fuzzy matching against the controlled vocabulary lists below — do not invent values outside these lists for sectors/languages/geographies/activity_types/donor_guess (positions' role_title is free text, taken verbatim from the document).
 
