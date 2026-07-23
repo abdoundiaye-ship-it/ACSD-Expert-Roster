@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ACSD Expert Roster — Reports</title>
+  <title>ACSD Expert Intelligence Platform — Reports</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
@@ -34,7 +34,7 @@
       <div class="flex items-center gap-3">
         <img src="img/logo.png" alt="ACSD Logo" class="h-10 w-auto flex-shrink-0">
         <div>
-          <h1 class="text-base font-bold tracking-tight leading-none">ACSD Expert Roster</h1>
+          <h1 class="text-base font-bold tracking-tight leading-none">ACSD Expert Intelligence Platform</h1>
           <p class="text-xs text-blue-400 mt-0.5">Reports &amp; Exports</p>
         </div>
       </div>
@@ -62,20 +62,15 @@
     </button>
   </div>
 
-  <!-- Tabs -->
-  <div class="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1 w-fit mb-4 shadow-sm">
+  <!-- Tabs — grouped by functional area (Roster / Opportunities / Administration), matching the admin sidebar's grouping -->
+  <div class="flex items-center flex-wrap gap-1 bg-white border border-gray-200 rounded-xl p-1 w-fit mb-4 shadow-sm">
     <button id="tab-experts" onclick="switchTab('experts')"
       class="px-4 py-2 rounded-lg text-sm font-medium bg-blue-950 text-white transition-colors">
       Expert Roster
     </button>
-    <button id="tab-users" onclick="switchTab('users')"
-      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
-      User Directory
-    </button>
-    <button id="tab-audit" onclick="switchTab('audit')"
-      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
-      Audit Log
-    </button>
+
+    <div class="w-px self-stretch bg-gray-200 mx-1"></div>
+
     <button id="tab-opportunities" onclick="switchTab('opportunities')"
       class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
       Opportunities
@@ -91,6 +86,17 @@
     <button id="tab-knowledgebase" onclick="switchTab('knowledgebase')"
       class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
       Knowledge Base
+    </button>
+
+    <div class="w-px self-stretch bg-gray-200 mx-1"></div>
+
+    <button id="tab-users" onclick="switchTab('users')"
+      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+      User Directory
+    </button>
+    <button id="tab-audit" onclick="switchTab('audit')"
+      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+      Audit Log
     </button>
   </div>
   <p id="admin-hint" class="hidden text-xs text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2 rounded-lg mb-4 w-fit">
@@ -1028,7 +1034,7 @@ function doPDF(fname) {
     margin: { left:8, right:8 },
     didDrawPage: data => {
       doc.setFontSize(6); doc.setTextColor(160)
-      doc.text(`Page ${data.pageNumber} — ACSD Expert Roster`, pw/2,
+      doc.text(`Page ${data.pageNumber} — ACSD Expert Intelligence Platform`, pw/2,
         doc.internal.pageSize.getHeight()-4, { align:'center' })
     }
   })
@@ -1086,7 +1092,7 @@ async function printReport() {
     <tbody>${trows}</tbody>
   </table>
   <div style="font-size:7pt;color:#9ca3af;margin-top:8pt;text-align:center;">
-    ACSD Expert Roster — Confidential — Printed ${new Date().toLocaleString('en-GB')}
+    ACSD Expert Intelligence Platform — Confidential — Printed ${new Date().toLocaleString('en-GB')}
   </div>
 </div>`
   window.print()

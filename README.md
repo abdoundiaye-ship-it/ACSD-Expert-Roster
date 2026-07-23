@@ -1,7 +1,11 @@
-# ACSD Expert Roster Management System
+# ACSD Expert Intelligence Platform
 
-A searchable, manageable database of experts for ACSD's response to RFP DDP-SEN-DKR-2026-05
-(Framework Agreement for Technical Support Services — Pool of Experts, SRF FMU, DRC).
+Started as a searchable, manageable database of experts for ACSD's response to RFP DDP-SEN-DKR-2026-05
+(Framework Agreement for Technical Support Services — Pool of Experts, SRF FMU, DRC), and has grown into
+the full platform described in `ACSD_Expert_Intelligence_Platform_Proposal.pdf`: the expert roster below
+is Module 2 of that platform, alongside opportunity sourcing/qualification, a TOR↔expert matching engine,
+AI-assisted proposal generation, a financial proposal assistant, a proposal knowledge base, bid/no-bid
+analysis, and natural-language roster search — see the module sections further down this file.
 
 ## Stack
 - **Database & API**: Supabase (PostgreSQL + auto-generated REST API + Row Level Security)

@@ -26,28 +26,44 @@ async function initAdmin(activePage) {
 // ── Navigation ─────────────────────────────────────────────────────────────────
 
 function renderAdminNav(active) {
-  const items = [
-    { id: 'index',   href: 'index.html',   label: 'Dashboard' },
-    { id: 'users',   href: 'users.html',   label: 'Users' },
-    { id: 'experts', href: 'experts.html', label: 'Experts' },
-    { id: 'ask', href: 'ask.html', label: 'Ask ACSD Intelligence' },
-    { id: 'opportunities', href: 'opportunities.html', label: 'Opportunities' },
-    { id: 'sources', href: 'sources.html', label: 'Intelligence Sources' },
-    { id: 'knowledge-base', href: 'knowledge-base.html', label: 'Knowledge Base' },
-    { id: 'roles',   href: 'roles.html',   label: 'Roles & Permissions' },
-    { id: 'audit',   href: 'audit.html',   label: 'Audit Logs' },
-    { id: 'reports', href: '../reports.html', label: 'Reports' },
+  // Groups mirror the platform's functional areas: talent (Roster), business
+  // development (Opportunities), and system administration — with Dashboard
+  // and Reports left ungrouped since they're cross-cutting entry/exit points.
+  const groups = [
+    { label: null, items: [
+      { id: 'index', href: 'index.html', label: 'Dashboard' },
+    ] },
+    { label: 'Roster', items: [
+      { id: 'experts', href: 'experts.html', label: 'Experts' },
+      { id: 'ask',     href: 'ask.html',     label: 'Ask ACSD Intelligence' },
+    ] },
+    { label: 'Opportunities', items: [
+      { id: 'opportunities',   href: 'opportunities.html',  label: 'Opportunities' },
+      { id: 'sources',         href: 'sources.html',        label: 'Intelligence Sources' },
+      { id: 'knowledge-base',  href: 'knowledge-base.html', label: 'Knowledge Base' },
+    ] },
+    { label: 'Administration', items: [
+      { id: 'users', href: 'users.html', label: 'Users' },
+      { id: 'roles', href: 'roles.html', label: 'Roles & Permissions' },
+      { id: 'audit', href: 'audit.html', label: 'Audit Logs' },
+    ] },
+    { label: null, items: [
+      { id: 'reports', href: '../reports.html', label: 'Reports' },
+    ] },
   ]
   const nav = document.getElementById('admin-nav')
   if (!nav) return
-  nav.innerHTML = items.map(it => `
-    <a href="${it.href}"
-       class="block px-3 py-2 rounded-lg text-sm transition-colors
-              ${it.id === active
-                ? 'bg-blue-50 text-blue-900 font-semibold'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}">
-      ${aesc(it.label)}
-    </a>`).join('')
+  nav.innerHTML = groups.map(g => `
+    ${g.label ? `<p class="px-3 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider first:pt-0">${aesc(g.label)}</p>` : ''}
+    ${g.items.map(it => `
+      <a href="${it.href}"
+         class="block px-3 py-2 rounded-lg text-sm transition-colors
+                ${it.id === active
+                  ? 'bg-blue-50 text-blue-900 font-semibold'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}">
+        ${aesc(it.label)}
+      </a>`).join('')}
+  `).join('')
 }
 
 // ── Shared utilities ───────────────────────────────────────────────────────────
