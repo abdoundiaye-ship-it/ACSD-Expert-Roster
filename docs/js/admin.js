@@ -32,6 +32,7 @@ function renderAdminNav(active) {
     { id: 'experts', href: 'experts.html', label: 'Experts' },
     { id: 'opportunities', href: 'opportunities.html', label: 'Opportunities' },
     { id: 'sources', href: 'sources.html', label: 'Intelligence Sources' },
+    { id: 'knowledge-base', href: 'knowledge-base.html', label: 'Knowledge Base' },
     { id: 'roles',   href: 'roles.html',   label: 'Roles & Permissions' },
     { id: 'audit',   href: 'audit.html',   label: 'Audit Logs' },
     { id: 'reports', href: '../reports.html', label: 'Reports' },

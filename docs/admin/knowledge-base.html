@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACSD Admin — Proposal Knowledge Base</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>body { font-family: system-ui, -apple-system, sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-blue-950 text-white shadow sticky top-0 z-30">
+    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <img src="../img/logo.png" alt="ACSD Logo" class="h-9 w-auto flex-shrink-0">
+        <span class="font-bold text-sm tracking-tight">ACSD — Admin Panel</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="admin-user-email" class="text-xs text-blue-300 hidden sm:block"></span>
+        <button id="admin-logout-btn"
+          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-screen-xl mx-auto px-4 py-6 flex gap-6">
+    <aside class="w-48 flex-shrink-0">
+      <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
+      <div class="mt-4 px-1">
+        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+      </div>
+    </aside>
+
+    <main class="flex-1 min-w-0 space-y-5">
+
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">Proposal Knowledge Base</h2>
+          <p class="text-sm text-gray-500 mt-0.5">Past proposals, winning methodologies, project references, donor-requirement notes, and templates. The proposal generator draws on these for style/precedent when drafting EOIs and Technical Approaches.</p>
+        </div>
+        <button onclick="openDocModal()"
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0">
+          + Add Document
+        </button>
+      </div>
+
+      <div class="flex gap-3 items-center flex-wrap">
+        <div class="relative flex-1 max-w-sm">
+          <input id="kb-search" type="search" placeholder="Search title/description…"
+            class="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            oninput="filterDocs()">
+        </div>
+        <select id="kb-filter-category"
+          class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onchange="filterDocs()">
+          <option value="">All categories</option>
+          <option value="methodologies">Methodologies</option>
+          <option value="technical_proposals">Technical Proposals</option>
+          <option value="cvs">CVs</option>
+          <option value="references">References</option>
+          <option value="donor_requirements">Donor Requirements</option>
+          <option value="templates">Templates</option>
+        </select>
+      </div>
+
+      <div id="kb-count" class="text-sm text-gray-500 font-medium"></div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              <th class="text-left px-5 py-3">Title</th>
+              <th class="text-left px-5 py-3">Category</th>
+              <th class="text-left px-5 py-3 hidden md:table-cell">Sector</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell">Description</th>
+              <th class="text-right px-5 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="kb-tbody" class="divide-y divide-gray-100">
+            <tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Add Document modal -->
+  <div id="doc-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('doc-modal')"></div>
+    <div class="relative flex items-start justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+
+        <h3 class="font-bold text-gray-900 text-base mb-4">Add Document</h3>
+
+        <div id="kb-dropzone"
+          ondragover="kbDragover(event)" ondragleave="kbDragleave(event)" ondrop="kbDrop(event)"
+          onclick="document.getElementById('kb-file-input').click()"
+          class="border-2 border-dashed border-blue-300 rounded-xl p-6 text-center cursor-pointer
+                 hover:border-blue-600 hover:bg-blue-50 transition-all bg-gradient-to-br from-blue-50 to-indigo-50">
+          <p class="text-sm font-semibold text-blue-900">Drop a document here, or click to browse</p>
+          <p class="text-xs text-blue-500 mt-1">PDF, DOCX, TXT &middot; max 10 MB</p>
+        </div>
+        <input type="file" id="kb-file-input" accept=".pdf,.docx,.doc,.txt" class="hidden" onchange="kbFileSelected(event)">
+
+        <div id="kb-file-display" class="hidden mt-2 flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2">
+          <span id="kb-file-name" class="flex-1 truncate text-xs font-medium text-gray-700"></span>
+          <button type="button" onclick="clearKbFile()" class="text-gray-400 hover:text-gray-700 text-xs">&times;</button>
+        </div>
+
+        <div id="kb-error" class="hidden mt-2 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></div>
+
+        <button type="button" id="kb-analyze-btn" onclick="analyzeKbDoc()"
+          class="hidden mt-3 w-full bg-blue-800 hover:bg-blue-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">
+          Extract Content with AI
+        </button>
+
+        <div id="kb-success" class="hidden mt-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+          <p class="text-sm font-semibold text-green-800">&#10003; Content extracted — review below</p>
+          <p class="text-xs text-green-600 mt-0.5">PDFs are condensed to a digest, not a verbatim transcript — edit as needed.</p>
+        </div>
+
+        <div class="space-y-3 mt-4">
+          <input type="hidden" id="dm-id">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Title</label>
+            <input id="dm-title" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Category</label>
+              <select id="dm-category" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="methodologies">Methodologies</option>
+                <option value="technical_proposals">Technical Proposals</option>
+                <option value="cvs">CVs</option>
+                <option value="references">References</option>
+                <option value="donor_requirements">Donor Requirements</option>
+                <option value="templates">Templates</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Sector (optional)</label>
+              <select id="dm-sector" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="">— none —</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Donor (optional)</label>
+            <select id="dm-donor" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <option value="">— none —</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Description</label>
+            <textarea id="dm-description" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Extracted Content (used as generation context)</label>
+            <textarea id="dm-extracted-text" rows="6" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs font-mono resize-y"></textarea>
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-5">
+          <button onclick="saveDoc()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">Save</button>
+          <button onclick="closeAdminModal('doc-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let allDocs = []
+    let allSectorsKb = []
+    let allDonorsKb = []
+    let kbFile = null
+
+    const CATEGORY_LABEL = {
+      methodologies: 'Methodologies', technical_proposals: 'Technical Proposals', cvs: 'CVs',
+      references: 'References', donor_requirements: 'Donor Requirements', templates: 'Templates',
+    }
+    const CATEGORY_COLOR = {
+      methodologies: 'bg-blue-100 text-blue-800', technical_proposals: 'bg-purple-100 text-purple-800',
+      cvs: 'bg-teal-100 text-teal-800', references: 'bg-indigo-100 text-indigo-800',
+      donor_requirements: 'bg-amber-100 text-amber-800', templates: 'bg-gray-100 text-gray-600',
+    }
+
+    async function loadDocs() {
+      const session = await initAdmin('knowledge-base')
+      if (!session) return
+
+      const [docRes, secRes, donRes] = await Promise.all([
+        sb.from('knowledge_base_documents').select('id, title, description, category, sector_id, donor_id, file_storage_path, sectors(name)').order('created_at', { ascending: false }),
+        sb.from('sectors').select('id, name').order('sort_order'),
+        sb.from('donors').select('id, name').order('name'),
+      ])
+      allDocs = docRes.data ?? []
+      allSectorsKb = secRes.data ?? []
+      allDonorsKb = donRes.data ?? []
+
+      const sectorSel = document.getElementById('dm-sector')
+      allSectorsKb.forEach(s => sectorSel.appendChild(new Option(s.name, s.id)))
+      const donorSel = document.getElementById('dm-donor')
+      allDonorsKb.forEach(d => donorSel.appendChild(new Option(d.name, d.id)))
+
+      filterDocs()
+    }
+
+    function filterDocs() {
+      const q = document.getElementById('kb-search').value.toLowerCase()
+      const cat = document.getElementById('kb-filter-category').value
+      const filtered = allDocs.filter(d => {
+        if (q && ![d.title, d.description].filter(Boolean).join(' ').toLowerCase().includes(q)) return false
+        if (cat && d.category !== cat) return false
+        return true
+      })
+
+      document.getElementById('kb-count').textContent =
+        filtered.length === allDocs.length ? `${allDocs.length} document${allDocs.length !== 1 ? 's' : ''}` : `${filtered.length} of ${allDocs.length} documents`
+
+      const tbody = document.getElementById('kb-tbody')
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">No documents match your filters.</td></tr>'
+        return
+      }
+      tbody.innerHTML = filtered.map(d => `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-5 py-3 font-medium text-gray-900">${aesc(d.title)}</td>
+          <td class="px-5 py-3"><span class="text-xs font-medium px-2 py-0.5 rounded-full ${CATEGORY_COLOR[d.category] ?? 'bg-gray-100 text-gray-600'}">${CATEGORY_LABEL[d.category] ?? d.category}</span></td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden md:table-cell">${aesc(d.sectors?.name ?? '—')}</td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell max-w-md truncate">${aesc(d.description ?? '')}</td>
+          <td class="px-5 py-3 text-right">
+            <div class="flex items-center justify-end gap-3">
+              <button onclick="viewKbFile('${aesc(d.file_storage_path)}')" class="text-xs text-blue-600 hover:text-blue-800 font-medium">View File</button>
+              <button onclick="deleteDoc('${aesc(d.id)}', '${aesc(d.title)}')" class="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+            </div>
+          </td>
+        </tr>`).join('')
+    }
+
+    async function viewKbFile(path) {
+      const { data, error } = await sb.storage.from('knowledge-base').createSignedUrl(path, 120)
+      if (error) { showToast('Could not open file: ' + error.message, 'error'); return }
+      window.open(data.signedUrl, '_blank')
+    }
+
+    function openDocModal() {
+      document.getElementById('dm-id').value = ''
+      document.getElementById('dm-title').value = ''
+      document.getElementById('dm-category').value = 'methodologies'
+      document.getElementById('dm-sector').value = ''
+      document.getElementById('dm-donor').value = ''
+      document.getElementById('dm-description').value = ''
+      document.getElementById('dm-extracted-text').value = ''
+      clearKbFile()
+      document.getElementById('kb-success').classList.add('hidden')
+      document.getElementById('kb-error').classList.add('hidden')
+      openAdminModal('doc-modal')
+    }
+
+    async function saveDoc() {
+      const title = document.getElementById('dm-title').value.trim()
+      if (!title) { showToast('Title is required.', 'error'); return }
+      if (!kbFile) { showToast('Please attach a file.', 'error'); return }
+
+      const body = {
+        title,
+        category: document.getElementById('dm-category').value,
+        sector_id: document.getElementById('dm-sector').value || null,
+        donor_id: document.getElementById('dm-donor').value || null,
+        description: document.getElementById('dm-description').value.trim() || null,
+        extracted_text: document.getElementById('dm-extracted-text').value.trim() || null,
+      }
+
+      const { data, error } = await sb.from('knowledge_base_documents').insert(body).select('id').single()
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return }
+
+      const ext = kbFile.name.split('.').pop().toLowerCase()
+      const storagePath = `${data.id}/source.${ext}`
+      const { error: upErr } = await sb.storage.from('knowledge-base').upload(storagePath, kbFile, { upsert: true })
+      if (upErr) {
+        showToast('Document saved but file upload failed: ' + upErr.message, 'error')
+      } else {
+        await sb.from('knowledge_base_documents').update({ file_storage_path: storagePath, file_name: kbFile.name }).eq('id', data.id)
+      }
+
+      await logAudit('CREATE', 'knowledge_base_document', data.id, title, null, { title, category: body.category })
+      closeAdminModal('doc-modal')
+      showToast('Document added.')
+      await loadDocs()
+    }
+
+    async function deleteDoc(id, title) {
+      if (!confirm(`Delete "${title}"? This cannot be undone.`)) return
+      const doc = allDocs.find(d => d.id === id)
+      if (doc?.file_storage_path) await sb.storage.from('knowledge-base').remove([doc.file_storage_path])
+      const { error } = await sb.from('knowledge_base_documents').delete().eq('id', id)
+      if (error) { showToast('Delete failed: ' + error.message, 'error'); return }
+      await logAudit('DELETE', 'knowledge_base_document', id, title, { title }, null)
+      showToast('Document deleted.')
+      await loadDocs()
+    }
+
+    // ── File upload + AI extraction ──────────────────────────────────────────
+
+    function kbDragover(e) { e.preventDefault(); document.getElementById('kb-dropzone').classList.add('border-blue-500', 'bg-white/60') }
+    function kbDragleave() { document.getElementById('kb-dropzone').classList.remove('border-blue-500', 'bg-white/60') }
+    function kbDrop(e) { e.preventDefault(); kbDragleave(); const f = e.dataTransfer.files?.[0]; if (f) setKbFile(f) }
+    function kbFileSelected(e) { const f = e.target.files?.[0]; if (f) setKbFile(f) }
+
+    function setKbFile(f) {
+      document.getElementById('kb-error').classList.add('hidden')
+      document.getElementById('kb-success').classList.add('hidden')
+      const allowed = ['pdf', 'docx', 'doc', 'txt']
+      const ext = f.name.split('.').pop().toLowerCase()
+      if (!allowed.includes(ext)) { showKbError('Unsupported file type. Use PDF, DOCX, DOC, or TXT.'); return }
+      if (f.size > 10 * 1024 * 1024) { showKbError('File is too large. Maximum size is 10 MB.'); return }
+      kbFile = f
+      document.getElementById('kb-file-name').textContent = f.name
+      document.getElementById('kb-file-display').classList.remove('hidden')
+      document.getElementById('kb-analyze-btn').classList.remove('hidden')
+      if (!document.getElementById('dm-title').value) document.getElementById('dm-title').value = f.name.replace(/\.[^.]+$/, '')
+    }
+
+    function clearKbFile() {
+      kbFile = null
+      document.getElementById('kb-file-display').classList.add('hidden')
+      document.getElementById('kb-analyze-btn').classList.add('hidden')
+      document.getElementById('kb-file-input').value = ''
+    }
+
+    function showKbError(msg) {
+      const el = document.getElementById('kb-error')
+      el.textContent = msg
+      el.classList.remove('hidden')
+    }
+
+    async function analyzeKbDoc() {
+      if (!kbFile) return
+      const btn = document.getElementById('kb-analyze-btn')
+      const origText = btn.textContent
+      btn.disabled = true
+      btn.textContent = 'Extracting…'
+      document.getElementById('kb-error').classList.add('hidden')
+
+      try {
+        const { data: { session } } = await sb.auth.getSession()
+        if (!session) throw new Error('Not authenticated')
+
+        const fd = new FormData()
+        fd.append('file', kbFile)
+
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/analyze-kb-document`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${session.access_token}` },
+          body: fd,
+        })
+        const json = await res.json()
+        if (!res.ok || !json.success) throw new Error(json.error || `Server error ${res.status}`)
+
+        if (json.data.suggested_title) document.getElementById('dm-title').value = json.data.suggested_title
+        if (json.data.suggested_category) document.getElementById('dm-category').value = json.data.suggested_category
+        document.getElementById('dm-extracted-text').value = json.data.extracted_text ?? ''
+        document.getElementById('kb-success').classList.remove('hidden')
+      } catch (err) {
+        showKbError(err.message || 'Extraction failed. Please try again or fill the fields manually.')
+      } finally {
+        btn.disabled = false
+        btn.textContent = origText
+      }
+    }
+
+    loadDocs()
+  </script>
+</body>
+</html>

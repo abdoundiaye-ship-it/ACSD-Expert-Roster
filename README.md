@@ -67,3 +67,11 @@ A live access pilot (before building this) found that most donor portals (UNGM, 
 A holistic go/no-go recommendation, distinct from `strategic_score` (which only scores the opportunity's own attributes at intake time). This factors in the actual matched candidate pool (`opportunity_expert_matches`) and the team assembled so far (`opportunity_selected_experts`), plus days remaining before the deadline, to recommend GO / CONDITIONAL_GO / NO_GO with an estimated success chance, strengths, and risks. Runs on demand from the Opportunity Overview tab; overwrites the previous snapshot each time (no history table, same pattern as `strategic_score_breakdown`). See `supabase/migrations/0009_bid_no_bid_analysis.sql` and `supabase/functions/bid-no-bid-analysis`.
 
 **Before use:** run `supabase/migrations/0009_bid_no_bid_analysis.sql` and deploy `supabase functions deploy bid-no-bid-analysis`. No new secrets.
+
+## Module 7 — Proposal Knowledge Base
+
+A central library of past proposals, winning methodologies, project references, donor-requirement notes, and templates (`docs/admin/knowledge-base.html`), organized into the six categories from the original platform proposal: Methodologies, Technical Proposals, CVs, References, Donor Requirements, Templates. Uploaded documents (PDF/DOCX/TXT) get an AI-extracted content digest via `analyze-kb-document` — exact text for DOCX/TXT, a condensed (not verbatim) summary for PDFs, since long PDFs risk being paraphrased rather than transcribed.
+
+`generate-proposal-doc`'s EOI and Technical Approach prompts now pull the 2 most relevant knowledge-base documents (matching the opportunity's sector/donor when tagged, falling back to most recent) as style/precedent reference — this is deliberately a simple filtered-retrieval MVP, not semantic/vector search (no pgvector in this stack), under the same "reference for tone only, don't copy facts" guardrail as the rest of the document generator.
+
+**Before use:** run `supabase/migrations/0010_knowledge_base.sql` and deploy `supabase functions deploy analyze-kb-document generate-proposal-doc` (the latter changed to add retrieval). No new secrets.

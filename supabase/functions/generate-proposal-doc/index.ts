@@ -45,7 +45,8 @@ serve(async (req: Request) => {
   const { data: opportunity, error: oppErr } = await adminClient
     .from('opportunities')
     .select(`
-      id, title, organization, summary, opportunity_type, evaluation_criteria,
+      id, title, organization, summary, opportunity_type, evaluation_criteria, donor_id,
+      opportunity_sectors(sector_id),
       opportunity_activity_types(activity_types(name)),
       opportunity_selected_experts(
         assigned_role_title, days_allocated,
@@ -61,11 +62,11 @@ serve(async (req: Request) => {
 
   try {
     if (docType === 'eoi') {
-      const { title, content_html } = await generateEoi(apiKey, opportunity)
+      const { title, content_html } = await generateEoi(apiKey, adminClient, opportunity)
       return respond({ success: true, doc_type: docType, title, content_html })
     }
     if (docType === 'technical_approach') {
-      const { title, content_html } = await generateTechnicalApproach(apiKey, opportunity)
+      const { title, content_html } = await generateTechnicalApproach(apiKey, adminClient, opportunity)
       return respond({ success: true, doc_type: docType, title, content_html })
     }
     if (docType === 'workplan') {
@@ -96,11 +97,13 @@ serve(async (req: Request) => {
 
 // ── Document generators ────────────────────────────────────────────────────
 
-async function generateEoi(apiKey: string, opportunity: any) {
+async function generateEoi(apiKey: string, adminClient: any, opportunity: any) {
   const team = (opportunity.opportunity_selected_experts ?? []).map((s: any) => ({
     role: s.assigned_role_title, name: s.experts?.full_name, seniority: s.experts?.seniority_tier,
   }))
   const activities = (opportunity.opportunity_activity_types ?? []).map((a: any) => a.activity_types?.name).filter(Boolean)
+  const sectorIds = (opportunity.opportunity_sectors ?? []).map((s: any) => s.sector_id)
+  const kbContext = await fetchKbContext(adminClient, ['references', 'templates'], sectorIds, opportunity.donor_id)
 
   const prompt = `Draft an Expression of Interest (EOI) letter from ACSD for the following opportunity. Reference the proposed team by role and name only (no invented bios). 350-500 words, professional tone, structured in short paragraphs.
 
@@ -111,14 +114,17 @@ Summary: ${opportunity.summary ?? 'Not provided.'}
 Evaluation criteria: ${JSON.stringify(opportunity.evaluation_criteria ?? [])}
 Deliverable/activity types covered: ${activities.join(', ') || 'Not specified.'}
 Proposed team (role — name — seniority):
-${team.map((t: any) => `- ${t.role} — ${t.name ?? 'TBD'} — ${t.seniority ?? 'n/a'}`).join('\n') || 'No team selected yet — write generically about ACSD\'s intent to mobilize a qualified team.'}`
+${team.map((t: any) => `- ${t.role} — ${t.name ?? 'TBD'} — ${t.seniority ?? 'n/a'}`).join('\n') || 'No team selected yet — write generically about ACSD\'s intent to mobilize a qualified team.'}
+${kbContext}`
 
   const content_html = await callClaude(apiKey, prompt)
   return { title: `Expression of Interest — ${opportunity.title}`, content_html }
 }
 
-async function generateTechnicalApproach(apiKey: string, opportunity: any) {
+async function generateTechnicalApproach(apiKey: string, adminClient: any, opportunity: any) {
   const activities = (opportunity.opportunity_activity_types ?? []).map((a: any) => a.activity_types?.name).filter(Boolean)
+  const sectorIds = (opportunity.opportunity_sectors ?? []).map((s: any) => s.sector_id)
+  const kbContext = await fetchKbContext(adminClient, ['methodologies', 'donor_requirements'], sectorIds, opportunity.donor_id)
 
   const prompt = `Draft a Technical Approach / methodology section for ACSD's proposal to this opportunity. Propose a phased approach (typically 4-6 phases) appropriate to the opportunity's scope, inspired by ACSD's general style of institutional/organizational engagements (diagnostic, assessment, analysis/mapping, transformation or action planning, capacity strengthening) but adapted to what this specific opportunity actually asks for — do not force phases that don't fit. For each phase give a short name and 1-2 sentence description of activities and expected outputs. Do not invent specific past project references, client names, or statistics.
 
@@ -126,10 +132,44 @@ Opportunity title: ${opportunity.title}
 Issuing organization: ${opportunity.organization}
 Summary: ${opportunity.summary ?? 'Not provided.'}
 Evaluation criteria: ${JSON.stringify(opportunity.evaluation_criteria ?? [])}
-Deliverable/activity types covered: ${activities.join(', ') || 'Not specified.'}`
+Deliverable/activity types covered: ${activities.join(', ') || 'Not specified.'}
+${kbContext}`
 
   const content_html = await callClaude(apiKey, prompt)
   return { title: `Technical Approach — ${opportunity.title}`, content_html }
+}
+
+// ── Knowledge base retrieval (Module 7) ─────────────────────────────────────
+// Not true semantic/vector search — this is an MVP-scale retrieval: filter by
+// category, prioritize documents tagged with a matching sector or the same
+// donor, fall back to most-recent. Cheap, auditable, no new infrastructure.
+async function fetchKbContext(
+  adminClient: any, categories: string[], sectorIds: number[], donorId: number | null,
+): Promise<string> {
+  const { data } = await adminClient
+    .from('knowledge_base_documents')
+    .select('title, category, extracted_text, sector_id, donor_id')
+    .in('category', categories)
+    .not('extracted_text', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(20)
+
+  const docs = data ?? []
+  if (docs.length === 0) return ''
+
+  const ranked = docs
+    .map((d: any) => ({
+      doc: d,
+      score: (d.sector_id && sectorIds.includes(d.sector_id) ? 2 : 0) + (d.donor_id && donorId && d.donor_id === donorId ? 2 : 0),
+    }))
+    .sort((a: any, b: any) => b.score - a.score)
+    .slice(0, 2)
+    .map((r: any) => r.doc)
+
+  if (ranked.length === 0) return ''
+
+  const excerpts = ranked.map((d: any) => `[${d.category}] ${d.title}:\n${String(d.extracted_text).slice(0, 2000)}`).join('\n\n---\n\n')
+  return `\nReference material from ACSD's own proposal knowledge base, reflecting its established style and past project experience (use for tone/structure/phrasing inspiration only — do not copy specific factual claims like client names, figures, or references from this unless they also appear in the opportunity data above):\n${excerpts}\n`
 }
 
 async function generateWorkplan(apiKey: string, opportunity: any) {
