@@ -31,30 +31,56 @@ serve(async (req: Request) => {
   const { data: roleRow } = await adminClient.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
   if (roleRow?.role !== 'admin') return respond({ error: 'Forbidden — admin role required' }, 403)
 
-  let body: { source_id?: string }
+  let body: { source_id?: string; source_ids?: string[]; all?: boolean }
   try { body = await req.json() }
   catch { return respond({ error: 'Invalid JSON body' }, 400) }
-  if (!body.source_id) return respond({ error: 'source_id is required' }, 400)
-
-  const { data: source, error: sourceErr } = await adminClient
-    .from('intelligence_sources').select('*').eq('id', body.source_id).single()
-  if (sourceErr || !source) return respond({ error: 'Source not found' }, 404)
-  if (source.access_method !== 'api') {
-    return respond({ error: `"${source.name}" is not API-automatable (access_method=${source.access_method}) — use the paste-intake flow instead` }, 400)
-  }
 
   const apiKey = Deno.env.get('ANTHROPIC_API_KEY')
   if (!apiKey) return respond({ error: 'ANTHROPIC_API_KEY is not configured on this project' }, 500)
 
-  try {
-    if (source.name === 'World Bank Procurement Notices') {
-      const summary = await scanWorldBank(adminClient, apiKey)
-      return respond({ success: true, ...summary })
-    }
-    return respond({ error: `No automated adapter implemented yet for "${source.name}"` }, 400)
-  } catch (err) {
-    return respond({ error: err instanceof Error ? err.message : 'Scan failed' }, 500)
+  // "all" scans every active API-automatable source; otherwise scan the
+  // explicit id(s) given (source_id kept for backward compatibility with
+  // single-source callers).
+  let sources: any[]
+  if (body.all) {
+    const { data } = await adminClient.from('intelligence_sources')
+      .select('*').eq('access_method', 'api').eq('active', true)
+    sources = data ?? []
+    if (sources.length === 0) return respond({ error: 'No active API-automatable sources found' }, 400)
+  } else {
+    const ids = [...new Set([...(body.source_ids ?? []), ...(body.source_id ? [body.source_id] : [])])]
+    if (ids.length === 0) return respond({ error: 'source_id, source_ids, or all is required' }, 400)
+    const { data } = await adminClient.from('intelligence_sources').select('*').in('id', ids)
+    sources = data ?? []
+    if (sources.length === 0) return respond({ error: 'Source(s) not found' }, 404)
   }
+
+  const totals = { new_count: 0, go: 0, a_etudier: 0, veille: 0, rejet: 0 }
+  const results: Array<{ source_id: string; source_name: string; status: 'ok' | 'skipped' | 'error'; message?: string; new_count?: number }> = []
+
+  for (const source of sources) {
+    if (source.access_method !== 'api') {
+      results.push({ source_id: source.id, source_name: source.name, status: 'skipped', message: `not API-automatable (access_method=${source.access_method}) — use the paste-intake flow` })
+      continue
+    }
+    try {
+      if (source.name === 'World Bank Procurement Notices') {
+        const summary = await scanWorldBank(adminClient, apiKey)
+        totals.new_count += summary.new_count
+        totals.go += summary.go
+        totals.a_etudier += summary.a_etudier
+        totals.veille += summary.veille
+        totals.rejet += summary.rejet
+        results.push({ source_id: source.id, source_name: source.name, status: 'ok', new_count: summary.new_count })
+      } else {
+        results.push({ source_id: source.id, source_name: source.name, status: 'skipped', message: 'no automated adapter implemented yet' })
+      }
+    } catch (err) {
+      results.push({ source_id: source.id, source_name: source.name, status: 'error', message: err instanceof Error ? err.message : 'Scan failed' })
+    }
+  }
+
+  return respond({ success: true, ...totals, results })
 })
 
 // ── World Bank adapter ───────────────────────────────────────────────────────
