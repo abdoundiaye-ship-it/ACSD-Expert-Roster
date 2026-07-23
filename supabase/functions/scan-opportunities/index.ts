@@ -160,7 +160,13 @@ async function scanWorldBank(adminClient: any, apiKey: string) {
 // ── Scoring (short procurement-notice text — simplified vs. analyze-tor's
 //    full-document version, same rubric and cap logic) ────────────────────
 
-async function scoreNoticeText(apiKey: string, acsdProfile: string, noticeText: string) {
+async function scoreNoticeText(apiKey: string, acsdProfile: string, noticeText: string): Promise<{
+  strategic_score: number
+  strategic_score_breakdown: Record<string, number>
+  strategic_score_confidence: string
+  strategic_score_rationale: string
+  summary: string
+}> {
   const prompt = `Tu es analyste senior en veille et qualification d'appels d'offres pour ACSD, un cabinet de conseil ouest-africain.
 
 PROFIL ACSD :
@@ -198,10 +204,19 @@ Return ONLY the JSON object.`
 
   const data = await res.json()
   const rawText = extractText(data.content)
-  const jsonMatch = rawText.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) throw new Error('No JSON in Claude response')
+  const jsonStr = extractJsonObject(rawText)
+  if (!jsonStr) {
+    console.error('[scan-opportunities] no balanced JSON object found', rawText.slice(0, 1000))
+    throw new Error('No JSON in Claude response')
+  }
 
-  const extracted = JSON.parse(jsonMatch[0])
+  let extracted: any
+  try {
+    extracted = JSON.parse(jsonStr)
+  } catch (err) {
+    console.error('[scan-opportunities] failed to parse JSON', err instanceof Error ? err.message : err, jsonStr.slice(0, 1000))
+    throw new Error('Could not parse Claude response as JSON')
+  }
   applyScoreCaps(extracted)
   return extracted
 }
@@ -245,6 +260,34 @@ function extractText(content: unknown): string {
   if (!Array.isArray(content)) return ''
   const block = content.find((b: any) => b?.type === 'text')
   return block?.text ?? ''
+}
+
+// A naive greedy regex (first "{" to last "}") breaks the moment Claude adds
+// any trailing commentary containing a brace, and a non-greedy one breaks on
+// nested objects (this schema has a nested strategic_score_breakdown). Scan
+// from the first "{" and track brace depth (ignoring braces inside strings)
+// to find the exact matching close brace instead.
+function extractJsonObject(text: string): string | null {
+  const start = text.indexOf('{')
+  if (start === -1) return null
+
+  let depth = 0
+  let inString = false
+  let escapeNext = false
+
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i]
+    if (escapeNext) { escapeNext = false; continue }
+    if (ch === '\\') { escapeNext = true; continue }
+    if (ch === '"') { inString = !inString; continue }
+    if (inString) continue
+    if (ch === '{') depth++
+    else if (ch === '}') {
+      depth--
+      if (depth === 0) return text.slice(start, i + 1)
+    }
+  }
+  return null // unbalanced — response was likely truncated
 }
 
 function respond(body: unknown, status = 200): Response {

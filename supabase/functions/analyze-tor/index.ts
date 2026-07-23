@@ -155,12 +155,19 @@ serve(async (req: Request) => {
   const claudeData = await claudeRes.json()
   const rawText: string = extractText(claudeData.content)
 
-  const jsonMatch = rawText.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) return respond({ error: 'AI did not return structured data — try a different file' }, 500)
+  const jsonStr = extractJsonObject(rawText)
+  if (!jsonStr) {
+    console.error('[analyze-tor] no balanced JSON object found', rawText.slice(0, 1000))
+    return respond({ error: 'AI did not return structured data — try a different file' }, 500)
+  }
 
   let extracted: Record<string, unknown>
-  try { extracted = JSON.parse(jsonMatch[0]) }
-  catch { return respond({ error: 'Could not parse AI response as JSON' }, 500) }
+  try {
+    extracted = JSON.parse(jsonStr)
+  } catch (err) {
+    console.error('[analyze-tor] failed to parse JSON', err instanceof Error ? err.message : err, jsonStr.slice(0, 1000))
+    return respond({ error: 'Could not parse AI response as JSON' }, 500)
+  }
 
   applyScoreCaps(extracted)
 
@@ -201,6 +208,34 @@ function extractText(content: unknown): string {
   if (!Array.isArray(content)) return ''
   const block = content.find((b: any) => b?.type === 'text')
   return block?.text ?? ''
+}
+
+// A naive greedy regex (first "{" to last "}") breaks the moment Claude adds
+// any trailing commentary containing a brace, and a non-greedy one breaks on
+// nested objects (this schema now has a nested strategic_score_breakdown).
+// Scan from the first "{" and track brace depth (ignoring braces inside
+// strings) to find the exact matching close brace instead.
+function extractJsonObject(text: string): string | null {
+  const start = text.indexOf('{')
+  if (start === -1) return null
+
+  let depth = 0
+  let inString = false
+  let escapeNext = false
+
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i]
+    if (escapeNext) { escapeNext = false; continue }
+    if (ch === '\\') { escapeNext = true; continue }
+    if (ch === '"') { inString = !inString; continue }
+    if (inString) continue
+    if (ch === '{') depth++
+    else if (ch === '}') {
+      depth--
+      if (depth === 0) return text.slice(start, i + 1)
+    }
+  }
+  return null // unbalanced — response was likely truncated
 }
 
 function respond(body: unknown, status = 200): Response {
