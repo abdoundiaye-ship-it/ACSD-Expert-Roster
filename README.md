@@ -75,3 +75,9 @@ A central library of past proposals, winning methodologies, project references, 
 `generate-proposal-doc`'s EOI and Technical Approach prompts now pull the 2 most relevant knowledge-base documents (matching the opportunity's sector/donor when tagged, falling back to most recent) as style/precedent reference — this is deliberately a simple filtered-retrieval MVP, not semantic/vector search (no pgvector in this stack), under the same "reference for tone only, don't copy facts" guardrail as the rest of the document generator.
 
 **Before use:** run `supabase/migrations/0010_knowledge_base.sql` and deploy `supabase functions deploy analyze-kb-document generate-proposal-doc` (the latter changed to add retrieval). No new secrets.
+
+## Ask ACSD Intelligence
+
+Natural-language search over the expert roster (`docs/admin/ask.html`), the last named idea from the original proposal's "Fonctionnalités IA Avancées" section. Claude only interprets the free-text question into structured criteria (sectors/geographies/languages/donors/seniority/an opportunity reference) — it never sees or names actual experts, so it can't hallucinate a match. Retrieval and scoring are deterministic: if the question resolves to an open opportunity, results reuse whatever match scores `compute-matches` already computed for it; otherwise a transparent relevance-count filter ranks experts against the extracted criteria. No second AI pass composes the answer — the UI renders real query results directly.
+
+**Before use:** deploy `supabase functions deploy ask-acsd-intelligence`. No new schema, no new secrets.

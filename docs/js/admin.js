@@ -30,6 +30,7 @@ function renderAdminNav(active) {
     { id: 'index',   href: 'index.html',   label: 'Dashboard' },
     { id: 'users',   href: 'users.html',   label: 'Users' },
     { id: 'experts', href: 'experts.html', label: 'Experts' },
+    { id: 'ask', href: 'ask.html', label: 'Ask ACSD Intelligence' },
     { id: 'opportunities', href: 'opportunities.html', label: 'Opportunities' },
     { id: 'sources', href: 'sources.html', label: 'Intelligence Sources' },
     { id: 'knowledge-base', href: 'knowledge-base.html', label: 'Knowledge Base' },
