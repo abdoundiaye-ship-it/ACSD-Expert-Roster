@@ -76,9 +76,25 @@
       class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
       Audit Log
     </button>
+    <button id="tab-opportunities" onclick="switchTab('opportunities')"
+      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+      Opportunities
+    </button>
+    <button id="tab-financials" onclick="switchTab('financials')"
+      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+      Team &amp; Financials
+    </button>
+    <button id="tab-documents" onclick="switchTab('documents')"
+      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+      Proposal Documents
+    </button>
+    <button id="tab-knowledgebase" onclick="switchTab('knowledgebase')"
+      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+      Knowledge Base
+    </button>
   </div>
   <p id="admin-hint" class="hidden text-xs text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2 rounded-lg mb-4 w-fit">
-    User Directory and Audit Log reports require Admin access.
+    User Directory, Audit Log, and Team &amp; Financials reports require Admin access.
   </p>
 
   <!-- Filter card -->
@@ -221,6 +237,162 @@
       </div>
     </div>
 
+    <!-- Opportunities filters -->
+    <div id="filters-opportunities" class="hidden">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div class="col-span-2">
+          <label class="block text-xs font-medium text-gray-500 mb-1">Title Search</label>
+          <input id="of-search" type="text" placeholder="Search by title…" class="fi">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+          <select id="of-status" class="fi">
+            <option value="">All</option>
+            <option value="open">Open</option><option value="in_progress">In Progress</option>
+            <option value="submitted">Submitted</option><option value="won">Won</option>
+            <option value="lost">Lost</option><option value="archived">Archived</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Type</label>
+          <select id="of-type" class="fi">
+            <option value="">All</option>
+            <option value="RFP">RFP</option><option value="EOI">EOI</option>
+            <option value="RFQ">RFQ</option><option value="REOI">REOI</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Source</label>
+          <select id="of-source" class="fi">
+            <option value="">All</option>
+            <option value="manual">Manual</option><option value="tor_upload">TOR Upload</option>
+            <option value="quick_intake">Quick Intake</option><option value="api_scan">API Scan</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Sector</label>
+          <select id="of-sector" class="fi"><option value="">All</option></select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Deadline From</label>
+          <input id="of-date-from" type="date" class="fi">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Deadline To</label>
+          <input id="of-date-to" type="date" class="fi">
+        </div>
+      </div>
+    </div>
+
+    <!-- Team & Financials filters -->
+    <div id="filters-financials" class="hidden">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Team Member Status</label>
+          <select id="tf-status" class="fi">
+            <option value="">All</option>
+            <option value="shortlisted">Shortlisted</option><option value="selected">Selected</option>
+            <option value="confirmed">Confirmed</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Opportunity Status</label>
+          <select id="tf-opp-status" class="fi">
+            <option value="">All</option>
+            <option value="open">Open</option><option value="in_progress">In Progress</option>
+            <option value="submitted">Submitted</option><option value="won">Won</option>
+            <option value="lost">Lost</option><option value="archived">Archived</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Seniority</label>
+          <select id="tf-seniority" class="fi">
+            <option value="">All</option>
+            <option value="principal_expert">Principal Expert</option><option value="senior">Senior</option>
+            <option value="intermediary">Intermediary</option><option value="junior">Junior</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Added After</label>
+          <input id="tf-date-from" type="date" class="fi">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Added Before</label>
+          <input id="tf-date-to" type="date" class="fi">
+        </div>
+      </div>
+    </div>
+
+    <!-- Proposal Documents filters -->
+    <div id="filters-documents" class="hidden">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Document Type</label>
+          <select id="pd-doctype" class="fi">
+            <option value="">All</option>
+            <option value="eoi">Expression of Interest</option><option value="technical_approach">Technical Approach</option>
+            <option value="workplan">Workplan</option><option value="expert_cv">Tailored CV</option>
+            <option value="budget">Budget</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+          <select id="pd-status" class="fi">
+            <option value="">All</option>
+            <option value="draft">Draft</option><option value="reviewed">Reviewed</option><option value="final">Final</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Opportunity Status</label>
+          <select id="pd-opp-status" class="fi">
+            <option value="">All</option>
+            <option value="open">Open</option><option value="in_progress">In Progress</option>
+            <option value="submitted">Submitted</option><option value="won">Won</option>
+            <option value="lost">Lost</option><option value="archived">Archived</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Updated After</label>
+          <input id="pd-date-from" type="date" class="fi">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Updated Before</label>
+          <input id="pd-date-to" type="date" class="fi">
+        </div>
+      </div>
+    </div>
+
+    <!-- Knowledge Base filters -->
+    <div id="filters-knowledgebase" class="hidden">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div class="col-span-2">
+          <label class="block text-xs font-medium text-gray-500 mb-1">Title/Description Search</label>
+          <input id="kbf-search" type="text" placeholder="Search…" class="fi">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Category</label>
+          <select id="kbf-category" class="fi">
+            <option value="">All</option>
+            <option value="methodologies">Methodologies</option><option value="technical_proposals">Technical Proposals</option>
+            <option value="cvs">CVs</option><option value="references">References</option>
+            <option value="donor_requirements">Donor Requirements</option><option value="templates">Templates</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Sector</label>
+          <select id="kbf-sector" class="fi"><option value="">All</option></select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Added After</label>
+          <input id="kbf-date-from" type="date" class="fi">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Added Before</label>
+          <input id="kbf-date-to" type="date" class="fi">
+        </div>
+      </div>
+    </div>
+
     <!-- Actions -->
     <div class="flex items-center gap-3 mt-5 pt-4 border-t border-gray-100">
       <button id="generate-btn" onclick="generateReport()"
@@ -357,7 +529,7 @@ async function init() {
     document.getElementById('admin-badge').classList.remove('hidden')
     document.getElementById('admin-panel-link').classList.remove('hidden')
   } else {
-    ;['tab-users','tab-audit'].forEach(id => {
+    ;['tab-users','tab-audit','tab-financials'].forEach(id => {
       const btn = document.getElementById(id)
       btn.disabled = true
       btn.classList.add('opacity-40','cursor-not-allowed')
@@ -382,6 +554,8 @@ async function loadLookups() {
   fill('ef-geography', lookups.geographies, 'country_name', 'country_name')
   fill('ef-language',  lookups.languages,   'name',         'name')
   fill('ef-donor',     lookups.donors,      'name',         'name')
+  fill('of-sector',    lookups.sectors,     'name',         'name')
+  fill('kbf-sector',   lookups.sectors,     'name',         'name')
 }
 
 function fill(id, items, vk, lk) {
@@ -395,9 +569,9 @@ function fill(id, items, vk, lk) {
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 function switchTab(tab) {
-  if (!isAdmin && (tab === 'users' || tab === 'audit')) return
+  if (!isAdmin && (tab === 'users' || tab === 'audit' || tab === 'financials')) return
   currentTab = tab
-  ;['experts','users','audit'].forEach(t => {
+  ;['experts','users','audit','opportunities','financials','documents','knowledgebase'].forEach(t => {
     const btn   = document.getElementById('tab-' + t)
     const panel = document.getElementById('filters-' + t)
     const active = t === tab
@@ -420,9 +594,13 @@ async function generateReport() {
   try {
     const filters = readFilters()
     let data, title
-    if (currentTab === 'experts') { data = await fetchExperts(filters); title = 'Expert Roster Report' }
-    else if (currentTab === 'users')  { data = await fetchUsers(filters);   title = 'User Directory Report' }
-    else                              { data = await fetchAudit(filters);   title = 'Audit Log Report' }
+    if (currentTab === 'experts')            { data = await fetchExperts(filters);         title = 'Expert Roster Report' }
+    else if (currentTab === 'users')         { data = await fetchUsers(filters);            title = 'User Directory Report' }
+    else if (currentTab === 'audit')         { data = await fetchAudit(filters);            title = 'Audit Log Report' }
+    else if (currentTab === 'opportunities') { data = await fetchOpportunities(filters);    title = 'Opportunities Report' }
+    else if (currentTab === 'financials')    { data = await fetchTeamFinancials(filters);   title = 'Team & Financials Report' }
+    else if (currentTab === 'documents')     { data = await fetchDocuments(filters);        title = 'Proposal Documents Report' }
+    else                                     { data = await fetchKnowledgeBase(filters);    title = 'Knowledge Base Report' }
 
     const { data: { session } } = await sb.auth.getSession()
     currentReport = { type: currentTab, title, filters, data,
@@ -452,8 +630,26 @@ function readFilters() {
   if (currentTab === 'users') return {
     role: v('uf-role'), isActive: v('uf-active'), dateFrom: v('uf-date-from'), dateTo: v('uf-date-to'),
   }
-  return { action: v('af-action'), entity: v('af-entity'), email: v('af-email').trim(),
-           dateFrom: v('af-date-from'), dateTo: v('af-date-to') }
+  if (currentTab === 'audit') return {
+    action: v('af-action'), entity: v('af-entity'), email: v('af-email').trim(),
+    dateFrom: v('af-date-from'), dateTo: v('af-date-to'),
+  }
+  if (currentTab === 'opportunities') return {
+    search: v('of-search').trim(), status: v('of-status'), oppType: v('of-type'), source: v('of-source'),
+    sector: v('of-sector'), dateFrom: v('of-date-from'), dateTo: v('of-date-to'),
+  }
+  if (currentTab === 'financials') return {
+    status: v('tf-status'), oppStatus: v('tf-opp-status'), seniority: v('tf-seniority'),
+    dateFrom: v('tf-date-from'), dateTo: v('tf-date-to'),
+  }
+  if (currentTab === 'documents') return {
+    docType: v('pd-doctype'), status: v('pd-status'), oppStatus: v('pd-opp-status'),
+    dateFrom: v('pd-date-from'), dateTo: v('pd-date-to'),
+  }
+  return {
+    search: v('kbf-search').trim(), category: v('kbf-category'), sector: v('kbf-sector'),
+    dateFrom: v('kbf-date-from'), dateTo: v('kbf-date-to'),
+  }
 }
 
 function resetFilters() {
@@ -515,6 +711,79 @@ async function fetchAudit(f) {
   return data ?? []
 }
 
+async function fetchOpportunities(f) {
+  let q = sb.from('opportunities').select(`
+    id, title, organization, opportunity_type, status, source, deadline,
+    strategic_score, strategic_score_confidence, bid_no_bid_analysis, created_at,
+    donors(name), opportunity_sectors(sectors(name))
+  `)
+  if (f.search)   q = q.ilike('title', `%${f.search}%`)
+  if (f.status)   q = q.eq('status', f.status)
+  if (f.oppType)  q = q.eq('opportunity_type', f.oppType)
+  if (f.source)   q = q.eq('source', f.source)
+  if (f.dateFrom) q = q.gte('deadline', f.dateFrom)
+  if (f.dateTo)   q = q.lte('deadline', f.dateTo)
+  q = q.order('created_at', { ascending: false })
+  const { data, error } = await q
+  if (error) throw new Error(error.message)
+  let r = data ?? []
+  if (f.sector) r = r.filter(o => o.opportunity_sectors?.some(s => s.sectors?.name === f.sector))
+  return r
+}
+
+async function fetchTeamFinancials(f) {
+  let q = sb.from('opportunity_selected_experts').select(`
+    id, assigned_role_title, status, days_allocated, daily_rate_usd, created_at,
+    opportunities(id, title, status),
+    experts(full_name, seniority_tier)
+  `)
+  if (f.status)   q = q.eq('status', f.status)
+  if (f.dateFrom) q = q.gte('created_at', f.dateFrom)
+  if (f.dateTo)   q = q.lte('created_at', f.dateTo + 'T23:59:59')
+  q = q.order('created_at', { ascending: false })
+  const { data, error } = await q
+  if (error) throw new Error(error.message)
+  let r = data ?? []
+  if (f.oppStatus) r = r.filter(x => x.opportunities?.status === f.oppStatus)
+  if (f.seniority) r = r.filter(x => x.experts?.seniority_tier === f.seniority)
+  return r
+}
+
+async function fetchDocuments(f) {
+  let q = sb.from('proposal_documents').select(`
+    id, doc_type, status, generated_by_ai, created_at, updated_at,
+    opportunities(id, title, status),
+    experts(full_name)
+  `)
+  if (f.docType)  q = q.eq('doc_type', f.docType)
+  if (f.status)   q = q.eq('status', f.status)
+  if (f.dateFrom) q = q.gte('updated_at', f.dateFrom)
+  if (f.dateTo)   q = q.lte('updated_at', f.dateTo + 'T23:59:59')
+  q = q.order('updated_at', { ascending: false })
+  const { data, error } = await q
+  if (error) throw new Error(error.message)
+  let r = data ?? []
+  if (f.oppStatus) r = r.filter(x => x.opportunities?.status === f.oppStatus)
+  return r
+}
+
+async function fetchKnowledgeBase(f) {
+  let q = sb.from('knowledge_base_documents').select(`
+    id, title, category, description, created_at,
+    sectors(name), donors(name)
+  `)
+  if (f.search)   q = q.ilike('title', `%${f.search}%`)
+  if (f.category) q = q.eq('category', f.category)
+  if (f.dateFrom) q = q.gte('created_at', f.dateFrom)
+  if (f.dateTo)   q = q.lte('created_at', f.dateTo + 'T23:59:59')
+  q = q.order('created_at', { ascending: false })
+  const { data, error } = await q
+  if (error) throw new Error(error.message)
+  let r = data ?? []
+  if (f.sector) r = r.filter(x => x.sectors?.name === f.sector)
+  return r
+}
+
 // ── Render ────────────────────────────────────────────────────────────────────
 function renderResults() {
   const r = currentReport
@@ -552,12 +821,41 @@ function renderStats() {
       { label:'Admins',      value: admins,   cls:'bg-amber-50 border-amber-200 text-amber-900' },
       { label:'Viewers',     value: d.length-admins, cls:'bg-gray-50 border-gray-200 text-gray-900' },
     ]
-  } else {
+  } else if (currentReport.type === 'audit') {
     stats = [
       { label:'Total Events', value: d.length, cls:'bg-blue-50 border-blue-200 text-blue-900' },
       { label:'Creates',  value: d.filter(a=>a.action==='CREATE').length,  cls:'bg-green-50 border-green-200 text-green-900' },
       { label:'Updates',  value: d.filter(a=>a.action==='UPDATE').length,  cls:'bg-amber-50 border-amber-200 text-amber-900' },
       { label:'Deletes',  value: d.filter(a=>a.action==='DELETE').length,  cls:'bg-red-50 border-red-200 text-red-900' },
+    ]
+  } else if (currentReport.type === 'opportunities') {
+    stats = [
+      { label:'Total Opportunities', value: d.length, cls:'bg-blue-50 border-blue-200 text-blue-900' },
+      { label:'Open',   value: d.filter(x=>x.status==='open').length, cls:'bg-green-50 border-green-200 text-green-900' },
+      { label:'Won',    value: d.filter(x=>x.status==='won').length,  cls:'bg-emerald-50 border-emerald-200 text-emerald-900' },
+      { label:'Avg. Strategic Score', value: d.length ? Math.round(d.reduce((s,x)=>s+(x.strategic_score||0),0)/d.length) : 0, cls:'bg-purple-50 border-purple-200 text-purple-900' },
+    ]
+  } else if (currentReport.type === 'financials') {
+    const totalUsd = d.reduce((s,x)=>s+((x.days_allocated||0)*(x.daily_rate_usd||0)),0)
+    stats = [
+      { label:'Team Assignments', value: d.length, cls:'bg-blue-50 border-blue-200 text-blue-900' },
+      { label:'Confirmed', value: d.filter(x=>x.status==='confirmed').length, cls:'bg-green-50 border-green-200 text-green-900' },
+      { label:'Total Days', value: d.reduce((s,x)=>s+(x.days_allocated||0),0), cls:'bg-amber-50 border-amber-200 text-amber-900' },
+      { label:'Total Fees (USD)', value: totalUsd.toLocaleString(), cls:'bg-purple-50 border-purple-200 text-purple-900' },
+    ]
+  } else if (currentReport.type === 'documents') {
+    stats = [
+      { label:'Total Documents', value: d.length, cls:'bg-blue-50 border-blue-200 text-blue-900' },
+      { label:'Draft',    value: d.filter(x=>x.status==='draft').length,    cls:'bg-amber-50 border-amber-200 text-amber-900' },
+      { label:'Reviewed', value: d.filter(x=>x.status==='reviewed').length, cls:'bg-blue-50 border-blue-200 text-blue-900' },
+      { label:'Final',    value: d.filter(x=>x.status==='final').length,    cls:'bg-green-50 border-green-200 text-green-900' },
+    ]
+  } else {
+    stats = [
+      { label:'Total Documents', value: d.length, cls:'bg-blue-50 border-blue-200 text-blue-900' },
+      { label:'Methodologies', value: d.filter(x=>x.category==='methodologies').length, cls:'bg-green-50 border-green-200 text-green-900' },
+      { label:'References',    value: d.filter(x=>x.category==='references').length,    cls:'bg-amber-50 border-amber-200 text-amber-900' },
+      { label:'Templates',     value: d.filter(x=>x.category==='templates').length,     cls:'bg-purple-50 border-purple-200 text-purple-900' },
     ]
   }
   document.getElementById('stats-row').innerHTML = stats.map(s =>
@@ -601,10 +899,11 @@ function tableData() {
     cols: ['Email','Full Name','Role','Active','Created'],
     rows: r.data.map(x=>[x.email, x.full_name||'', x.user_roles?.[0]?.role||'viewer', x.is_active?'Yes':'No', fmtDate(x.created_at)])
   }
-  return {
+  if (r.type === 'audit') return {
     cols: ['Timestamp','User','Action','Entity Type','Entity Name'],
     rows: r.data.map(x=>[fmtDT(x.timestamp), x.user_email, x.action, x.entity_type||'', x.entity_name||''])
   }
+  return flatData()
 }
 
 // ── Flat export data ──────────────────────────────────────────────────────────
@@ -629,9 +928,40 @@ function flatData() {
     cols: ['Email','Full Name','Role','Active','Created'],
     rows: r.data.map(x=>[x.email, x.full_name||'', x.user_roles?.[0]?.role||'viewer', x.is_active?'Yes':'No', fmtDate(x.created_at)])
   }
-  return {
+  if (r.type === 'audit') return {
     cols: ['Timestamp','User Email','Action','Entity Type','Entity Name'],
     rows: r.data.map(x=>[fmtDT(x.timestamp), x.user_email, x.action, x.entity_type||'', x.entity_name||''])
+  }
+  if (r.type === 'opportunities') return {
+    cols: ['Title','Organization','Donor','Type','Status','Source','Sectors','Strategic Score','Confidence','Bid/No-Bid','Success Chance','Deadline','Created'],
+    rows: r.data.map(x=>[
+      x.title, x.organization||'', x.donors?.name||'', x.opportunity_type, fmtOppStatus(x.status), fmtSource(x.source),
+      (x.opportunity_sectors?.map(s=>s.sectors?.name).filter(Boolean)||[]).join('; '),
+      x.strategic_score??'', x.strategic_score_confidence==='to_confirm'?'À confirmer':'Confirmed',
+      x.bid_no_bid_analysis?.recommendation||'', x.bid_no_bid_analysis?.success_chance!=null?x.bid_no_bid_analysis.success_chance+'%':'',
+      fmtDate(x.deadline), fmtDate(x.created_at),
+    ])
+  }
+  if (r.type === 'financials') return {
+    cols: ['Opportunity','Opportunity Status','Expert','Seniority','Assigned Role','Team Status','Days','Daily Rate (USD)','Total (USD)','Added'],
+    rows: r.data.map(x=>{
+      const total = (x.days_allocated||0)*(x.daily_rate_usd||0)
+      return [
+        x.opportunities?.title||'', fmtOppStatus(x.opportunities?.status), x.experts?.full_name||'', fmtLevel(x.experts?.seniority_tier),
+        x.assigned_role_title, x.status, x.days_allocated??'', x.daily_rate_usd??'', total||'', fmtDate(x.created_at),
+      ]
+    })
+  }
+  if (r.type === 'documents') return {
+    cols: ['Opportunity','Document Type','Tailored CV For','Status','AI Generated','Created','Updated'],
+    rows: r.data.map(x=>[
+      x.opportunities?.title||'', fmtDocType(x.doc_type), x.experts?.full_name||'',
+      x.status, x.generated_by_ai?'Yes':'No', fmtDate(x.created_at), fmtDate(x.updated_at),
+    ])
+  }
+  return {
+    cols: ['Title','Category','Sector','Donor','Description','Created'],
+    rows: r.data.map(x=>[x.title, fmtKbCategory(x.category), x.sectors?.name||'', x.donors?.name||'', x.description||'', fmtDate(x.created_at)])
   }
 }
 
@@ -819,9 +1149,21 @@ function loadConfig(id) {
     sv('ef-date-from',f.dateFrom); sv('ef-date-to',f.dateTo)
   } else if (c.type === 'users') {
     sv('uf-role',f.role); sv('uf-active',f.isActive); sv('uf-date-from',f.dateFrom); sv('uf-date-to',f.dateTo)
-  } else {
+  } else if (c.type === 'audit') {
     sv('af-action',f.action); sv('af-entity',f.entity); sv('af-email',f.email)
     sv('af-date-from',f.dateFrom); sv('af-date-to',f.dateTo)
+  } else if (c.type === 'opportunities') {
+    sv('of-search',f.search); sv('of-status',f.status); sv('of-type',f.oppType); sv('of-source',f.source)
+    sv('of-sector',f.sector); sv('of-date-from',f.dateFrom); sv('of-date-to',f.dateTo)
+  } else if (c.type === 'financials') {
+    sv('tf-status',f.status); sv('tf-opp-status',f.oppStatus); sv('tf-seniority',f.seniority)
+    sv('tf-date-from',f.dateFrom); sv('tf-date-to',f.dateTo)
+  } else if (c.type === 'documents') {
+    sv('pd-doctype',f.docType); sv('pd-status',f.status); sv('pd-opp-status',f.oppStatus)
+    sv('pd-date-from',f.dateFrom); sv('pd-date-to',f.dateTo)
+  } else {
+    sv('kbf-search',f.search); sv('kbf-category',f.category); sv('kbf-sector',f.sector)
+    sv('kbf-date-from',f.dateFrom); sv('kbf-date-to',f.dateTo)
   }
   showToast('Loaded: ' + c.name, 'success')
 }
@@ -851,6 +1193,18 @@ function fmtAvail(s) {
 }
 function fmtDate(iso)  { return iso ? new Date(iso).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—' }
 function fmtDT(iso)    { return iso ? new Date(iso).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—' }
+function fmtOppStatus(s) {
+  return {open:'Open',in_progress:'In Progress',submitted:'Submitted',won:'Won',lost:'Lost',archived:'Archived'}[s]||s||'—'
+}
+function fmtSource(s) {
+  return {manual:'Manual',tor_upload:'TOR Upload',quick_intake:'Quick Intake',api_scan:'API Scan'}[s]||s||'—'
+}
+function fmtDocType(s) {
+  return {eoi:'Expression of Interest',technical_approach:'Technical Approach',workplan:'Workplan',expert_cv:'Tailored CV',budget:'Budget'}[s]||s||'—'
+}
+function fmtKbCategory(s) {
+  return {methodologies:'Methodologies',technical_proposals:'Technical Proposals',cvs:'CVs',references:'References',donor_requirements:'Donor Requirements',templates:'Templates'}[s]||s||'—'
+}
 
 function pillsFor(f) {
   if (!f) return []
@@ -870,6 +1224,12 @@ function pillsFor(f) {
   if (f.action)    p.push('Action: '    + f.action)
   if (f.entity)    p.push('Entity: '    + f.entity)
   if (f.email)     p.push('User: '      + f.email)
+  if (f.status)    p.push('Status: '    + fmtOppStatus(f.status))
+  if (f.oppType)   p.push('Type: '      + f.oppType)
+  if (f.source)    p.push('Source: '    + fmtSource(f.source))
+  if (f.oppStatus) p.push('Opportunity Status: ' + fmtOppStatus(f.oppStatus))
+  if (f.docType)   p.push('Document Type: ' + fmtDocType(f.docType))
+  if (f.category)  p.push('Category: '  + fmtKbCategory(f.category))
   return p
 }
 

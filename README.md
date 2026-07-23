@@ -81,3 +81,14 @@ A central library of past proposals, winning methodologies, project references, 
 Natural-language search over the expert roster (`docs/admin/ask.html`), the last named idea from the original proposal's "Fonctionnalités IA Avancées" section. Claude only interprets the free-text question into structured criteria (sectors/geographies/languages/donors/seniority/an opportunity reference) — it never sees or names actual experts, so it can't hallucinate a match. Retrieval and scoring are deterministic: if the question resolves to an open opportunity, results reuse whatever match scores `compute-matches` already computed for it; otherwise a transparent relevance-count filter ranks experts against the extracted criteria. No second AI pass composes the answer — the UI renders real query results directly.
 
 **Before use:** deploy `supabase functions deploy ask-acsd-intelligence`. No new schema, no new secrets.
+
+## Reporting
+
+`docs/reports.html` (already covering Expert Roster / User Directory / Audit Log) now has four more filterable, exportable (PDF/Excel/CSV/Word/Print) tabs covering every module built this session:
+
+- **Opportunities** — pipeline view: status, type, source, sectors, strategic score + confidence, Bid/No-Bid recommendation and success chance, deadline.
+- **Team & Financials** (admin-only, like User Directory/Audit Log — carries day-rate data) — cross-opportunity team assignments with days/rate/total.
+- **Proposal Documents** — generation/review-status tracker across all opportunities (draft/reviewed/final, AI-generated flag).
+- **Knowledge Base** — document inventory by category/sector/donor.
+
+Same export pipeline as the existing tabs (jsPDF/autoTable, XLSX, CSV, html-docx-js), same saved-configuration and audit-logging behavior. Pure frontend change — no new migration, no new Edge Function, nothing to redeploy beyond pushing the updated `docs/reports.html`.
