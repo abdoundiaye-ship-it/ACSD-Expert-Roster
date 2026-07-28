@@ -64,6 +64,28 @@
         </table>
       </div>
 
+      <div>
+        <h2 class="text-lg font-bold text-gray-900">Scan History</h2>
+        <p class="text-sm text-gray-500 mt-0.5">Every scan run — the "Scan Sources" button on Opportunities, or the automated daily job at 06:00 UTC — logged here, most recent first.</p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              <th class="text-left px-5 py-3">When</th>
+              <th class="text-left px-5 py-3">Trigger</th>
+              <th class="text-left px-5 py-3">New</th>
+              <th class="text-left px-5 py-3 hidden md:table-cell">Go / À étudier / Veille / Rejet</th>
+              <th class="text-left px-5 py-3">Result</th>
+            </tr>
+          </thead>
+          <tbody id="scan-runs-tbody" class="divide-y divide-gray-100">
+            <tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
     </main>
   </div>
 
@@ -111,6 +133,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/config.js"></script>
+  <script src="../js/i18n.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/admin.js"></script>
   <script>
@@ -129,6 +152,37 @@
       const { data } = await sb.from('intelligence_sources').select('*').order('name')
       allSources = data ?? []
       renderSources()
+      await loadScanRuns()
+    }
+
+    async function loadScanRuns() {
+      const { data, error } = await sb.from('scan_runs').select('*').order('created_at', { ascending: false }).limit(15)
+      const tbody = document.getElementById('scan-runs-tbody')
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-6 text-center text-xs text-red-500">Failed to load: ${aesc(error.message)}</td></tr>`
+        return
+      }
+      const runs = data ?? []
+      if (runs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">No scans have run yet.</td></tr>'
+        return
+      }
+      tbody.innerHTML = runs.map(r => `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-5 py-3 text-gray-700">${fmtDate(r.created_at)}</td>
+          <td class="px-5 py-3">
+            <span class="text-xs font-medium px-2 py-0.5 rounded-full ${r.triggered_by === 'scheduled' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-600'}">
+              ${r.triggered_by === 'scheduled' ? 'Scheduled' : 'Manual'}
+            </span>
+          </td>
+          <td class="px-5 py-3 font-medium text-gray-900">${r.new_count}</td>
+          <td class="px-5 py-3 hidden md:table-cell text-xs text-gray-500">${r.go_count} / ${r.a_etudier_count} / ${r.veille_count} / ${r.rejet_count}</td>
+          <td class="px-5 py-3">
+            ${r.error
+              ? `<span class="text-xs text-red-600" title="${aesc(r.error)}">Failed</span>`
+              : '<span class="text-xs text-green-600">Success</span>'}
+          </td>
+        </tr>`).join('')
     }
 
     function renderSources() {

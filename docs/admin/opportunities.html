@@ -44,7 +44,7 @@
       <div class="flex items-center justify-between gap-4">
         <div>
           <h2 class="text-lg font-bold text-gray-900">Opportunities</h2>
-          <p class="text-sm text-gray-500 mt-0.5">Import TORs, qualify opportunities, and prepare proposals.</p>
+          <p class="text-sm text-gray-500 mt-0.5">Import TORs, qualify opportunities, and prepare proposals. API-automatable sources are also scanned automatically every day at 06:00 UTC — see <a href="sources.html" class="text-blue-600 hover:underline">Scan History</a>.</p>
         </div>
         <div class="flex gap-2 flex-shrink-0">
           <button id="scan-sources-btn" onclick="openScanModal()"
@@ -409,6 +409,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/config.js"></script>
+  <script src="../js/i18n.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/admin.js"></script>
   <script>

@@ -23,30 +23,50 @@ serve(async (req: Request) => {
   const token = (req.headers.get('Authorization') ?? '').replace('Bearer ', '').trim()
   if (!token) return respond({ error: 'Missing Authorization header' }, 401)
 
-  const anonClient = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!)
-  const { data: { user }, error: userErr } = await anonClient.auth.getUser(token)
-  if (userErr || !user) return respond({ error: 'Unauthorized' }, 401)
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  const adminClient = createClient(Deno.env.get('SUPABASE_URL')!, serviceRoleKey)
 
-  const adminClient = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
-  const { data: roleRow } = await adminClient.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
-  if (roleRow?.role !== 'admin') return respond({ error: 'Forbidden — admin role required' }, 403)
+  // A scheduled pg_cron run (see migration 0011) authenticates as the
+  // project's own service-role key rather than a user session — trust it
+  // directly as a system caller instead of running it through
+  // getUser()/admin-role lookup, which only makes sense for a real user.
+  let triggeredBy: 'manual' | 'scheduled' = 'manual'
+  let triggeredByUserId: string | null = null
+
+  if (token === serviceRoleKey) {
+    triggeredBy = 'scheduled'
+  } else {
+    const anonClient = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!)
+    const { data: { user }, error: userErr } = await anonClient.auth.getUser(token)
+    if (userErr || !user) return respond({ error: 'Unauthorized' }, 401)
+
+    const { data: roleRow } = await adminClient.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
+    if (roleRow?.role !== 'admin') return respond({ error: 'Forbidden — admin role required' }, 403)
+    triggeredByUserId = user.id
+  }
 
   let body: { source_id?: string; source_ids?: string[]; all?: boolean }
   try { body = await req.json() }
   catch { return respond({ error: 'Invalid JSON body' }, 400) }
 
   const apiKey = Deno.env.get('ANTHROPIC_API_KEY')
-  if (!apiKey) return respond({ error: 'ANTHROPIC_API_KEY is not configured on this project' }, 500)
+  if (!apiKey) {
+    await logScanRun(adminClient, triggeredBy, triggeredByUserId, null, 'ANTHROPIC_API_KEY is not configured on this project')
+    return respond({ error: 'ANTHROPIC_API_KEY is not configured on this project' }, 500)
+  }
 
-  // "all" scans every active API-automatable source; otherwise scan the
-  // explicit id(s) given (source_id kept for backward compatibility with
-  // single-source callers).
+  // "all" scans every active API-automatable source (this is what the
+  // scheduled job always passes); otherwise scan the explicit id(s) given
+  // (source_id kept for backward compatibility with single-source callers).
   let sources: any[]
   if (body.all) {
     const { data } = await adminClient.from('intelligence_sources')
       .select('*').eq('access_method', 'api').eq('active', true)
     sources = data ?? []
-    if (sources.length === 0) return respond({ error: 'No active API-automatable sources found' }, 400)
+    if (sources.length === 0) {
+      await logScanRun(adminClient, triggeredBy, triggeredByUserId, null, 'No active API-automatable sources found')
+      return respond({ error: 'No active API-automatable sources found' }, 400)
+    }
   } else {
     const ids = [...new Set([...(body.source_ids ?? []), ...(body.source_id ? [body.source_id] : [])])]
     if (ids.length === 0) return respond({ error: 'source_id, source_ids, or all is required' }, 400)
@@ -80,8 +100,33 @@ serve(async (req: Request) => {
     }
   }
 
+  await logScanRun(adminClient, triggeredBy, triggeredByUserId, { ...totals, results }, null)
   return respond({ success: true, ...totals, results })
 })
+
+// Every run — manual button click or scheduled pg_cron job — is logged so
+// admins can see what the automated daily scan actually did without
+// needing to be watching a toast notification when it fires.
+async function logScanRun(
+  adminClient: any,
+  triggeredBy: 'manual' | 'scheduled',
+  triggeredByUserId: string | null,
+  summary: { new_count: number; go: number; a_etudier: number; veille: number; rejet: number; results: unknown[] } | null,
+  error: string | null,
+): Promise<void> {
+  const { error: insErr } = await adminClient.from('scan_runs').insert({
+    triggered_by: triggeredBy,
+    triggered_by_user_id: triggeredByUserId,
+    new_count: summary?.new_count ?? 0,
+    go_count: summary?.go ?? 0,
+    a_etudier_count: summary?.a_etudier ?? 0,
+    veille_count: summary?.veille ?? 0,
+    rejet_count: summary?.rejet ?? 0,
+    results: summary?.results ?? null,
+    error,
+  })
+  if (insErr) console.error('[scan-opportunities] failed to log scan_runs row', insErr.message)
+}
 
 // ── World Bank adapter ───────────────────────────────────────────────────────
 
