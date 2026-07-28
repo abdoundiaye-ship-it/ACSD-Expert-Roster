@@ -50,8 +50,9 @@ document.addEventListener('acsd:langchange', () => {
 
 function renderAdminNav(active) {
   // Groups mirror the platform's functional areas: talent (Roster), business
-  // development (Opportunities), and system administration — with Dashboard
-  // and Reports left ungrouped since they're cross-cutting entry/exit points.
+  // development (Opportunities, bid-side), delivery (post-award), and system
+  // administration — with Dashboard and Reports left ungrouped since they're
+  // cross-cutting entry/exit points.
   const groups = [
     { label: null, items: [
       { id: 'index', href: 'index.html', label: t('nav_dashboard') },
@@ -65,6 +66,9 @@ function renderAdminNav(active) {
       { id: 'sources',            href: 'sources.html',           label: t('nav_sources') },
       { id: 'knowledge-base',     href: 'knowledge-base.html',    label: t('nav_knowledge_base') },
       { id: 'lessons-learned',    href: 'lessons-learned.html',   label: t('nav_lessons_learned') },
+    ] },
+    { label: t('nav_group_delivery'), items: [
+      { id: 'contracts', href: 'contracts.html', label: t('nav_contracts') },
     ] },
     { label: t('nav_group_admin'), items: [
       { id: 'users', href: 'users.html', label: t('nav_users') },

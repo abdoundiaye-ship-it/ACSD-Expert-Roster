@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACSD Expert Intelligence Platform — Contracts</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>body { font-family: system-ui, -apple-system, sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-blue-950 text-white shadow sticky top-0 z-30">
+    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap">
+      <div class="flex items-center gap-2.5">
+        <button type="button" class="mobile-nav-toggle" onclick="toggleMobileNav()" aria-label="Open menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+        <img src="../img/logo.png" alt="ACSD Logo" class="h-9 w-auto flex-shrink-0">
+        <span class="font-bold text-sm tracking-tight">ACSD Expert Intelligence Platform</span>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0 header-actions">
+        <span id="admin-user-email" class="text-xs text-blue-300 hidden sm:block"></span>
+        <button id="admin-logout-btn"
+          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-screen-xl mx-auto px-4 py-6 flex gap-6">
+    <div id="admin-sidebar-backdrop" class="admin-sidebar-backdrop" onclick="closeMobileNav()"></div>
+    <aside class="w-48 flex-shrink-0 admin-sidebar" id="admin-sidebar">
+      <button type="button" class="mobile-nav-close" onclick="closeMobileNav()" aria-label="Close menu">&times;</button>
+      <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
+      <div class="mt-4 px-1">
+        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+      </div>
+    </aside>
+
+    <main class="flex-1 min-w-0 space-y-5">
+
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">Contracts</h2>
+          <p class="text-sm text-gray-500 mt-0.5">Post-award tracking — the delivery-side counterpart to the bid pipeline. Track signed agreements, milestones, and payment status once an opportunity is won.</p>
+        </div>
+        <button onclick="openContractModal()"
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0">
+          + Add Contract
+        </button>
+      </div>
+
+      <!-- Summary strip -->
+      <div id="contracts-summary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
+
+      <div class="flex gap-3 items-center flex-wrap">
+        <div class="relative flex-1 max-w-sm">
+          <input id="ct-search" type="search" placeholder="Search title, client, contract number…"
+            class="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            oninput="filterContracts()">
+        </div>
+        <select id="ct-filter-status"
+          class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onchange="filterContracts()">
+          <option value="">All statuses</option>
+          <option value="draft">Draft</option>
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+          <option value="terminated">Terminated</option>
+        </select>
+      </div>
+
+      <div id="ct-count" class="text-sm text-gray-500 font-medium"></div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              <th class="text-left px-5 py-3">Title</th>
+              <th class="text-left px-5 py-3 hidden md:table-cell">Client</th>
+              <th class="text-left px-5 py-3">Value</th>
+              <th class="text-left px-5 py-3">Status</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell">Dates</th>
+              <th class="text-right px-5 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ct-tbody" class="divide-y divide-gray-100">
+            <tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Add/Edit Contract modal -->
+  <div id="contract-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('contract-modal')"></div>
+    <div class="relative flex items-start justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+
+        <h3 id="cm-title-heading" class="font-bold text-gray-900 text-base mb-4">Add Contract</h3>
+        <input type="hidden" id="cm-id">
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Title</label>
+            <input id="cm-title" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. Technical Support Services — Pool of Experts">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Client / Organization</label>
+              <input id="cm-client" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Contract Number (optional)</label>
+              <input id="cm-number" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Related Opportunity (optional)</label>
+            <select id="cm-opportunity" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <option value="">— none —</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Donor (optional)</label>
+            <select id="cm-donor" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <option value="">— none —</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Value</label>
+              <input id="cm-value" type="number" step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Currency</label>
+              <select id="cm-currency" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="XOF">XOF</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
+              <select id="cm-status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="draft">Draft</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="terminated">Terminated</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Signed Date</label>
+              <input id="cm-signed" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Start Date</label>
+              <input id="cm-start" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">End Date</label>
+              <input id="cm-end" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Notes</label>
+            <textarea id="cm-notes" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Signed Agreement (optional)</label>
+            <input type="file" id="cm-file-input" accept=".pdf,.docx,.doc" class="w-full text-xs">
+            <p id="cm-file-current" class="text-xs text-gray-400 mt-1"></p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-5">
+          <button onclick="saveContract()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">Save</button>
+          <button onclick="closeAdminModal('contract-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Milestones modal -->
+  <div id="milestones-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('milestones-modal')"></div>
+    <div class="relative flex items-start justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl p-6">
+
+        <h3 class="font-bold text-gray-900 text-base">Milestones</h3>
+        <p id="ms-contract-title" class="text-sm text-gray-500 mb-4"></p>
+        <input type="hidden" id="ms-contract-id">
+
+        <div id="ms-list" class="space-y-2 mb-4 max-h-72 overflow-y-auto"></div>
+
+        <div id="ms-form" class="hidden bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 mb-4">
+          <input type="hidden" id="mf-id">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Title</label>
+            <input id="mf-title" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. Inception report, Q1 progress report, Final payment">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Description (optional)</label>
+            <textarea id="mf-description" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Due Date</label>
+              <input id="mf-due" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Amount (optional)</label>
+              <input id="mf-amount" type="number" step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="Leave blank if non-payment">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
+              <select id="mf-status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="not_started">Not Started</option>
+                <option value="delivered">Delivered</option>
+                <option value="invoiced">Invoiced</option>
+                <option value="paid">Paid</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <button onclick="saveMilestone()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">Save Milestone</button>
+            <button onclick="closeMilestoneForm()" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Cancel</button>
+          </div>
+        </div>
+
+        <button id="ms-add-btn" type="button" onclick="openMilestoneForm()"
+          class="w-full border border-blue-300 text-blue-700 hover:bg-blue-50 text-sm font-medium py-2 rounded-lg transition-colors mb-3">
+          + Add Milestone
+        </button>
+
+        <button onclick="closeAdminModal('milestones-modal')" class="w-full border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let allContracts = []
+    let allOpportunitiesCT = []
+    let allDonorsCT = []
+    let contractFile = null
+    let currentMilestones = []
+    let currentContractCurrency = 'USD'
+
+    const CT_STATUS_LABEL = { draft: 'Draft', active: 'Active', completed: 'Completed', terminated: 'Terminated' }
+    const CT_STATUS_COLOR = {
+      draft: 'bg-gray-100 text-gray-600', active: 'bg-blue-100 text-blue-800',
+      completed: 'bg-green-100 text-green-800', terminated: 'bg-red-100 text-red-700',
+    }
+    const MS_STATUS_LABEL = { not_started: 'Not Started', delivered: 'Delivered', invoiced: 'Invoiced', paid: 'Paid' }
+    const MS_STATUS_COLOR = {
+      not_started: 'bg-gray-100 text-gray-600', delivered: 'bg-indigo-100 text-indigo-800',
+      invoiced: 'bg-amber-100 text-amber-800', paid: 'bg-green-100 text-green-800',
+    }
+    const CURRENCY_FMT = { USD: '$', EUR: '€', GBP: '£', XOF: 'CFA ' }
+
+    function fmtMoney(amount, currency) {
+      if (amount == null) return '—'
+      const sym = CURRENCY_FMT[currency] ?? (currency + ' ')
+      return sym + Number(amount).toLocaleString(undefined, { maximumFractionDigits: 0 })
+    }
+
+    function isOverdue(m) {
+      return m.due_date && !['delivered', 'invoiced', 'paid'].includes(m.status) && new Date(m.due_date) < new Date(new Date().toDateString())
+    }
+
+    async function loadContracts() {
+      const session = await initAdmin('contracts')
+      if (!session) return
+
+      const [ctRes, oppRes, donRes] = await Promise.all([
+        sb.from('contracts').select('*, opportunities(title), contract_milestones(id, amount, status)').order('created_at', { ascending: false }),
+        sb.from('opportunities').select('id, title').order('title'),
+        sb.from('donors').select('id, name').order('name'),
+      ])
+      allContracts = ctRes.data ?? []
+      allOpportunitiesCT = oppRes.data ?? []
+      allDonorsCT = donRes.data ?? []
+
+      const oppSel = document.getElementById('cm-opportunity')
+      allOpportunitiesCT.forEach(o => oppSel.appendChild(new Option(o.title, o.id)))
+      const donorSel = document.getElementById('cm-donor')
+      allDonorsCT.forEach(d => donorSel.appendChild(new Option(d.name, d.id)))
+
+      renderSummary()
+      filterContracts()
+    }
+
+    function renderSummary() {
+      const byCurrency = {}
+      for (const c of allContracts) {
+        const cur = c.currency || 'USD'
+        byCurrency[cur] ??= { count: 0, value: 0, paid: 0, invoiced: 0 }
+        byCurrency[cur].count++
+        byCurrency[cur].value += Number(c.contract_value) || 0
+        for (const m of c.contract_milestones ?? []) {
+          if (m.status === 'paid') byCurrency[cur].paid += Number(m.amount) || 0
+          if (m.status === 'invoiced') byCurrency[cur].invoiced += Number(m.amount) || 0
+        }
+      }
+      const currencies = Object.keys(byCurrency)
+      const el = document.getElementById('contracts-summary')
+
+      if (currencies.length === 0) {
+        el.innerHTML = `<div class="bg-white rounded-xl border border-gray-200 p-4"><p class="text-xs text-gray-400 uppercase font-semibold">Total Contracts</p><p class="text-2xl font-bold text-gray-900 mt-1">0</p></div>`
+        return
+      }
+
+      const cards = [`<div class="bg-white rounded-xl border border-gray-200 p-4"><p class="text-xs text-gray-400 uppercase font-semibold">Total Contracts</p><p class="text-2xl font-bold text-gray-900 mt-1">${allContracts.length}</p></div>`]
+      for (const cur of currencies) {
+        const s = byCurrency[cur]
+        cards.push(`
+          <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <p class="text-xs text-gray-400 uppercase font-semibold">Contract Value (${aesc(cur)})</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1">${fmtMoney(s.value, cur)}</p>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <p class="text-xs text-gray-400 uppercase font-semibold">Paid to Date (${aesc(cur)})</p>
+            <p class="text-2xl font-bold text-green-700 mt-1">${fmtMoney(s.paid, cur)}</p>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <p class="text-xs text-gray-400 uppercase font-semibold">Outstanding — Invoiced (${aesc(cur)})</p>
+            <p class="text-2xl font-bold text-amber-700 mt-1">${fmtMoney(s.invoiced, cur)}</p>
+          </div>`)
+      }
+      el.innerHTML = cards.join('')
+    }
+
+    function filterContracts() {
+      const q = document.getElementById('ct-search').value.toLowerCase()
+      const status = document.getElementById('ct-filter-status').value
+      const filtered = allContracts.filter(c => {
+        if (q && ![c.title, c.client_organization, c.contract_number].filter(Boolean).join(' ').toLowerCase().includes(q)) return false
+        if (status && c.status !== status) return false
+        return true
+      })
+
+      document.getElementById('ct-count').textContent =
+        filtered.length === allContracts.length ? `${allContracts.length} contract${allContracts.length !== 1 ? 's' : ''}` : `${filtered.length} of ${allContracts.length} contracts`
+
+      const tbody = document.getElementById('ct-tbody')
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">No contracts match your filters.</td></tr>'
+        return
+      }
+      tbody.innerHTML = filtered.map(c => `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-5 py-3 font-medium text-gray-900">
+            ${aesc(c.title)}
+            ${c.opportunities?.title ? `<p class="text-xs text-gray-400 font-normal mt-0.5">From: ${aesc(c.opportunities.title)}</p>` : ''}
+          </td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden md:table-cell">${aesc(c.client_organization)}</td>
+          <td class="px-5 py-3 text-xs text-gray-700">${fmtMoney(c.contract_value, c.currency)}</td>
+          <td class="px-5 py-3"><span class="text-xs font-medium px-2 py-0.5 rounded-full ${CT_STATUS_COLOR[c.status] ?? 'bg-gray-100 text-gray-600'}">${CT_STATUS_LABEL[c.status] ?? c.status}</span></td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell">${c.start_date ?? '—'} → ${c.end_date ?? '—'}</td>
+          <td class="px-5 py-3 text-right">
+            <div class="flex items-center justify-end gap-3">
+              <button onclick="openMilestonesModal(allContracts.find(x=>x.id==='${aesc(c.id)}'))" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Milestones</button>
+              <button onclick="openContractModal(allContracts.find(x=>x.id==='${aesc(c.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</button>
+              <button onclick="deleteContract('${aesc(c.id)}', '${aesc(c.title)}')" class="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+            </div>
+          </td>
+        </tr>`).join('')
+    }
+
+    function openContractModal(contract = null) {
+      document.getElementById('cm-title-heading').textContent = contract ? 'Edit Contract' : 'Add Contract'
+      document.getElementById('cm-id').value = contract?.id ?? ''
+      document.getElementById('cm-title').value = contract?.title ?? ''
+      document.getElementById('cm-client').value = contract?.client_organization ?? ''
+      document.getElementById('cm-number').value = contract?.contract_number ?? ''
+      document.getElementById('cm-opportunity').value = contract?.opportunity_id ?? ''
+      document.getElementById('cm-donor').value = contract?.donor_id ?? ''
+      document.getElementById('cm-value').value = contract?.contract_value ?? ''
+      document.getElementById('cm-currency').value = contract?.currency ?? 'USD'
+      document.getElementById('cm-status').value = contract?.status ?? 'draft'
+      document.getElementById('cm-signed').value = contract?.signed_date ?? ''
+      document.getElementById('cm-start').value = contract?.start_date ?? ''
+      document.getElementById('cm-end').value = contract?.end_date ?? ''
+      document.getElementById('cm-notes').value = contract?.notes ?? ''
+      document.getElementById('cm-file-input').value = ''
+      document.getElementById('cm-file-current').textContent = contract?.file_name ? `Current file: ${contract.file_name}` : ''
+      contractFile = null
+      openAdminModal('contract-modal')
+    }
+
+    async function saveContract() {
+      const id = document.getElementById('cm-id').value
+      const title = document.getElementById('cm-title').value.trim()
+      const client = document.getElementById('cm-client').value.trim()
+      if (!title) { showToast('Title is required.', 'error'); return }
+      if (!client) { showToast('Client / organization is required.', 'error'); return }
+
+      const body = {
+        title,
+        client_organization: client,
+        contract_number: document.getElementById('cm-number').value.trim() || null,
+        opportunity_id: document.getElementById('cm-opportunity').value || null,
+        donor_id: document.getElementById('cm-donor').value || null,
+        contract_value: document.getElementById('cm-value').value || null,
+        currency: document.getElementById('cm-currency').value,
+        status: document.getElementById('cm-status').value,
+        signed_date: document.getElementById('cm-signed').value || null,
+        start_date: document.getElementById('cm-start').value || null,
+        end_date: document.getElementById('cm-end').value || null,
+        notes: document.getElementById('cm-notes').value.trim() || null,
+      }
+
+      const { data, error } = id
+        ? await sb.from('contracts').update(body).eq('id', id).select('id').single()
+        : await sb.from('contracts').insert(body).select('id').single()
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return }
+
+      const fileInput = document.getElementById('cm-file-input')
+      const file = fileInput.files?.[0]
+      if (file) {
+        const ext = file.name.split('.').pop().toLowerCase()
+        const storagePath = `${data.id}/agreement.${ext}`
+        const { error: upErr } = await sb.storage.from('contracts').upload(storagePath, file, { upsert: true })
+        if (upErr) {
+          showToast('Contract saved but file upload failed: ' + upErr.message, 'error')
+        } else {
+          await sb.from('contracts').update({ file_storage_path: storagePath, file_name: file.name }).eq('id', data.id)
+        }
+      }
+
+      await logAudit(id ? 'UPDATE' : 'CREATE', 'contract', id || data.id, title, null, body)
+      closeAdminModal('contract-modal')
+      showToast('Contract saved.')
+      await loadContracts()
+    }
+
+    async function deleteContract(id, title) {
+      if (!confirm(`Delete "${title}"? This also deletes its milestones and cannot be undone.`)) return
+      const contract = allContracts.find(c => c.id === id)
+      if (contract?.file_storage_path) await sb.storage.from('contracts').remove([contract.file_storage_path])
+      const { error } = await sb.from('contracts').delete().eq('id', id)
+      if (error) { showToast('Delete failed: ' + error.message, 'error'); return }
+      await logAudit('DELETE', 'contract', id, title, { title }, null)
+      showToast('Contract deleted.')
+      await loadContracts()
+    }
+
+    // ── Milestones ──────────────────────────────────────────────────────────
+
+    async function openMilestonesModal(contract) {
+      document.getElementById('ms-contract-id').value = contract.id
+      document.getElementById('ms-contract-title').textContent = `${contract.title} — ${contract.client_organization}`
+      currentContractCurrency = contract.currency || 'USD'
+      closeMilestoneForm()
+      await loadMilestones(contract.id)
+      openAdminModal('milestones-modal')
+    }
+
+    async function loadMilestones(contractId) {
+      const { data, error } = await sb.from('contract_milestones').select('*').eq('contract_id', contractId).order('sort_order').order('due_date')
+      if (error) { showToast('Failed to load milestones: ' + error.message, 'error'); return }
+      currentMilestones = data ?? []
+      renderMilestones()
+    }
+
+    function renderMilestones() {
+      const el = document.getElementById('ms-list')
+      if (currentMilestones.length === 0) {
+        el.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">No milestones yet.</p>'
+        return
+      }
+      el.innerHTML = currentMilestones.map(m => `
+        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-gray-900 truncate">${aesc(m.title)}</p>
+            <p class="text-xs text-gray-400">${m.due_date ? 'Due ' + m.due_date : 'No due date'}${m.amount != null ? ' · ' + fmtMoney(m.amount, currentContractCurrency) : ''}</p>
+          </div>
+          ${isOverdue(m) ? '<span class="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-700 flex-shrink-0">Overdue</span>' : `<span class="text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${MS_STATUS_COLOR[m.status] ?? 'bg-gray-100 text-gray-600'}">${MS_STATUS_LABEL[m.status] ?? m.status}</span>`}
+          <button onclick="openMilestoneForm(currentMilestones.find(x=>x.id==='${aesc(m.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium flex-shrink-0">Edit</button>
+          <button onclick="deleteMilestone('${aesc(m.id)}')" class="text-xs text-red-500 hover:text-red-700 font-medium flex-shrink-0">Delete</button>
+        </div>`).join('')
+    }
+
+    function openMilestoneForm(milestone = null) {
+      document.getElementById('mf-id').value = milestone?.id ?? ''
+      document.getElementById('mf-title').value = milestone?.title ?? ''
+      document.getElementById('mf-description').value = milestone?.description ?? ''
+      document.getElementById('mf-due').value = milestone?.due_date ?? ''
+      document.getElementById('mf-amount').value = milestone?.amount ?? ''
+      document.getElementById('mf-status').value = milestone?.status ?? 'not_started'
+      document.getElementById('ms-form').classList.remove('hidden')
+      document.getElementById('ms-add-btn').classList.add('hidden')
+    }
+
+    function closeMilestoneForm() {
+      document.getElementById('ms-form').classList.add('hidden')
+      document.getElementById('ms-add-btn').classList.remove('hidden')
+    }
+
+    async function saveMilestone() {
+      const contractId = document.getElementById('ms-contract-id').value
+      const id = document.getElementById('mf-id').value
+      const title = document.getElementById('mf-title').value.trim()
+      if (!title) { showToast('Milestone title is required.', 'error'); return }
+
+      const body = {
+        contract_id: contractId,
+        title,
+        description: document.getElementById('mf-description').value.trim() || null,
+        due_date: document.getElementById('mf-due').value || null,
+        amount: document.getElementById('mf-amount').value || null,
+        status: document.getElementById('mf-status').value,
+      }
+
+      const { error } = id
+        ? await sb.from('contract_milestones').update(body).eq('id', id)
+        : await sb.from('contract_milestones').insert(body)
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return }
+
+      closeMilestoneForm()
+      showToast('Milestone saved.')
+      await loadMilestones(contractId)
+      await loadContracts()
+    }
+
+    async function deleteMilestone(id) {
+      if (!confirm('Delete this milestone? This cannot be undone.')) return
+      const contractId = document.getElementById('ms-contract-id').value
+      const { error } = await sb.from('contract_milestones').delete().eq('id', id)
+      if (error) { showToast('Delete failed: ' + error.message, 'error'); return }
+      showToast('Milestone deleted.')
+      await loadMilestones(contractId)
+      await loadContracts()
+    }
+
+    loadContracts()
+  </script>
+</body>
+</html>
