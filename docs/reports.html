@@ -41,9 +41,13 @@
     </div>
     <div class="flex items-center gap-3 flex-shrink-0">
       <span id="user-email" class="text-xs text-blue-300 hidden sm:block"></span>
-      <span id="admin-badge" class="hidden text-xs font-semibold bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full">Admin</span>
-      <a id="admin-panel-link" href="admin/index.html" class="hidden text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-white px-2.5 py-1 rounded-lg transition-colors">Admin Panel</a>
-      <button id="logout-btn" class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">Sign out</button>
+      <span id="admin-badge" class="hidden text-xs font-semibold bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full" data-i18n="admin_badge">Admin</span>
+      <a id="admin-panel-link" href="admin/index.html" class="hidden text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-white px-2.5 py-1 rounded-lg transition-colors" data-i18n="admin_panel">Admin Panel</a>
+      <div class="flex items-center gap-1 text-xs border border-blue-700 rounded-md overflow-hidden">
+        <button type="button" class="lang-btn px-2 py-1 transition-colors" data-lang="en" onclick="setLang('en')">EN</button>
+        <button type="button" class="lang-btn px-2 py-1 transition-colors" data-lang="fr" onclick="setLang('fr')">FR</button>
+      </div>
+      <button id="logout-btn" class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors" data-i18n="logout_btn">Sign out</button>
     </div>
   </div>
 </header>
@@ -513,6 +517,7 @@
 <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/html-docx-js@0.3.1/dist/html-docx.js"></script>
 <script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/auth.js"></script>
 <script>
 'use strict'

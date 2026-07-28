@@ -2,6 +2,8 @@
 
 // ── Admin bootstrap ────────────────────────────────────────────────────────────
 
+let _adminActivePage = null
+
 async function initAdmin(activePage) {
   const session = await checkAuth()
   if (!session) return null
@@ -16,12 +18,33 @@ async function initAdmin(activePage) {
   if (emailEl) emailEl.textContent = session.user.email
 
   const logoutBtn = document.getElementById('admin-logout-btn')
-  if (logoutBtn) logoutBtn.addEventListener('click', logout)
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', logout)
+    if (typeof i18nInsertToggle === 'function') i18nInsertToggle(logoutBtn, 'dark')
+  }
+  translateAdminChrome()
 
+  _adminActivePage = activePage
   renderAdminNav(activePage)
   setupSessionTimeout()
   return session
 }
+
+// Re-translates the bits of admin chrome that renderAdminNav doesn't own —
+// the "Sign out" button and the "← Back to Roster" link, which every admin
+// page repeats identically but doesn't tag with an id.
+function translateAdminChrome() {
+  const logoutBtn = document.getElementById('admin-logout-btn')
+  if (logoutBtn) logoutBtn.textContent = t('logout_btn')
+  document.querySelectorAll('aside a[href="../index.html"]').forEach(a => {
+    a.textContent = t('back_to_roster')
+  })
+}
+
+document.addEventListener('acsd:langchange', () => {
+  translateAdminChrome()
+  if (_adminActivePage) renderAdminNav(_adminActivePage)
+})
 
 // ── Navigation ─────────────────────────────────────────────────────────────────
 
@@ -31,24 +54,24 @@ function renderAdminNav(active) {
   // and Reports left ungrouped since they're cross-cutting entry/exit points.
   const groups = [
     { label: null, items: [
-      { id: 'index', href: 'index.html', label: 'Dashboard' },
+      { id: 'index', href: 'index.html', label: t('nav_dashboard') },
     ] },
-    { label: 'Roster', items: [
-      { id: 'experts', href: 'experts.html', label: 'Experts' },
-      { id: 'ask',     href: 'ask.html',     label: 'Ask ACSD Intelligence' },
+    { label: t('nav_group_roster'), items: [
+      { id: 'experts', href: 'experts.html', label: t('nav_experts') },
+      { id: 'ask',     href: 'ask.html',     label: t('nav_ask') },
     ] },
-    { label: 'Opportunities', items: [
-      { id: 'opportunities',   href: 'opportunities.html',  label: 'Opportunities' },
-      { id: 'sources',         href: 'sources.html',        label: 'Intelligence Sources' },
-      { id: 'knowledge-base',  href: 'knowledge-base.html', label: 'Knowledge Base' },
+    { label: t('nav_group_opportunities'), items: [
+      { id: 'opportunities',   href: 'opportunities.html',  label: t('nav_opportunities') },
+      { id: 'sources',         href: 'sources.html',        label: t('nav_sources') },
+      { id: 'knowledge-base',  href: 'knowledge-base.html', label: t('nav_knowledge_base') },
     ] },
-    { label: 'Administration', items: [
-      { id: 'users', href: 'users.html', label: 'Users' },
-      { id: 'roles', href: 'roles.html', label: 'Roles & Permissions' },
-      { id: 'audit', href: 'audit.html', label: 'Audit Logs' },
+    { label: t('nav_group_admin'), items: [
+      { id: 'users', href: 'users.html', label: t('nav_users') },
+      { id: 'roles', href: 'roles.html', label: t('nav_roles') },
+      { id: 'audit', href: 'audit.html', label: t('nav_audit') },
     ] },
     { label: null, items: [
-      { id: 'reports', href: '../reports.html', label: 'Reports' },
+      { id: 'reports', href: '../reports.html', label: t('nav_reports') },
     ] },
   ]
   const nav = document.getElementById('admin-nav')

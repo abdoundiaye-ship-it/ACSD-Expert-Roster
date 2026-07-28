@@ -1,152 +1,16 @@
 'use strict'
 
 // ── Language ──────────────────────────────────────────────────────────────────
+// STRINGS/t/applyI18n/setLang/window.LANG now live in the shared js/i18n.js,
+// loaded before this file — this page just needs to re-render its expert
+// list whenever the language changes (translated labels live in expert
+// cards/the modal, not just static markup).
 
-window.LANG = 'en'
-
-const STRINGS = {
-  en: {
-    header_subtitle:    'Expert Roster for Work Orders',
-    logout_btn:         'Sign out',
-    filters_title:      'Filters',
-    clear_filters:      'Reset',
-    label_affiliation:  'Affiliation',
-    opt_all:            'All',
-    opt_internal:       'Core (Internal)',
-    opt_partner:        'Partner',
-    label_seniority:    'Level',
-    label_sector:       'Sector',
-    label_geography:    'Country',
-    label_language:     'Language',
-    label_donor:        'Donor',
-    label_role:         'Assignment Type',
-    label_availability: 'Availability',
-    opt_available:      'Available',
-    opt_assigned:       'On Assignment',
-    opt_unavailable:    'Unavailable',
-    opt_unknown:        'Not specified',
-    search_placeholder: 'Search by name, title, bio…',
-    loading:            'Loading…',
-    empty_title:        'No experts found',
-    empty_sub:          'Try adjusting your filters or search.',
-    avail_available:    'Available',
-    avail_assigned:     'On Assignment',
-    avail_unavailable:  'Unavailable',
-    avail_unknown:      'Not specified',
-    prof_native:        'Native',
-    prof_fluent:        'Fluent',
-    prof_professional:  'Professional',
-    prof_working:       'Working',
-    count_all:          n => `${n} expert${n !== 1 ? 's' : ''}`,
-    count_filtered:     (s, tot) => `${s} of ${tot} expert${tot !== 1 ? 's' : ''}`,
-    years_exp:          n => `${n} year${n !== 1 ? 's' : ''} of experience`,
-    download_cv:        'Open CV',
-    cv_error:           'Unable to retrieve CV file: ',
-    load_error:         'Loading failed',
-    modal_profile:      'Profile',
-    modal_sectors:      'Sectors',
-    modal_languages:    'Languages',
-    modal_geo:          'Geographic Experience',
-    modal_donors:       'Donors',
-    modal_education:    'Education &amp; Certifications',
-    modal_activities:   'Activity Types',
-    modal_roles:        'Assignment Types',
-  },
-  fr: {
-    header_subtitle:    'Fichier d\'experts pour ordres de travail',
-    logout_btn:         'Déconnexion',
-    filters_title:      'Filtres',
-    clear_filters:      'Réinitialiser',
-    label_affiliation:  'Affiliation',
-    opt_all:            'Tous',
-    opt_internal:       'Core (Interne)',
-    opt_partner:        'Partenaire',
-    label_seniority:    'Niveau',
-    label_sector:       'Secteur',
-    label_geography:    'Pays',
-    label_language:     'Langue',
-    label_donor:        'Bailleur',
-    label_role:         'Type de mission',
-    label_availability: 'Disponibilité',
-    opt_available:      'Disponible',
-    opt_assigned:       'En mission',
-    opt_unavailable:    'Indisponible',
-    opt_unknown:        'Non renseigné',
-    search_placeholder: 'Rechercher par nom, titre, biographie…',
-    loading:            'Chargement…',
-    empty_title:        'Aucun expert trouvé',
-    empty_sub:          'Essayez de modifier vos filtres ou votre recherche.',
-    avail_available:    'Disponible',
-    avail_assigned:     'En mission',
-    avail_unavailable:  'Indisponible',
-    avail_unknown:      'Non renseigné',
-    prof_native:        'Natif',
-    prof_fluent:        'Courant',
-    prof_professional:  'Professionnel',
-    prof_working:       'Opérationnel',
-    count_all:          n => `${n} expert${n !== 1 ? 's' : ''}`,
-    count_filtered:     (s, tot) => `${s} sur ${tot} expert${tot !== 1 ? 's' : ''}`,
-    years_exp:          n => `${n} an${n !== 1 ? 's' : ''} d'expérience`,
-    download_cv:        'Ouvrir le CV',
-    cv_error:           'Impossible de récupérer le fichier CV : ',
-    load_error:         'Erreur de chargement',
-    modal_profile:      'Profil',
-    modal_sectors:      'Secteurs',
-    modal_languages:    'Langues',
-    modal_geo:          'Expérience géographique',
-    modal_donors:       'Bailleurs',
-    modal_education:    'Formation &amp; Certifications',
-    modal_activities:   'Types de livrables',
-    modal_roles:        'Types de mission',
-  }
-}
-
-function t(key, ...args) {
-  const lang = window.LANG || 'en'
-  const s = (STRINGS[lang] || STRINGS.en)[key] ?? STRINGS.en[key] ?? key
-  return typeof s === 'function' ? s(...args) : s
-}
-
-function applyI18n() {
-  const lang = window.LANG || 'en'
-  const strings = STRINGS[lang] || STRINGS.en
-
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const val = strings[el.dataset.i18n]
-    if (typeof val === 'string') el.textContent = val
-  })
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    const val = strings[el.dataset.i18nPlaceholder]
-    if (typeof val === 'string') el.placeholder = val
-  })
-
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    const active = btn.dataset.lang === lang
-    btn.classList.toggle('bg-blue-800', active)
-    btn.classList.toggle('text-white',  active)
-    btn.classList.toggle('text-blue-400', !active)
-  })
-
-  document.documentElement.lang = lang
-}
-
-function setLang(lang) {
-  window.LANG = lang
-  applyI18n()
-  renderFiltered()
-}
-
-// Apply language immediately on script load (DOM already present — scripts are at bottom of body)
-applyI18n()
+document.addEventListener('acsd:langchange', () => {
+  if (typeof allExperts !== 'undefined' && allExperts.length) renderFiltered()
+})
 
 // ── Display constants ─────────────────────────────────────────────────────────
-
-const SENIORITY_LABEL = {
-  principal_expert: 'Principal Expert',
-  senior:           'Senior',
-  intermediary:     'Intermediary',
-  junior:           'Junior',
-}
 
 const SENIORITY_COLOR = {
   principal_expert: 'bg-purple-100 text-purple-800',
@@ -155,7 +19,6 @@ const SENIORITY_COLOR = {
   junior:           'bg-gray-100 text-gray-600',
 }
 
-const AFFIL_LABEL = { internal: 'Core', partner: 'Partner' }
 const AFFIL_COLOR = { internal: 'bg-blue-900 text-white', partner: 'bg-emerald-700 text-white' }
 const AVAIL_DOT   = { available: 'bg-green-500', assigned: 'bg-amber-500', unavailable: 'bg-red-500', unknown: 'bg-gray-300' }
 
@@ -349,9 +212,9 @@ function expertCard(e) {
   </div>
 
   <div class="flex flex-wrap gap-1.5">
-    <span class="text-xs font-medium px-2 py-0.5 rounded-full ${AFFIL_COLOR[e.affiliation_type]}">${AFFIL_LABEL[e.affiliation_type]}</span>
+    <span class="text-xs font-medium px-2 py-0.5 rounded-full ${AFFIL_COLOR[e.affiliation_type]}">${esc(t('affil_' + e.affiliation_type))}</span>
     ${e.seniority_tier
-      ? `<span class="text-xs font-medium px-2 py-0.5 rounded-full ${SENIORITY_COLOR[e.seniority_tier]}">${SENIORITY_LABEL[e.seniority_tier]}</span>`
+      ? `<span class="text-xs font-medium px-2 py-0.5 rounded-full ${SENIORITY_COLOR[e.seniority_tier]}">${esc(t('seniority_' + e.seniority_tier))}</span>`
       : ''}
   </div>
 
@@ -380,7 +243,7 @@ function showModal(e) {
              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
            </svg>
-           Edit Expert
+           ${t('edit_expert')}
          </a>
        </div>`
     : ''
@@ -407,8 +270,8 @@ function showModal(e) {
 
   <div>
     <div class="flex flex-wrap items-center gap-2 mb-2">
-      <span class="text-xs font-medium px-2 py-0.5 rounded-full ${AFFIL_COLOR[e.affiliation_type]}">${AFFIL_LABEL[e.affiliation_type]}</span>
-      ${e.seniority_tier ? `<span class="text-xs font-medium px-2 py-0.5 rounded-full ${SENIORITY_COLOR[e.seniority_tier]}">${SENIORITY_LABEL[e.seniority_tier]}</span>` : ''}
+      <span class="text-xs font-medium px-2 py-0.5 rounded-full ${AFFIL_COLOR[e.affiliation_type]}">${esc(t('affil_' + e.affiliation_type))}</span>
+      ${e.seniority_tier ? `<span class="text-xs font-medium px-2 py-0.5 rounded-full ${SENIORITY_COLOR[e.seniority_tier]}">${esc(t('seniority_' + e.seniority_tier))}</span>` : ''}
       <span class="text-xs text-gray-500 flex items-center gap-1">
         <span class="w-2 h-2 rounded-full ${AVAIL_DOT[e.availability_status] ?? 'bg-gray-300'}"></span>
         ${esc(t('avail_' + (e.availability_status ?? 'unknown')))}

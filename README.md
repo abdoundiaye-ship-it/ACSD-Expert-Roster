@@ -62,9 +62,11 @@ A live access pilot (before building this) found that most donor portals (UNGM, 
 - [x] **Assisted (paste → AI scores)** — every other source: paste a notice's text or a link into the New Opportunity modal, `analyze-tor` extracts and scores it exactly like a full TOR upload.
 - [x] **Monitored-source registry** (`docs/admin/sources.html`) — the ~20 sources from the original spec, each tagged with its actual access method (`api`/`rss`/`email_digest`/`manual_paste`) as found during the pilot, editable as more sources get wired in or re-tested.
 - [x] Hybrid scoring — Claude returns raw sub-scores + two flags (`has_blocking_eligibility_issue`, `source_fully_read`); the cap rules (blocking eligibility → capped at 49; partial source read → capped at 84, flagged "À CONFIRMER") are applied deterministically in code, not left to model arithmetic.
-- [ ] Scheduled/autonomous scanning (pg_cron) — deferred; current version is admin-triggered on demand to keep API spend controlled while the rubric is validated against real results.
+- [x] Scheduled, autonomous scanning — a `pg_cron` job calls `scan-opportunities` with `{ all: true }` once a day (06:00 UTC) across every active API-automatable source, authenticated as a trusted system caller via a Supabase Vault-stored service-role secret (never committed to git). The "Scan Sources" button still works exactly as before for on-demand runs. Every run — manual or scheduled — is logged to `scan_runs` (`supabase/migrations/0011_scheduled_scanning.sql`), visible on `docs/admin/sources.html` under Scan History.
 
 **Before use:** run `supabase/migrations/0008_opportunity_intelligence.sql` in the Supabase SQL Editor and deploy/redeploy `supabase functions deploy analyze-tor scan-opportunities` (`analyze-tor` changed; `scan-opportunities` is new). No new secrets — reuses `ANTHROPIC_API_KEY`.
+
+**Before use (scheduled scanning):** run `supabase/migrations/0011_scheduled_scanning.sql`, then in the SQL Editor run `select vault.create_secret('<your service_role key>', 'service_role_key');` with the real key from Project Settings → API → service_role (never share this key with me), and redeploy `supabase functions deploy scan-opportunities` (it changed to recognize the service-role key as a trusted caller and to log every run).
 
 ## Bid/No-Bid Analysis
 
@@ -96,3 +98,14 @@ Natural-language search over the expert roster (`docs/admin/ask.html`), the last
 - **Knowledge Base** — document inventory by category/sector/donor.
 
 Same export pipeline as the existing tabs (jsPDF/autoTable, XLSX, CSV, html-docx-js), same saved-configuration and audit-logging behavior. Pure frontend change — no new migration, no new Edge Function, nothing to redeploy beyond pushing the updated `docs/reports.html`.
+
+## Multi-Language Support (EN/FR)
+
+A single shared module, `docs/js/i18n.js`, replaces what used to be two separate, inconsistent bilingual implementations (`docs/login.html`'s own inline string table, `docs/js/app.js`'s own copy) with one `STRINGS`/`t()`/`applyI18n()`/`setLang()` system every page loads. The language choice now persists via `localStorage` (`acsd_lang`), so it carries across navigation instead of silently resetting to English on every page load — the gap the two old systems both had.
+
+- [x] **Fully bilingual today**: the auth flow (`login.html`, `reset-password.html`, `update-password.html`), the public roster (`index.html`, including seniority/affiliation badges that were previously hardcoded English regardless of language), and the admin shell — navigation labels, group headings, "Sign out", "← Back to Roster" — injected consistently across all 10 `docs/admin/*.html` pages by `initAdmin()` rather than requiring each page to carry its own toggle markup.
+- [ ] **Chrome only, content still English**: `docs/reports.html` (header/toggle wired, the report tabs/filters/tables themselves are not) and the 10 admin CRUD pages' own form labels, table headers, and toast messages — each page's shared header/nav is bilingual, but content specific to that page (e.g. the Experts form, the Opportunities table) is not yet. Expanding into these is the natural next increment: tag the existing markup with `data-i18n`, add the keys to `I18N_STRINGS`, no architecture changes needed.
+
+Any page/script can add new strings by adding a key to both `en`/`fr` blocks in `I18N_STRINGS` and either tagging markup with `data-i18n`/`data-i18n-placeholder`/`data-i18n-title`, or calling `t('key')` directly in generated HTML. A `data-lang-variant="light"` wrapper is available for toggles that sit on a white background (the auth pages) rather than the navy header bar.
+
+**Before use:** push `docs/js/i18n.js` and the updated pages — pure frontend change, no migration, no Edge Function, nothing to redeploy.

@@ -25,16 +25,19 @@
       <div class="flex items-center gap-3 flex-shrink-0">
         <span id="user-email" class="text-xs text-blue-300 hidden sm:block"></span>
         <span id="admin-badge"
-          class="hidden text-xs font-semibold bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full">
+          class="hidden text-xs font-semibold bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full"
+          data-i18n="admin_badge">
           Admin
         </span>
         <a href="reports.html"
-          class="text-xs font-medium text-blue-300 hover:text-white px-2.5 py-1 rounded-lg hover:bg-blue-900 transition-colors">
+          class="text-xs font-medium text-blue-300 hover:text-white px-2.5 py-1 rounded-lg hover:bg-blue-900 transition-colors"
+          data-i18n="reports">
           Reports
         </a>
         <a id="admin-panel-link" href="admin/index.html"
           class="hidden text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-white
-                 px-2.5 py-1 rounded-lg transition-colors">
+                 px-2.5 py-1 rounded-lg transition-colors"
+          data-i18n="admin_panel">
           Admin Panel
         </a>
         <!-- Language toggle -->
@@ -83,10 +86,10 @@
           </label>
           <select id="f-seniority" class="filter-select">
             <option value="" data-i18n="opt_all">All</option>
-            <option value="principal_expert">Principal Expert</option>
-            <option value="senior">Senior</option>
-            <option value="intermediary">Intermediary</option>
-            <option value="junior">Junior</option>
+            <option value="principal_expert" data-i18n="seniority_principal_expert">Principal Expert</option>
+            <option value="senior" data-i18n="seniority_senior">Senior</option>
+            <option value="intermediary" data-i18n="seniority_intermediary">Intermediary</option>
+            <option value="junior" data-i18n="seniority_junior">Junior</option>
           </select>
         </div>
 
@@ -232,6 +235,7 @@
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/app.js"></script>
 </body>
