@@ -51,11 +51,13 @@ document.addEventListener('acsd:langchange', () => {
 function renderAdminNav(active) {
   // Groups mirror the platform's functional areas: talent (Roster), business
   // development (Opportunities, bid-side), delivery (post-award), and system
-  // administration — with Dashboard and Reports left ungrouped since they're
-  // cross-cutting entry/exit points.
+  // administration — with Dashboard, Tasks, and Reports left ungrouped since
+  // they're cross-cutting entry/exit points (a task can belong to a bid OR a
+  // contract OR neither, so it doesn't fit either side cleanly).
   const groups = [
     { label: null, items: [
       { id: 'index', href: 'index.html', label: t('nav_dashboard') },
+      { id: 'tasks',  href: 'tasks.html', label: t('nav_tasks') },
     ] },
     { label: t('nav_group_roster'), items: [
       { id: 'experts', href: 'experts.html', label: t('nav_experts') },

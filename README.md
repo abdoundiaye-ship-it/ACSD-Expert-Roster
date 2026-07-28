@@ -142,3 +142,16 @@ Post-award tracking (`docs/admin/contracts.html`) — the delivery-side counterp
 - [x] **Summary strip** — total contracts, contract value, paid-to-date, and outstanding-invoiced, broken out **per currency** rather than naively summed across currencies (a real correctness bug avoided, not just a nice-to-have, given USD/EUR/XOF contracts can coexist).
 
 **Before use:** run `supabase/migrations/0014_contract_management.sql` in the Supabase SQL Editor. No Edge Function, no new secrets — pure schema + frontend.
+
+## Task Management & Calendar Integration
+
+Assignment and deadline tracking (`docs/admin/tasks.html`), optionally linked to the opportunity **or** contract the work came from — cross-cutting, so it sits ungrouped in the nav next to Dashboard rather than inside Opportunities or Delivery, since a task can be either ("finish TOR analysis by Friday" is bid-side; "submit Q1 progress report" is delivery-side).
+
+- [x] **Tasks** — title, description, assignee (from `profiles`), optional opportunity/contract link, due date, priority (low/medium/high), status (open/in progress/done). "Overdue" is derived in the UI from `due_date`, same convention as contract milestones — never a stored flag that could go stale.
+- [x] **Calendar Integration — real, not simulated.** Every task with a due date is available as a live iCalendar (`.ics`) subscription feed (`supabase/functions/calendar-feed`) that Google Calendar, Outlook, and Apple Calendar can all subscribe to natively — no plugin, no OAuth app. Each user gets their own feed URL secured by an unguessable per-user token (`profiles.calendar_token`, added by this migration), the same "capability URL" pattern comparable calendar-feed features use elsewhere (Trello, Asana, GitHub) — not the standard Bearer-JWT check every other function in this project uses, because calendar apps fetch subscribed URLs anonymously on a timer, with no login step to complete. A one-off **Add to Calendar** button per task also downloads a single-event `.ics` file client-side for anyone who just wants one deadline, not a live subscription.
+- [ ] **Deliberately not built**: two-way Google/Outlook OAuth sync (editing a task from inside your calendar app and having it write back here). That would require registering and getting approval for an OAuth app in each vendor's developer console — an external dependency this migration can't complete on its own, the same category of constraint that shaped the ReliefWeb decision in Module 1. The `.ics` feed is one-way (read-only in the calendar app) by design, not as a placeholder for something more that's still coming.
+
+**Before use:** run `supabase/migrations/0015_task_management.sql` in the Supabase SQL Editor, then deploy the feed function **with JWT verification disabled** — this is not optional, the feed will 401 on every request otherwise, since calendar apps never send a Supabase auth token:
+```
+supabase functions deploy calendar-feed --no-verify-jwt
+```

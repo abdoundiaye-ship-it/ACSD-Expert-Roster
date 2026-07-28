@@ -103,6 +103,7 @@ const I18N_STRINGS = {
 
     // ── Admin nav ──
     nav_dashboard:        'Dashboard',
+    nav_tasks:            'Tasks',
     nav_experts:          'Experts',
     nav_ask:               'Ask ACSD Intelligence',
     nav_opportunities:    'Opportunities',
@@ -207,6 +208,7 @@ const I18N_STRINGS = {
     update_pw_mismatch:   'Les mots de passe ne correspondent pas.',
 
     nav_dashboard:        'Tableau de bord',
+    nav_tasks:            'Tâches',
     nav_experts:          'Experts',
     nav_ask:               'Ask ACSD Intelligence',
     nav_opportunities:    'Opportunités',
