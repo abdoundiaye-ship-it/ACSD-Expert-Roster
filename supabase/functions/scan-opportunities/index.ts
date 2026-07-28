@@ -84,17 +84,18 @@ serve(async (req: Request) => {
       continue
     }
     try {
-      if (source.name === 'World Bank Procurement Notices') {
-        const summary = await scanWorldBank(adminClient, apiKey)
-        totals.new_count += summary.new_count
-        totals.go += summary.go
-        totals.a_etudier += summary.a_etudier
-        totals.veille += summary.veille
-        totals.rejet += summary.rejet
-        results.push({ source_id: source.id, source_name: source.name, status: 'ok', new_count: summary.new_count })
-      } else {
+      const adapter = SOURCE_ADAPTERS[source.name]
+      if (!adapter) {
         results.push({ source_id: source.id, source_name: source.name, status: 'skipped', message: 'no automated adapter implemented yet' })
+        continue
       }
+      const summary = await adapter(adminClient, apiKey)
+      totals.new_count += summary.new_count
+      totals.go += summary.go
+      totals.a_etudier += summary.a_etudier
+      totals.veille += summary.veille
+      totals.rejet += summary.rejet
+      results.push({ source_id: source.id, source_name: source.name, status: 'ok', new_count: summary.new_count })
     } catch (err) {
       results.push({ source_id: source.id, source_name: source.name, status: 'error', message: err instanceof Error ? err.message : 'Scan failed' })
     }
@@ -126,6 +127,16 @@ async function logScanRun(
     error,
   })
   if (insErr) console.error('[scan-opportunities] failed to log scan_runs row', insErr.message)
+}
+
+// Lookup by intelligence_sources.name — adding a new automated source is a
+// new entry here (plus its own scanX function below), not a new branch in
+// the dispatch loop above.
+const SOURCE_ADAPTERS: Record<string, (adminClient: any, apiKey: string) => Promise<{
+  new_count: number; go: number; a_etudier: number; veille: number; rejet: number
+}>> = {
+  'World Bank Procurement Notices': scanWorldBank,
+  'Union européenne (TED / EuropeAid-FPI)': scanTed,
 }
 
 // ── World Bank adapter ───────────────────────────────────────────────────────
@@ -209,6 +220,139 @@ async function scanWorldBank(adminClient: any, apiKey: string) {
       opportunity_type: opportunityType,
       deadline: notice.submission_date ? notice.submission_date.slice(0, 10) : null,
       summary: scored.summary || notice.bid_description || null,
+      source: 'api_scan',
+      status,
+      strategic_score: scored.strategic_score,
+      strategic_score_breakdown: scored.strategic_score_breakdown,
+      strategic_score_confidence: scored.strategic_score_confidence,
+      strategic_score_rationale: scored.strategic_score_rationale,
+    })
+    if (insErr) continue
+
+    newCount++
+    if (scored.strategic_score >= 85) counts.go++
+    else if (scored.strategic_score >= 70) counts.a_etudier++
+    else if (scored.strategic_score >= 50) counts.veille++
+    else counts.rejet++
+  }
+
+  return { new_count: newCount, ...counts }
+}
+
+// ── TED (EU) adapter ─────────────────────────────────────────────────────────
+// api.ted.europa.eu/v3/notices/search is free, public JSON with no auth wall
+// — pilot-confirmed 2026-07-28 (see migration 0012). Unlike the World Bank
+// API, TED documents a real structured filter on place-of-performance, so
+// this adapter uses one combined query instead of looping per country.
+
+const TED_TARGET_COUNTRIES: Record<string, string> = {
+  BFA: 'Burkina Faso', NER: 'Niger', MLI: 'Mali', SEN: 'Senegal', TCD: 'Chad',
+  GHA: 'Ghana', BEN: 'Benin', GIN: 'Guinea', CMR: 'Cameroon', CIV: "Cote d'Ivoire",
+}
+
+interface TedNotice {
+  'publication-number'?: string
+  'notice-title'?: Record<string, string>
+  'description-proc'?: Record<string, string>
+  'publication-date'?: string
+  'deadline-receipt-tender-date-lot'?: string | string[]
+  'place-of-performance-country-proc'?: string[]
+  'buyer-name'?: Record<string, string[]>
+  'notice-type'?: string
+}
+
+// TED returns most text fields as { langCode: value }, English/French first
+// where available — prefer those over an arbitrary language a French/English
+// bilingual firm can't read.
+function tedPickLang(obj?: Record<string, string> | Record<string, string[]>): string {
+  if (!obj) return ''
+  const val = (obj as any)['eng'] ?? (obj as any)['fra'] ?? Object.values(obj)[0]
+  if (Array.isArray(val)) return val[0] ?? ''
+  return val ?? ''
+}
+
+async function scanTed(adminClient: any, apiKey: string) {
+  // 1. Fetch candidate notices in target countries, recent first.
+  const cutoff = new Date()
+  cutoff.setDate(cutoff.getDate() - 60)
+  const cutoffStr = cutoff.toISOString().slice(0, 10).replace(/-/g, '')
+  const countryList = Object.keys(TED_TARGET_COUNTRIES).join(' ')
+
+  let candidates: TedNotice[] = []
+  try {
+    const res = await fetch('https://api.ted.europa.eu/v3/notices/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: `place-of-performance-country-proc IN (${countryList}) AND PD>=${cutoffStr}`,
+        fields: ['publication-number', 'notice-title', 'description-proc', 'publication-date',
+                 'deadline-receipt-tender-date-lot', 'place-of-performance-country-proc',
+                 'buyer-name', 'notice-type'],
+        limit: 50,
+        page: 1,
+      }),
+    })
+    if (res.ok) {
+      const json = await res.json()
+      candidates = (json.notices ?? []).filter((n: TedNotice) =>
+        n['publication-number'] && !/^can-/.test(n['notice-type'] ?? '')) // skip already-awarded contract notices
+    }
+  } catch (_) { /* TED unreachable this run — treat as zero candidates, don't fail the whole scan */ }
+
+  // 2. Dedupe against opportunities already in the system.
+  const refNumbers = [...new Set(candidates.map(n => n['publication-number']!))]
+  const { data: existingRows } = refNumbers.length
+    ? await adminClient.from('opportunities').select('reference_number').in('reference_number', refNumbers)
+    : { data: [] }
+  const existingRefs = new Set((existingRows ?? []).map((r: any) => r.reference_number))
+  const newNotices = candidates.filter(n => !existingRefs.has(n['publication-number'])).slice(0, 20)
+
+  // 3. Score and insert each new notice.
+  const acsdProfile = await computeAcsdProfile(adminClient)
+  const { data: donorRows } = await adminClient.from('donors').select('id, name')
+  const { data: geoRows } = await adminClient.from('geographies').select('id, country_name')
+
+  const counts = { go: 0, a_etudier: 0, veille: 0, rejet: 0 }
+  let newCount = 0
+
+  for (const notice of newNotices) {
+    const title = tedPickLang(notice['notice-title'])
+    const description = tedPickLang(notice['description-proc'])
+    const noticeText = [title, description].filter(Boolean).join('\n\n')
+    if (!noticeText.trim()) continue
+
+    let scored: { strategic_score: number; strategic_score_breakdown: Record<string, number>; strategic_score_confidence: string; strategic_score_rationale: string; summary: string }
+    try {
+      scored = await scoreNoticeText(apiKey, acsdProfile, noticeText)
+    } catch (_) {
+      continue // skip notices Claude fails to score rather than failing the whole scan
+    }
+
+    const status = scored.strategic_score < 50 ? 'archived' : 'open'
+    const buyerName = tedPickLang(notice['buyer-name'])
+    const countryCode = (notice['place-of-performance-country-proc'] ?? []).find(c => TED_TARGET_COUNTRIES[c])
+    const countryMatch = countryCode
+      ? (geoRows ?? []).find((g: any) => g.country_name === TED_TARGET_COUNTRIES[countryCode])
+      : null
+    // Loose match — buyers are named things like "Deutsche Gesellschaft für
+    // Internationale Zusammenarbeit (GIZ) GmbH", so exact-match against the
+    // donors table would rarely hit; substring is deliberately permissive.
+    const donorMatch = buyerName
+      ? (donorRows ?? []).find((d: any) => buyerName.toLowerCase().includes(String(d.name).toLowerCase()))
+      : null
+    const deadlineRaw = Array.isArray(notice['deadline-receipt-tender-date-lot'])
+      ? notice['deadline-receipt-tender-date-lot'][0]
+      : notice['deadline-receipt-tender-date-lot']
+
+    const { error: insErr } = await adminClient.from('opportunities').insert({
+      title: title || `TED Notice ${notice['publication-number']}`,
+      reference_number: notice['publication-number'],
+      organization: buyerName || 'Unknown (TED)',
+      donor_id: donorMatch?.id ?? null,
+      primary_country_id: countryMatch?.id ?? null,
+      opportunity_type: 'RFP',
+      deadline: deadlineRaw ? deadlineRaw.slice(0, 10) : null,
+      summary: scored.summary || description || null,
       source: 'api_scan',
       status,
       strategic_score: scored.strategic_score,
