@@ -16,12 +16,17 @@
 <body class="bg-gray-50 min-h-screen">
 
   <header class="bg-blue-950 text-white shadow sticky top-0 z-30">
-    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap">
       <div class="flex items-center gap-2.5">
+        <button type="button" class="mobile-nav-toggle" onclick="toggleMobileNav()" aria-label="Open menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
         <img src="../img/logo.png" alt="ACSD Logo" class="h-9 w-auto flex-shrink-0">
         <span class="font-bold text-sm tracking-tight">ACSD Expert Intelligence Platform</span>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 flex-shrink-0 header-actions">
         <span id="admin-user-email" class="text-xs text-blue-300 hidden sm:block"></span>
         <button id="admin-logout-btn"
           class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
@@ -32,7 +37,9 @@
   </header>
 
   <div class="max-w-screen-xl mx-auto px-4 py-6 flex gap-6">
-    <aside class="w-48 flex-shrink-0">
+    <div id="admin-sidebar-backdrop" class="admin-sidebar-backdrop" onclick="closeMobileNav()"></div>
+    <aside class="w-48 flex-shrink-0 admin-sidebar" id="admin-sidebar">
+      <button type="button" class="mobile-nav-close" onclick="closeMobileNav()" aria-label="Close menu">&times;</button>
       <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
       <div class="mt-4 px-1">
         <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>

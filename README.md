@@ -119,3 +119,16 @@ A single shared module, `docs/js/i18n.js`, replaces what used to be two separate
 Any page/script can add new strings by adding a key to both `en`/`fr` blocks in `I18N_STRINGS` and either tagging markup with `data-i18n`/`data-i18n-placeholder`/`data-i18n-title`, or calling `t('key')` directly in generated HTML. A `data-lang-variant="light"` wrapper is available for toggles that sit on a white background (the auth pages) rather than the navy header bar.
 
 **Before use:** push `docs/js/i18n.js` and the updated pages — pure frontend change, no migration, no Edge Function, nothing to redeploy.
+
+## Mobile Access
+
+Verified, not assumed: a live width/layout audit found the admin shell's sidebar was a fixed `w-48` column with no responsive treatment at all — genuinely broken on a phone, not just untested — despite the platform already describing itself as "fully responsive" elsewhere. This closes that gap rather than leaving the claim uncorrected.
+
+- [x] **Admin shell** — the sidebar nav is now a slide-over drawer below the `md` breakpoint, opened by a hamburger button in the header and closed via backdrop tap, the "×" button, or Escape. Above `md` it renders exactly as the original static column (`docs/css/style.css`'s `.admin-sidebar`/`.mobile-nav-toggle`/`.admin-sidebar-backdrop` rules, wired by `docs/js/admin.js`'s `toggleMobileNav()`/`closeMobileNav()`). Applied identically across all 11 admin pages.
+- [x] **Public roster** (`index.html`) — the filters sidebar is a native `<details>` disclosure: collapsible on mobile (tap "Filters" to expand/collapse, chevron rotates), and inert/always-open on desktop so nothing changes there. The body layout stacks to a single column below `md` instead of squeezing a fixed-width sidebar next to the card grid.
+- [x] **Header overflow safety net** — every top-level page's header actions row (`index.html`, `reports.html`, all admin pages) now wraps onto a second line instead of overflowing when badges/links/language toggle/sign-out don't all fit one line — a real, reproducible bug caught by testing at actual mobile widths, not just narrowing a desktop browser window.
+- [ ] **Not yet touched**: `reports.html`'s report tabs/filters/tables (dense data tables don't collapse well to mobile without a larger redesign — same honest boundary already drawn for this page in the Multi-Language section above) and the admin pages' own dense content (large forms, wide tables) beyond the shared shell fix.
+
+**A tooling note for future verification work on this repo:** this environment's headless Chrome, invoked as `chrome.exe --headless --window-size=W,H --screenshot=...`, does **not** reliably honor `--window-size` for layout purposes — observed effective widths were inconsistent (e.g. a 390px request rendered at `innerWidth=512`, 600→578, 800→778), which produced several false "this is broken" readings during development before the cause was isolated. `npx playwright`, driving the same Chrome binary via `chromium.launch({ executablePath: ... })` and `browser.newPage({ viewport: { width, height } })`, reports and renders the exact requested width and is the reliable method — use it, not the raw CLI screenshot flag, for any future mobile-width verification here.
+
+**Before use:** push the updated `docs/` files — pure frontend change, no migration, no Edge Function, nothing to redeploy.

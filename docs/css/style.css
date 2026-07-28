@@ -70,3 +70,94 @@
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Mobile navigation (admin sidebar) ──────────────────────────────────── */
+/* Below md, the admin sidebar becomes a slide-over drawer triggered by the
+   hamburger button in the header; above md this is all inert and the
+   sidebar renders as the normal static column. */
+.mobile-nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  margin-left: -0.25rem;
+  color: #fff;
+  background: transparent;
+  border: none;
+}
+.mobile-nav-close { display: none; }
+
+@media (max-width: 767px) {
+  .mobile-nav-toggle { display: inline-flex; }
+
+  .admin-sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 39;
+    background: rgba(15, 23, 42, 0.5);
+  }
+  body.mobile-nav-open .admin-sidebar-backdrop { display: block; }
+
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    width: 82vw;
+    max-width: 20rem;
+    background: #fff;
+    padding: 4rem 1rem 1.5rem;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease-out;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  }
+  body.mobile-nav-open .admin-sidebar { transform: translateX(0); }
+
+  .mobile-nav-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 1.25rem;
+    line-height: 1;
+    border: none;
+  }
+}
+
+/* ── Header row safety net ──────────────────────────────────────────────── */
+/* Header actions (badges, links, language toggle, sign out) wrap onto a
+   second line rather than overflowing on narrow phones. */
+.header-actions { flex-wrap: wrap; row-gap: 0.5rem; justify-content: flex-end; }
+
+/* ── Collapsible filters (public roster, mobile) ────────────────────────── */
+/* The filters <details> ships with the `open` attribute always present, so
+   both breakpoints start expanded (matching the previous always-visible
+   sidebar). Below md it's a real toggle; at/above md the summary is made
+   inert so desktop users can't accidentally collapse it. */
+.roster-filters-chevron { transition: transform 0.15s ease; }
+
+@media (max-width: 767px) {
+  .roster-layout { flex-direction: column; }
+  .roster-filters-aside { width: 100%; position: static; }
+  .roster-filters-summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .roster-filters-summary::-webkit-details-marker { display: none; }
+  .roster-filters-details[open] .roster-filters-chevron { transform: rotate(180deg); }
+}
+
+@media (min-width: 768px) {
+  .roster-filters-summary { pointer-events: none; cursor: default; }
+  .roster-filters-chevron { display: none; }
+}

@@ -80,7 +80,7 @@ function renderAdminNav(active) {
   nav.innerHTML = groups.map(g => `
     ${g.label ? `<p class="px-3 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider first:pt-0">${aesc(g.label)}</p>` : ''}
     ${g.items.map(it => `
-      <a href="${it.href}"
+      <a href="${it.href}" onclick="closeMobileNav()"
          class="block px-3 py-2 rounded-lg text-sm transition-colors
                 ${it.id === active
                   ? 'bg-blue-50 text-blue-900 font-semibold'
@@ -89,6 +89,11 @@ function renderAdminNav(active) {
       </a>`).join('')}
   `).join('')
 }
+
+// ── Mobile navigation (sidebar drawer below the md breakpoint) ─────────────────
+
+function toggleMobileNav() { document.body.classList.toggle('mobile-nav-open') }
+function closeMobileNav()  { document.body.classList.remove('mobile-nav-open') }
 
 // ── Shared utilities ───────────────────────────────────────────────────────────
 
@@ -120,12 +125,13 @@ function closeAdminModal(id) {
   if (m) { m.classList.add('hidden'); document.body.style.overflow = '' }
 }
 
-// Close any modal on Escape key
+// Close any modal (and the mobile nav drawer) on Escape key
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     document.querySelectorAll('.admin-modal').forEach(m => {
       m.classList.add('hidden')
       document.body.style.overflow = ''
     })
+    closeMobileNav()
   }
 })
