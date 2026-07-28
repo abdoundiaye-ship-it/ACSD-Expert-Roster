@@ -49,8 +49,19 @@ serve(async (req: Request) => {
     .order('due_date')
   if (tasksErr) return respondText('Failed to load tasks', 500)
 
-  const calendarName = `ACSD Tasks — ${profile.full_name || profile.email}`
-  const ics = buildIcs(calendarName, tasks ?? [])
+  // Meetings this profile is an internal attendee of, still scheduled
+  // (not cancelled/completed) — same "what's coming up" filter as tasks.
+  const { data: attendeeRows, error: attendeeErr } = await adminClient
+    .from('meeting_attendees')
+    .select('meeting_id, meetings(id, title, description, start_time, end_time, location, status)')
+    .eq('profile_id', profile.id)
+  if (attendeeErr) return respondText('Failed to load meetings', 500)
+  const meetings = (attendeeRows ?? [])
+    .map((r: any) => r.meetings)
+    .filter((m: any) => m && m.status === 'scheduled')
+
+  const calendarName = `ACSD — ${profile.full_name || profile.email}`
+  const ics = buildIcs(calendarName, tasks ?? [], meetings)
 
   return new Response(ics, {
     status: 200,
@@ -72,7 +83,17 @@ interface TaskRow {
   status: string
 }
 
-function buildIcs(calendarName: string, tasks: TaskRow[]): string {
+interface MeetingRow {
+  id: string
+  title: string
+  description: string | null
+  start_time: string // ISO timestamptz
+  end_time: string | null
+  location: string | null
+  status: string
+}
+
+function buildIcs(calendarName: string, tasks: TaskRow[], meetings: MeetingRow[]): string {
   const now = icsTimestamp(new Date())
   const lines: string[] = [
     'BEGIN:VCALENDAR',
@@ -93,6 +114,28 @@ function buildIcs(calendarName: string, tasks: TaskRow[]): string {
       `SUMMARY:${icsEscape(priorityTag + task.title)}`,
       ...(task.description ? [`DESCRIPTION:${icsEscape(task.description)}`] : []),
       `STATUS:${task.status === 'in_progress' ? 'CONFIRMED' : 'NEEDS-ACTION'}`,
+      'END:VEVENT',
+    )
+  }
+
+  // Meetings carry a real start time (and usually an end time), unlike
+  // tasks' all-day due dates — a genuine timed VEVENT, not VALUE=DATE.
+  // No end_time on record defaults to a 1-hour block rather than omitting
+  // DTEND, since a duration-less VEVENT renders inconsistently across
+  // calendar apps.
+  for (const meeting of meetings) {
+    const start = new Date(meeting.start_time)
+    const end = meeting.end_time ? new Date(meeting.end_time) : new Date(start.getTime() + 60 * 60 * 1000)
+    lines.push(
+      'BEGIN:VEVENT',
+      `UID:acsd-meeting-${meeting.id}@acsd-eip`,
+      `DTSTAMP:${now}`,
+      `DTSTART:${icsTimestamp(start)}`,
+      `DTEND:${icsTimestamp(end)}`,
+      `SUMMARY:${icsEscape('Meeting: ' + meeting.title)}`,
+      ...(meeting.description ? [`DESCRIPTION:${icsEscape(meeting.description)}`] : []),
+      ...(meeting.location ? [`LOCATION:${icsEscape(meeting.location)}`] : []),
+      'STATUS:CONFIRMED',
       'END:VEVENT',
     )
   }

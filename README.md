@@ -155,3 +155,20 @@ Assignment and deadline tracking (`docs/admin/tasks.html`), optionally linked to
 ```
 supabase functions deploy calendar-feed --no-verify-jwt
 ```
+
+## Meeting Management / AI Secretary
+
+Scheduling and structured minutes (`docs/admin/meetings.html`), optionally linked to the opportunity or contract they relate to — same cross-cutting nav placement as Tasks, since a meeting can be bid-side (a donor clarification call) or delivery-side (a client progress review).
+
+- [x] **Meetings** — title, description, start/end time, location (address or a video-call link), status (scheduled/completed/cancelled), internal attendees (checked against `profiles`, so their own calendar feed picks the meeting up automatically) plus a free-text field for external attendees (donor/client contacts who aren't platform users).
+- [x] **AI Secretary — real extraction, not live transcription.** An admin pastes their own raw notes or a rough transcript taken during/after the meeting; `analyze-meeting-notes` structures it into a summary, a list of decisions, and a list of action items (each with an AI-guessed assignee name, since the AI can only read a name off the page — it can't reliably resolve that name to a real `profiles` account). Everything is editable before saving — the AI drafts, a human reviews, same guardrail as every other AI-assisted feature in this platform.
+- [x] **Action items → real tasks.** Any saved action item can become an actual row in `tasks` with one click (inheriting the meeting's linked opportunity/contract), so it's tracked with a real assignee, due date, and status instead of living as a second, disconnected to-do list. Once converted, it shows as a linked, read-only "task created" entry rather than a duplicate editable line.
+- [x] **Calendar Integration extended, not duplicated.** `calendar-feed` (built for Task Management) now also includes each attendee's scheduled meetings as real timed events (not all-day, like task due dates) alongside their tasks in the same personal `.ics` subscription feed — no second feed URL to distribute.
+- [ ] **Deliberately not built**: live audio capture or speech-to-text transcription (would need a bot joining the call or a dedicated transcription pipeline — a real external dependency, not something buildable inside this migration) and auto-sent calendar invites to external attendees (would need to actually email people on ACSD's behalf, a much bigger trust/deliverability commitment than this feature set has taken on so far). The AI Secretary is deliberately "structure what a human already wrote," not "listen and decide what happened."
+
+**Before use:** run `supabase/migrations/0016_meeting_management.sql` in the Supabase SQL Editor and deploy `supabase functions deploy analyze-meeting-notes calendar-feed` — `calendar-feed` changed (to add meetings) and **must keep JWT verification disabled**:
+```
+supabase functions deploy analyze-meeting-notes
+supabase functions deploy calendar-feed --no-verify-jwt
+```
+No new secrets — `analyze-meeting-notes` reuses `ANTHROPIC_API_KEY`.

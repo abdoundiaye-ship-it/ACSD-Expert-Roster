@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACSD Expert Intelligence Platform — Meetings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>body { font-family: system-ui, -apple-system, sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-blue-950 text-white shadow sticky top-0 z-30">
+    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap">
+      <div class="flex items-center gap-2.5">
+        <button type="button" class="mobile-nav-toggle" onclick="toggleMobileNav()" aria-label="Open menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+        <img src="../img/logo.png" alt="ACSD Logo" class="h-9 w-auto flex-shrink-0">
+        <span class="font-bold text-sm tracking-tight">ACSD Expert Intelligence Platform</span>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0 header-actions">
+        <span id="admin-user-email" class="text-xs text-blue-300 hidden sm:block"></span>
+        <button id="admin-logout-btn"
+          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-screen-xl mx-auto px-4 py-6 flex gap-6">
+    <div id="admin-sidebar-backdrop" class="admin-sidebar-backdrop" onclick="closeMobileNav()"></div>
+    <aside class="w-48 flex-shrink-0 admin-sidebar" id="admin-sidebar">
+      <button type="button" class="mobile-nav-close" onclick="closeMobileNav()" aria-label="Close menu">&times;</button>
+      <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
+      <div class="mt-4 px-1">
+        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+      </div>
+    </aside>
+
+    <main class="flex-1 min-w-0 space-y-5">
+
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">Meetings</h2>
+          <p class="text-sm text-gray-500 mt-0.5">Scheduling and AI-assisted minutes, optionally linked to an opportunity or contract.</p>
+        </div>
+        <button onclick="openMeetingModal()"
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0">
+          + Add Meeting
+        </button>
+      </div>
+
+      <!-- Summary strip -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+          <p class="text-xs text-gray-400 uppercase font-semibold">Upcoming (7 days)</p>
+          <p id="stat-upcoming" class="text-2xl font-bold text-indigo-700 mt-1">—</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+          <p class="text-xs text-gray-400 uppercase font-semibold">Scheduled</p>
+          <p id="stat-scheduled" class="text-2xl font-bold text-gray-900 mt-1">—</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+          <p class="text-xs text-gray-400 uppercase font-semibold">Completed</p>
+          <p id="stat-completed" class="text-2xl font-bold text-green-700 mt-1">—</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+          <p class="text-xs text-gray-400 uppercase font-semibold">Cancelled</p>
+          <p id="stat-cancelled" class="text-2xl font-bold text-gray-400 mt-1">—</p>
+        </div>
+      </div>
+
+      <div class="flex gap-3 items-center flex-wrap">
+        <div class="relative flex-1 max-w-sm">
+          <input id="mt-search" type="search" placeholder="Search title, description…"
+            class="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            oninput="filterMeetings()">
+        </div>
+        <select id="mt-filter-status" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterMeetings()">
+          <option value="">All statuses</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      <div id="mt-count" class="text-sm text-gray-500 font-medium"></div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              <th class="text-left px-5 py-3">Title</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell">Related</th>
+              <th class="text-left px-5 py-3">When</th>
+              <th class="text-left px-5 py-3 hidden md:table-cell">Attendees</th>
+              <th class="text-left px-5 py-3">Status</th>
+              <th class="text-right px-5 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="mt-tbody" class="divide-y divide-gray-100">
+            <tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Add/Edit Meeting modal -->
+  <div id="meeting-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('meeting-modal')"></div>
+    <div class="relative flex items-start justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+
+        <h3 id="mm-title-heading" class="font-bold text-gray-900 text-base mb-4">Add Meeting</h3>
+        <input type="hidden" id="mm-id">
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Title</label>
+            <input id="mm-title" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Description (optional)</label>
+            <textarea id="mm-description" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Related Opportunity (optional)</label>
+              <select id="mm-opportunity" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="">— none —</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Related Contract (optional)</label>
+              <select id="mm-contract" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="">— none —</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Start</label>
+              <input id="mm-start" type="datetime-local" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">End (optional)</label>
+              <input id="mm-end" type="datetime-local" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Location / Link (optional)</label>
+              <input id="mm-location" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="Office, or a video-call link">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
+              <select id="mm-status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="scheduled">Scheduled</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Internal Attendees</label>
+            <div id="mm-attendees" class="border border-gray-300 rounded-lg p-2 max-h-32 overflow-y-auto space-y-1 text-sm"></div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">External Attendees (optional)</label>
+            <textarea id="mm-external" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y" placeholder="e.g. Jane Doe (World Bank), John Smith (Client)"></textarea>
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-5">
+          <button onclick="saveMeeting()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">Save</button>
+          <button onclick="closeAdminModal('meeting-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Minutes / AI Secretary modal -->
+  <div id="minutes-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('minutes-modal')"></div>
+    <div class="relative flex items-start justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-6">
+
+        <h3 class="font-bold text-gray-900 text-base">Minutes — AI Secretary</h3>
+        <p id="mn-meeting-title" class="text-sm text-gray-500 mb-4"></p>
+        <input type="hidden" id="mn-meeting-id">
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Raw Notes / Transcript</label>
+            <p class="text-xs text-gray-400 mb-1.5">Paste your own notes taken during or after the meeting. The AI Secretary structures them below — it does not listen to or invent anything not written here.</p>
+            <textarea id="mn-raw-notes" rows="6" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y font-mono"></textarea>
+            <button id="mn-analyze-btn" onclick="analyzeNotes()" class="mt-2 text-xs font-medium bg-indigo-700 hover:bg-indigo-800 text-white px-3 py-2 rounded-lg">
+              Analyze with AI Secretary
+            </button>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Summary</label>
+            <textarea id="mn-summary" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-semibold text-gray-600">Decisions</label>
+              <button onclick="addDecision()" class="text-xs text-blue-600 hover:text-blue-800 font-medium">+ Add</button>
+            </div>
+            <div id="mn-decisions-list" class="space-y-1.5"></div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-semibold text-gray-600">Action Items</label>
+              <button onclick="addActionItem()" class="text-xs text-blue-600 hover:text-blue-800 font-medium">+ Add</button>
+            </div>
+            <div id="mn-action-items-list" class="space-y-2"></div>
+          </div>
+
+          <div id="mn-linked-section" class="hidden">
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Created Tasks</label>
+            <div id="mn-linked-items-list" class="space-y-1.5"></div>
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-5">
+          <button onclick="saveMinutes()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">Save Notes</button>
+          <button onclick="closeAdminModal('minutes-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let allMeetings = []
+    let allProfilesMT = []
+    let allOpportunitiesMT = []
+    let allContractsMT = []
+
+    let currentMinutesMeeting = null
+    let currentSummary = ''
+    let currentDecisions = []
+    let currentActionItems = []   // unlinked (task_id === null) — editable draft, some may already be persisted
+    let currentLinkedItems = []   // task_id set — read-only display
+
+    const MT_STATUS_LABEL = { scheduled: 'Scheduled', completed: 'Completed', cancelled: 'Cancelled' }
+    const MT_STATUS_COLOR = {
+      scheduled: 'bg-indigo-100 text-indigo-800', completed: 'bg-green-100 text-green-800',
+      cancelled: 'bg-gray-100 text-gray-500',
+    }
+
+    function isUpcoming(m) {
+      if (m.status !== 'scheduled') return false
+      const start = new Date(m.start_time)
+      const now = new Date()
+      const in7days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+      return start >= now && start <= in7days
+    }
+
+    // datetime-local inputs need local-time "YYYY-MM-DDTHH:MM", not the raw
+    // ISO/UTC string a timestamptz column returns.
+    function toDatetimeLocal(iso) {
+      if (!iso) return ''
+      const d = new Date(iso)
+      const pad = n => String(n).padStart(2, '0')
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+    }
+
+    async function loadMeetings() {
+      const session = await initAdmin('meetings')
+      if (!session) return
+
+      const [mtRes, profRes, oppRes, ctRes] = await Promise.all([
+        sb.from('meetings').select('*, opportunities(title), contracts(title), meeting_attendees(profile_id)').order('start_time', { ascending: true }),
+        sb.from('profiles').select('id, full_name, email').eq('is_active', true).order('full_name'),
+        sb.from('opportunities').select('id, title').order('title'),
+        sb.from('contracts').select('id, title').order('title'),
+      ])
+      allMeetings = mtRes.data ?? []
+      allProfilesMT = profRes.data ?? []
+      allOpportunitiesMT = oppRes.data ?? []
+      allContractsMT = ctRes.data ?? []
+
+      const oppSel = document.getElementById('mm-opportunity')
+      allOpportunitiesMT.forEach(o => oppSel.appendChild(new Option(o.title, o.id)))
+      const ctSel = document.getElementById('mm-contract')
+      allContractsMT.forEach(c => ctSel.appendChild(new Option(c.title, c.id)))
+
+      renderStats()
+      filterMeetings()
+    }
+
+    function renderStats() {
+      const counts = { scheduled: 0, completed: 0, cancelled: 0, upcoming: 0 }
+      for (const m of allMeetings) {
+        counts[m.status] = (counts[m.status] ?? 0) + 1
+        if (isUpcoming(m)) counts.upcoming++
+      }
+      document.getElementById('stat-upcoming').textContent = counts.upcoming
+      document.getElementById('stat-scheduled').textContent = counts.scheduled
+      document.getElementById('stat-completed').textContent = counts.completed
+      document.getElementById('stat-cancelled').textContent = counts.cancelled
+    }
+
+    function filterMeetings() {
+      const q = document.getElementById('mt-search').value.toLowerCase()
+      const status = document.getElementById('mt-filter-status').value
+      const filtered = allMeetings.filter(m => {
+        if (q && ![m.title, m.description].filter(Boolean).join(' ').toLowerCase().includes(q)) return false
+        if (status && m.status !== status) return false
+        return true
+      })
+
+      document.getElementById('mt-count').textContent =
+        filtered.length === allMeetings.length ? `${allMeetings.length} meeting${allMeetings.length !== 1 ? 's' : ''}` : `${filtered.length} of ${allMeetings.length} meetings`
+
+      const tbody = document.getElementById('mt-tbody')
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">No meetings match your filters.</td></tr>'
+        return
+      }
+      tbody.innerHTML = filtered.map(m => {
+        const related = m.opportunities?.title ? `Opp: ${m.opportunities.title}` : (m.contracts?.title ? `Contract: ${m.contracts.title}` : '—')
+        const internalCount = (m.meeting_attendees ?? []).length
+        const externalCount = m.external_attendees ? m.external_attendees.split(',').filter(s => s.trim()).length : 0
+        return `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-5 py-3 font-medium text-gray-900">${aesc(m.title)}</td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell max-w-xs truncate">${aesc(related)}</td>
+          <td class="px-5 py-3 text-xs text-gray-500">${fmtDate(m.start_time)}${isUpcoming(m) ? ' <span class="text-indigo-600 font-semibold">(upcoming)</span>' : ''}</td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden md:table-cell">${internalCount} internal${externalCount ? `, ${externalCount} external` : ''}</td>
+          <td class="px-5 py-3"><span class="text-xs font-medium px-2 py-0.5 rounded-full ${MT_STATUS_COLOR[m.status] ?? 'bg-gray-100 text-gray-600'}">${MT_STATUS_LABEL[m.status] ?? m.status}</span></td>
+          <td class="px-5 py-3 text-right">
+            <div class="flex items-center justify-end gap-3">
+              <button onclick="openMinutesModal(allMeetings.find(x=>x.id==='${aesc(m.id)}'))" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Minutes</button>
+              <button onclick="openMeetingModal(allMeetings.find(x=>x.id==='${aesc(m.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</button>
+              <button onclick="deleteMeeting('${aesc(m.id)}', '${aesc(m.title)}')" class="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+            </div>
+          </td>
+        </tr>`
+      }).join('')
+    }
+
+    // ── Add/Edit Meeting ─────────────────────────────────────────────────────
+
+    function openMeetingModal(meeting = null) {
+      document.getElementById('mm-title-heading').textContent = meeting ? 'Edit Meeting' : 'Add Meeting'
+      document.getElementById('mm-id').value = meeting?.id ?? ''
+      document.getElementById('mm-title').value = meeting?.title ?? ''
+      document.getElementById('mm-description').value = meeting?.description ?? ''
+      document.getElementById('mm-opportunity').value = meeting?.opportunity_id ?? ''
+      document.getElementById('mm-contract').value = meeting?.contract_id ?? ''
+      document.getElementById('mm-start').value = toDatetimeLocal(meeting?.start_time)
+      document.getElementById('mm-end').value = toDatetimeLocal(meeting?.end_time)
+      document.getElementById('mm-location').value = meeting?.location ?? ''
+      document.getElementById('mm-status').value = meeting?.status ?? 'scheduled'
+      document.getElementById('mm-external').value = meeting?.external_attendees ?? ''
+
+      const selectedIds = new Set((meeting?.meeting_attendees ?? []).map(a => a.profile_id))
+      document.getElementById('mm-attendees').innerHTML = allProfilesMT.map(p => `
+        <label class="flex items-center gap-2 px-1 py-0.5">
+          <input type="checkbox" value="${aesc(p.id)}" ${selectedIds.has(p.id) ? 'checked' : ''} class="mm-attendee-cb">
+          <span>${aesc(p.full_name || p.email)}</span>
+        </label>`).join('') || '<p class="text-xs text-gray-400">No active users found.</p>'
+
+      openAdminModal('meeting-modal')
+    }
+
+    async function saveMeeting() {
+      const id = document.getElementById('mm-id').value
+      const title = document.getElementById('mm-title').value.trim()
+      const start = document.getElementById('mm-start').value
+      if (!title) { showToast('Title is required.', 'error'); return }
+      if (!start) { showToast('Start time is required.', 'error'); return }
+
+      const body = {
+        title,
+        description: document.getElementById('mm-description').value.trim() || null,
+        opportunity_id: document.getElementById('mm-opportunity').value || null,
+        contract_id: document.getElementById('mm-contract').value || null,
+        start_time: new Date(start).toISOString(),
+        end_time: document.getElementById('mm-end').value ? new Date(document.getElementById('mm-end').value).toISOString() : null,
+        location: document.getElementById('mm-location').value.trim() || null,
+        status: document.getElementById('mm-status').value,
+        external_attendees: document.getElementById('mm-external').value.trim() || null,
+      }
+
+      const { data, error } = id
+        ? await sb.from('meetings').update(body).eq('id', id).select('id').single()
+        : await sb.from('meetings').insert(body).select('id').single()
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return }
+
+      const meetingId = id || data.id
+      const attendeeIds = [...document.querySelectorAll('.mm-attendee-cb:checked')].map(cb => cb.value)
+      await sb.from('meeting_attendees').delete().eq('meeting_id', meetingId)
+      if (attendeeIds.length) {
+        await sb.from('meeting_attendees').insert(attendeeIds.map(pid => ({ meeting_id: meetingId, profile_id: pid })))
+      }
+
+      await logAudit(id ? 'UPDATE' : 'CREATE', 'meeting', meetingId, title, null, body)
+      closeAdminModal('meeting-modal')
+      showToast('Meeting saved.')
+      await loadMeetings()
+    }
+
+    async function deleteMeeting(id, title) {
+      if (!confirm(`Delete "${title}"? This also deletes its minutes and action items and cannot be undone.`)) return
+      const { error } = await sb.from('meetings').delete().eq('id', id)
+      if (error) { showToast('Delete failed: ' + error.message, 'error'); return }
+      await logAudit('DELETE', 'meeting', id, title, { title }, null)
+      showToast('Meeting deleted.')
+      await loadMeetings()
+    }
+
+    // ── Minutes / AI Secretary ───────────────────────────────────────────────
+
+    async function openMinutesModal(meeting) {
+      currentMinutesMeeting = meeting
+      document.getElementById('mn-meeting-id').value = meeting.id
+      document.getElementById('mn-meeting-title').textContent = meeting.title
+      document.getElementById('mn-raw-notes').value = meeting.raw_notes ?? ''
+      currentSummary = meeting.ai_summary ?? ''
+      document.getElementById('mn-summary').value = currentSummary
+      currentDecisions = Array.isArray(meeting.ai_decisions) ? [...meeting.ai_decisions] : []
+      renderDecisions()
+      await loadActionItems(meeting.id)
+      openAdminModal('minutes-modal')
+    }
+
+    async function loadActionItems(meetingId) {
+      const { data, error } = await sb.from('meeting_action_items').select('*').eq('meeting_id', meetingId).order('created_at')
+      if (error) { showToast('Failed to load action items: ' + error.message, 'error'); return }
+      const rows = data ?? []
+      currentActionItems = rows.filter(a => !a.task_id)
+      currentLinkedItems = rows.filter(a => a.task_id)
+      renderActionItems()
+    }
+
+    function renderDecisions() {
+      const el = document.getElementById('mn-decisions-list')
+      if (currentDecisions.length === 0) {
+        el.innerHTML = '<p class="text-xs text-gray-400">No decisions recorded yet.</p>'
+        return
+      }
+      el.innerHTML = currentDecisions.map((d, i) => `
+        <div class="flex items-center gap-2">
+          <input value="${aesc(d)}" onchange="currentDecisions[${i}] = this.value" class="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-xs">
+          <button onclick="currentDecisions.splice(${i},1); renderDecisions()" class="text-red-500 hover:text-red-700 text-xs flex-shrink-0">✕</button>
+        </div>`).join('')
+    }
+
+    function addDecision() {
+      currentDecisions.push('')
+      renderDecisions()
+    }
+
+    function renderActionItems() {
+      const el = document.getElementById('mn-action-items-list')
+      if (currentActionItems.length === 0) {
+        el.innerHTML = '<p class="text-xs text-gray-400">No action items yet.</p>'
+      } else {
+        el.innerHTML = currentActionItems.map((a, i) => `
+          <div class="border border-gray-200 rounded-lg p-2 space-y-1.5">
+            <div class="flex items-center gap-2">
+              <input value="${aesc(a.description)}" onchange="currentActionItems[${i}].description = this.value" placeholder="Action item"
+                class="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-xs">
+              <button onclick="currentActionItems.splice(${i},1); renderActionItems()" class="text-red-500 hover:text-red-700 text-xs flex-shrink-0">✕</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <input value="${aesc(a.suggested_assignee || '')}" onchange="currentActionItems[${i}].suggested_assignee = this.value || null" placeholder="Suggested assignee (optional)"
+                class="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-xs text-gray-500">
+              ${a.id
+                ? `<button onclick="createTaskFromActionItem(${i})" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex-shrink-0">Create Task</button>`
+                : `<span class="text-[10px] text-gray-400 flex-shrink-0">Save to enable "Create Task"</span>`}
+            </div>
+          </div>`).join('')
+      }
+
+      const linkedSection = document.getElementById('mn-linked-section')
+      const linkedEl = document.getElementById('mn-linked-items-list')
+      if (currentLinkedItems.length === 0) {
+        linkedSection.classList.add('hidden')
+      } else {
+        linkedSection.classList.remove('hidden')
+        linkedEl.innerHTML = currentLinkedItems.map(a => `
+          <div class="flex items-center justify-between gap-2 text-xs text-gray-600 border border-gray-100 rounded-lg px-2.5 py-1.5 bg-gray-50">
+            <span class="flex-1">${aesc(a.description)}</span>
+            <span class="text-green-700 font-medium flex-shrink-0">✓ Task created</span>
+          </div>`).join('')
+      }
+    }
+
+    function addActionItem() {
+      currentActionItems.push({ id: null, description: '', suggested_assignee: null })
+      renderActionItems()
+    }
+
+    async function analyzeNotes() {
+      const notes = document.getElementById('mn-raw-notes').value.trim()
+      if (!notes) { showToast('Paste some notes first.', 'error'); return }
+
+      const btn = document.getElementById('mn-analyze-btn')
+      const orig = btn.textContent
+      btn.disabled = true
+      btn.textContent = 'Analyzing…'
+
+      try {
+        const { data: { session } } = await sb.auth.getSession()
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/analyze-meeting-notes`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ raw_notes: notes }),
+        })
+        const json = await res.json()
+        if (!res.ok || !json.success) throw new Error(json.error || `Server error ${res.status}`)
+
+        currentSummary = json.summary || ''
+        document.getElementById('mn-summary').value = currentSummary
+        currentDecisions = json.decisions || []
+        renderDecisions()
+        // Appended, not replaced — re-analyzing shouldn't discard action
+        // items already saved or already turned into real tasks.
+        currentActionItems = [
+          ...currentActionItems,
+          ...(json.action_items || []).map(a => ({ id: null, description: a.description, suggested_assignee: a.suggested_assignee })),
+        ]
+        renderActionItems()
+        showToast('Notes analyzed — review, then Save Notes.')
+      } catch (err) {
+        showToast(err.message || 'Analysis failed.', 'error')
+      } finally {
+        btn.disabled = false
+        btn.textContent = orig
+      }
+    }
+
+    async function saveMinutes() {
+      const meetingId = document.getElementById('mn-meeting-id').value
+      currentSummary = document.getElementById('mn-summary').value.trim()
+
+      const { error: updErr } = await sb.from('meetings').update({
+        raw_notes: document.getElementById('mn-raw-notes').value.trim() || null,
+        ai_summary: currentSummary || null,
+        ai_decisions: currentDecisions.filter(d => d.trim()),
+      }).eq('id', meetingId)
+      if (updErr) { showToast('Save failed: ' + updErr.message, 'error'); return }
+
+      // Unlinked action items are fully replaced on each save — simplest
+      // correct sync for a short editable list; linked ones (task_id set)
+      // are never touched here.
+      await sb.from('meeting_action_items').delete().eq('meeting_id', meetingId).is('task_id', null)
+      const rows = currentActionItems
+        .filter(a => a.description.trim())
+        .map(a => ({ meeting_id: meetingId, description: a.description.trim(), suggested_assignee: a.suggested_assignee || null }))
+      if (rows.length) {
+        const { error: insErr } = await sb.from('meeting_action_items').insert(rows)
+        if (insErr) { showToast('Notes saved, but action items failed to save: ' + insErr.message, 'error'); return }
+      }
+
+      showToast('Minutes saved.')
+      await loadActionItems(meetingId)
+      await loadMeetings()
+    }
+
+    async function createTaskFromActionItem(index) {
+      const item = currentActionItems[index]
+      if (!item?.id) return
+
+      const { data, error } = await sb.from('tasks').insert({
+        title: item.description,
+        opportunity_id: currentMinutesMeeting?.opportunity_id ?? null,
+        contract_id: currentMinutesMeeting?.contract_id ?? null,
+        status: 'open',
+        priority: 'medium',
+      }).select('id').single()
+      if (error) { showToast('Failed to create task: ' + error.message, 'error'); return }
+
+      const { error: linkErr } = await sb.from('meeting_action_items').update({ task_id: data.id }).eq('id', item.id)
+      if (linkErr) { showToast('Task created, but linking it back to this action item failed: ' + linkErr.message, 'error'); return }
+
+      showToast('Task created.')
+      await loadActionItems(currentMinutesMeeting.id)
+    }
+
+    loadMeetings()
+  </script>
+</body>
+</html>

@@ -104,6 +104,7 @@ const I18N_STRINGS = {
     // ── Admin nav ──
     nav_dashboard:        'Dashboard',
     nav_tasks:            'Tasks',
+    nav_meetings:         'Meetings',
     nav_experts:          'Experts',
     nav_ask:               'Ask ACSD Intelligence',
     nav_opportunities:    'Opportunities',
@@ -209,6 +210,7 @@ const I18N_STRINGS = {
 
     nav_dashboard:        'Tableau de bord',
     nav_tasks:            'Tâches',
+    nav_meetings:         'Réunions',
     nav_experts:          'Experts',
     nav_ask:               'Ask ACSD Intelligence',
     nav_opportunities:    'Opportunités',
