@@ -61,9 +61,10 @@ function renderAdminNav(active) {
       { id: 'ask',     href: 'ask.html',     label: t('nav_ask') },
     ] },
     { label: t('nav_group_opportunities'), items: [
-      { id: 'opportunities',   href: 'opportunities.html',  label: t('nav_opportunities') },
-      { id: 'sources',         href: 'sources.html',        label: t('nav_sources') },
-      { id: 'knowledge-base',  href: 'knowledge-base.html', label: t('nav_knowledge_base') },
+      { id: 'opportunities',      href: 'opportunities.html',     label: t('nav_opportunities') },
+      { id: 'sources',            href: 'sources.html',           label: t('nav_sources') },
+      { id: 'knowledge-base',     href: 'knowledge-base.html',    label: t('nav_knowledge_base') },
+      { id: 'lessons-learned',    href: 'lessons-learned.html',   label: t('nav_lessons_learned') },
     ] },
     { label: t('nav_group_admin'), items: [
       { id: 'users', href: 'users.html', label: t('nav_users') },

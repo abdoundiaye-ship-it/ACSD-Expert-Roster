@@ -70,7 +70,7 @@ serve(async (req: Request) => {
       return respond({ success: true, doc_type: docType, title, content_html })
     }
     if (docType === 'workplan') {
-      const { title, content_html } = await generateWorkplan(apiKey, opportunity)
+      const { title, content_html } = await generateWorkplan(apiKey, adminClient, opportunity)
       return respond({ success: true, doc_type: docType, title, content_html })
     }
     // expert_cv
@@ -125,6 +125,7 @@ async function generateTechnicalApproach(apiKey: string, adminClient: any, oppor
   const activities = (opportunity.opportunity_activity_types ?? []).map((a: any) => a.activity_types?.name).filter(Boolean)
   const sectorIds = (opportunity.opportunity_sectors ?? []).map((s: any) => s.sector_id)
   const kbContext = await fetchKbContext(adminClient, ['methodologies', 'donor_requirements'], sectorIds, opportunity.donor_id)
+  const lessonsContext = await fetchLessonsContext(adminClient, sectorIds, opportunity.donor_id)
 
   const prompt = `Draft a Technical Approach / methodology section for ACSD's proposal to this opportunity. Propose a phased approach (typically 4-6 phases) appropriate to the opportunity's scope, inspired by ACSD's general style of institutional/organizational engagements (diagnostic, assessment, analysis/mapping, transformation or action planning, capacity strengthening) but adapted to what this specific opportunity actually asks for — do not force phases that don't fit. For each phase give a short name and 1-2 sentence description of activities and expected outputs. Do not invent specific past project references, client names, or statistics.
 
@@ -133,7 +134,7 @@ Issuing organization: ${opportunity.organization}
 Summary: ${opportunity.summary ?? 'Not provided.'}
 Evaluation criteria: ${JSON.stringify(opportunity.evaluation_criteria ?? [])}
 Deliverable/activity types covered: ${activities.join(', ') || 'Not specified.'}
-${kbContext}`
+${kbContext}${lessonsContext}`
 
   const content_html = await callClaude(apiKey, prompt)
   return { title: `Technical Approach — ${opportunity.title}`, content_html }
@@ -172,11 +173,46 @@ async function fetchKbContext(
   return `\nReference material from ACSD's own proposal knowledge base, reflecting its established style and past project experience (use for tone/structure/phrasing inspiration only — do not copy specific factual claims like client names, figures, or references from this unless they also appear in the opportunity data above):\n${excerpts}\n`
 }
 
-async function generateWorkplan(apiKey: string, opportunity: any) {
+// ── Lessons-learned retrieval (Module 7) ────────────────────────────────────
+// Same retrieval style as fetchKbContext: filter, prioritize sector/donor
+// match, fall back to most recent. Only 'challenge' entries are pulled in —
+// a documented risk to avoid is directly useful as drafting guidance; a
+// documented success isn't something the draft needs to be steered by.
+async function fetchLessonsContext(
+  adminClient: any, sectorIds: number[], donorId: number | null,
+): Promise<string> {
+  const { data } = await adminClient
+    .from('lessons_learned')
+    .select('title, category, recommendation, sector_id, donor_id')
+    .eq('lesson_type', 'challenge')
+    .order('created_at', { ascending: false })
+    .limit(30)
+
+  const lessons = data ?? []
+  if (lessons.length === 0) return ''
+
+  const ranked = lessons
+    .map((l: any) => ({
+      lesson: l,
+      score: (l.sector_id && sectorIds.includes(l.sector_id) ? 2 : 0) + (l.donor_id && donorId && l.donor_id === donorId ? 2 : 0),
+    }))
+    .sort((a: any, b: any) => b.score - a.score)
+    .slice(0, 3)
+    .map((r: any) => r.lesson)
+
+  if (ranked.length === 0) return ''
+
+  const excerpts = ranked.map((l: any) => `- [${l.category}] ${l.title}: ${l.recommendation}`).join('\n')
+  return `\nLessons learned from ACSD's past assignments — apply as risk-avoidance guidance where relevant to this opportunity's methodology or sequencing; do not present these as facts about this specific opportunity:\n${excerpts}\n`
+}
+
+async function generateWorkplan(apiKey: string, adminClient: any, opportunity: any) {
   const team = (opportunity.opportunity_selected_experts ?? []).map((s: any) => ({
     role: s.assigned_role_title, name: s.experts?.full_name ?? 'TBD', days: s.days_allocated ?? null,
   }))
   const activities = (opportunity.opportunity_activity_types ?? []).map((a: any) => a.activity_types?.name).filter(Boolean)
+  const sectorIds = (opportunity.opportunity_sectors ?? []).map((s: any) => s.sector_id)
+  const lessonsContext = await fetchLessonsContext(adminClient, sectorIds, opportunity.donor_id)
 
   // The table itself is built deterministically from stored data — no
   // fabrication risk. Claude only supplies short connective narrative text
@@ -194,7 +230,8 @@ async function generateWorkplan(apiKey: string, opportunity: any) {
 Opportunity title: ${opportunity.title}
 Summary: ${opportunity.summary ?? 'Not provided.'}
 Deliverable/activity types covered: ${activities.join(', ') || 'Not specified.'}
-Roles on the team: ${team.map((t: any) => t.role).join(', ') || 'Not yet assigned.'}`
+Roles on the team: ${team.map((t: any) => t.role).join(', ') || 'Not yet assigned.'}
+${lessonsContext}`
 
   const narrative = await callClaude(apiKey, prompt)
   return { title: `Workplan — ${opportunity.title}`, content_html: `${narrative}\n${tableHtml}` }

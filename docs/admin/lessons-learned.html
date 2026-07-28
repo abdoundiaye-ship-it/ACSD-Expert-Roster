@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACSD Expert Intelligence Platform — Lessons Learned</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>body { font-family: system-ui, -apple-system, sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-blue-950 text-white shadow sticky top-0 z-30">
+    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <img src="../img/logo.png" alt="ACSD Logo" class="h-9 w-auto flex-shrink-0">
+        <span class="font-bold text-sm tracking-tight">ACSD Expert Intelligence Platform</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="admin-user-email" class="text-xs text-blue-300 hidden sm:block"></span>
+        <button id="admin-logout-btn"
+          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-screen-xl mx-auto px-4 py-6 flex gap-6">
+    <aside class="w-48 flex-shrink-0">
+      <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
+      <div class="mt-4 px-1">
+        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+      </div>
+    </aside>
+
+    <main class="flex-1 min-w-0 space-y-5">
+
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">Lessons Learned</h2>
+          <p class="text-sm text-gray-500 mt-0.5">A structured post-mortem log — what happened, what to do differently or repeat next time. "Challenge" entries tagged by sector/donor are automatically surfaced as guidance when drafting a future Technical Approach or Workplan.</p>
+        </div>
+        <button onclick="openLessonModal()"
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0">
+          + Add Lesson
+        </button>
+      </div>
+
+      <div class="flex gap-3 items-center flex-wrap">
+        <div class="relative flex-1 max-w-sm">
+          <input id="ll-search" type="search" placeholder="Search title, notes, recommendation…"
+            class="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            oninput="filterLessons()">
+        </div>
+        <select id="ll-filter-type"
+          class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onchange="filterLessons()">
+          <option value="">All types</option>
+          <option value="success">Success</option>
+          <option value="challenge">Challenge</option>
+        </select>
+        <select id="ll-filter-category"
+          class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onchange="filterLessons()">
+          <option value="">All categories</option>
+          <option value="proposal_process">Proposal Process</option>
+          <option value="technical_delivery">Technical Delivery</option>
+          <option value="financial_budget">Financial &amp; Budget</option>
+          <option value="client_donor_relations">Client / Donor Relations</option>
+          <option value="team_staffing">Team &amp; Staffing</option>
+          <option value="logistics_operations">Logistics &amp; Operations</option>
+          <option value="compliance_eligibility">Compliance &amp; Eligibility</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div id="ll-count" class="text-sm text-gray-500 font-medium"></div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              <th class="text-left px-5 py-3">Title</th>
+              <th class="text-left px-5 py-3">Type</th>
+              <th class="text-left px-5 py-3 hidden md:table-cell">Category</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell">Opportunity</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell">Recommendation</th>
+              <th class="text-right px-5 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ll-tbody" class="divide-y divide-gray-100">
+            <tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Add/Edit Lesson modal -->
+  <div id="lesson-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('lesson-modal')"></div>
+    <div class="relative flex items-start justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+
+        <h3 id="lm-title-heading" class="font-bold text-gray-900 text-base mb-4">Add Lesson</h3>
+        <input type="hidden" id="lm-id">
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Title</label>
+            <input id="lm-title" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="Short headline for this lesson">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Type</label>
+              <select id="lm-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="challenge">Challenge — avoid next time</option>
+                <option value="success">Success — repeat next time</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Category</label>
+              <select id="lm-category" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="proposal_process">Proposal Process</option>
+                <option value="technical_delivery">Technical Delivery</option>
+                <option value="financial_budget">Financial &amp; Budget</option>
+                <option value="client_donor_relations">Client / Donor Relations</option>
+                <option value="team_staffing">Team &amp; Staffing</option>
+                <option value="logistics_operations">Logistics &amp; Operations</option>
+                <option value="compliance_eligibility">Compliance &amp; Eligibility</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Related Opportunity (optional)</label>
+            <select id="lm-opportunity" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <option value="">— none —</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Sector (optional)</label>
+              <select id="lm-sector" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="">— none —</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Donor (optional)</label>
+              <select id="lm-donor" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="">— none —</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">What happened</label>
+            <textarea id="lm-what-happened" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y" placeholder="Brief context — what occurred and why it mattered"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Recommendation</label>
+            <textarea id="lm-recommendation" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y" placeholder="What to do differently — or repeat — next time"></textarea>
+            <p class="text-[11px] text-gray-400 mt-1">Challenge entries: this is what gets pulled into future Technical Approach / Workplan drafts as guidance.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-5">
+          <button onclick="saveLesson()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">Save</button>
+          <button onclick="closeAdminModal('lesson-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let allLessons = []
+    let allOpportunitiesLL = []
+    let allSectorsLL = []
+    let allDonorsLL = []
+
+    const TYPE_LABEL = { success: 'Success', challenge: 'Challenge' }
+    const TYPE_COLOR = { success: 'bg-green-100 text-green-800', challenge: 'bg-amber-100 text-amber-800' }
+    const CATEGORY_LABEL = {
+      proposal_process: 'Proposal Process', technical_delivery: 'Technical Delivery',
+      financial_budget: 'Financial & Budget', client_donor_relations: 'Client / Donor Relations',
+      team_staffing: 'Team & Staffing', logistics_operations: 'Logistics & Operations',
+      compliance_eligibility: 'Compliance & Eligibility', other: 'Other',
+    }
+
+    async function loadLessons() {
+      const session = await initAdmin('lessons-learned')
+      if (!session) return
+
+      const [lessonRes, oppRes, secRes, donRes] = await Promise.all([
+        sb.from('lessons_learned').select('id, title, lesson_type, category, what_happened, recommendation, sector_id, donor_id, opportunity_id, opportunities(title)').order('created_at', { ascending: false }),
+        sb.from('opportunities').select('id, title').order('title'),
+        sb.from('sectors').select('id, name').order('sort_order'),
+        sb.from('donors').select('id, name').order('name'),
+      ])
+      allLessons = lessonRes.data ?? []
+      allOpportunitiesLL = oppRes.data ?? []
+      allSectorsLL = secRes.data ?? []
+      allDonorsLL = donRes.data ?? []
+
+      const oppSel = document.getElementById('lm-opportunity')
+      allOpportunitiesLL.forEach(o => oppSel.appendChild(new Option(o.title, o.id)))
+      const sectorSel = document.getElementById('lm-sector')
+      allSectorsLL.forEach(s => sectorSel.appendChild(new Option(s.name, s.id)))
+      const donorSel = document.getElementById('lm-donor')
+      allDonorsLL.forEach(d => donorSel.appendChild(new Option(d.name, d.id)))
+
+      filterLessons()
+    }
+
+    function filterLessons() {
+      const q = document.getElementById('ll-search').value.toLowerCase()
+      const type = document.getElementById('ll-filter-type').value
+      const cat = document.getElementById('ll-filter-category').value
+      const filtered = allLessons.filter(l => {
+        if (q && ![l.title, l.what_happened, l.recommendation].filter(Boolean).join(' ').toLowerCase().includes(q)) return false
+        if (type && l.lesson_type !== type) return false
+        if (cat && l.category !== cat) return false
+        return true
+      })
+
+      document.getElementById('ll-count').textContent =
+        filtered.length === allLessons.length ? `${allLessons.length} lesson${allLessons.length !== 1 ? 's' : ''}` : `${filtered.length} of ${allLessons.length} lessons`
+
+      const tbody = document.getElementById('ll-tbody')
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">No lessons match your filters.</td></tr>'
+        return
+      }
+      tbody.innerHTML = filtered.map(l => `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-5 py-3 font-medium text-gray-900">${aesc(l.title)}</td>
+          <td class="px-5 py-3"><span class="text-xs font-medium px-2 py-0.5 rounded-full ${TYPE_COLOR[l.lesson_type] ?? 'bg-gray-100 text-gray-600'}">${TYPE_LABEL[l.lesson_type] ?? l.lesson_type}</span></td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden md:table-cell">${CATEGORY_LABEL[l.category] ?? l.category}</td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell">${aesc(l.opportunities?.title ?? '—')}</td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell max-w-md truncate">${aesc(l.recommendation ?? '')}</td>
+          <td class="px-5 py-3 text-right">
+            <div class="flex items-center justify-end gap-3">
+              <button onclick="openLessonModal(allLessons.find(x=>x.id==='${aesc(l.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</button>
+              <button onclick="deleteLesson('${aesc(l.id)}', '${aesc(l.title)}')" class="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+            </div>
+          </td>
+        </tr>`).join('')
+    }
+
+    function openLessonModal(lesson = null) {
+      document.getElementById('lm-title-heading').textContent = lesson ? 'Edit Lesson' : 'Add Lesson'
+      document.getElementById('lm-id').value = lesson?.id ?? ''
+      document.getElementById('lm-title').value = lesson?.title ?? ''
+      document.getElementById('lm-type').value = lesson?.lesson_type ?? 'challenge'
+      document.getElementById('lm-category').value = lesson?.category ?? 'proposal_process'
+      document.getElementById('lm-opportunity').value = lesson?.opportunity_id ?? ''
+      document.getElementById('lm-sector').value = lesson?.sector_id ?? ''
+      document.getElementById('lm-donor').value = lesson?.donor_id ?? ''
+      document.getElementById('lm-what-happened').value = lesson?.what_happened ?? ''
+      document.getElementById('lm-recommendation').value = lesson?.recommendation ?? ''
+      openAdminModal('lesson-modal')
+    }
+
+    async function saveLesson() {
+      const id = document.getElementById('lm-id').value
+      const title = document.getElementById('lm-title').value.trim()
+      const recommendation = document.getElementById('lm-recommendation').value.trim()
+      if (!title) { showToast('Title is required.', 'error'); return }
+      if (!recommendation) { showToast('Recommendation is required.', 'error'); return }
+
+      const body = {
+        title,
+        lesson_type: document.getElementById('lm-type').value,
+        category: document.getElementById('lm-category').value,
+        opportunity_id: document.getElementById('lm-opportunity').value || null,
+        sector_id: document.getElementById('lm-sector').value || null,
+        donor_id: document.getElementById('lm-donor').value || null,
+        what_happened: document.getElementById('lm-what-happened').value.trim() || null,
+        recommendation,
+      }
+
+      const { error } = id
+        ? await sb.from('lessons_learned').update(body).eq('id', id)
+        : await sb.from('lessons_learned').insert(body)
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return }
+
+      await logAudit(id ? 'UPDATE' : 'CREATE', 'lesson_learned', id || title, title, null, body)
+      closeAdminModal('lesson-modal')
+      showToast('Lesson saved.')
+      await loadLessons()
+    }
+
+    async function deleteLesson(id, title) {
+      if (!confirm(`Delete "${title}"? This cannot be undone.`)) return
+      const { error } = await sb.from('lessons_learned').delete().eq('id', id)
+      if (error) { showToast('Delete failed: ' + error.message, 'error'); return }
+      await logAudit('DELETE', 'lesson_learned', id, title, { title }, null)
+      showToast('Lesson deleted.')
+      await loadLessons()
+    }
+
+    loadLessons()
+  </script>
+</body>
+</html>

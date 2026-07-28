@@ -84,6 +84,14 @@ A central library of past proposals, winning methodologies, project references, 
 
 **Before use:** run `supabase/migrations/0010_knowledge_base.sql` and deploy `supabase functions deploy analyze-kb-document generate-proposal-doc` (the latter changed to add retrieval). No new secrets.
 
+### Structured Lessons-Learned Database
+
+A purpose-built post-mortem log (`docs/admin/lessons-learned.html`), distinct from the document library above — each entry is a short structured record rather than a file: a title, a type (**Success** — a practice worth repeating, or **Challenge** — a mistake or risk to avoid), a category (proposal process, technical delivery, financial/budget, client/donor relations, team/staffing, logistics/operations, compliance/eligibility), what happened, and a recommendation, optionally linked to the opportunity it came from and tagged by sector/donor.
+
+This closes the loop the feature is named for: `generate-proposal-doc`'s Technical Approach and Workplan prompts now also pull the top 3 most relevant **Challenge** entries (same sector/donor-priority retrieval style as the knowledge base above) and inject them as risk-avoidance guidance — "here's what went wrong on a similar past assignment, don't repeat it" — rather than leaving that knowledge to depend on whoever happens to remember it. Only Challenge entries are surfaced this way; a documented Success doesn't need to steer a draft the same way a documented mistake does.
+
+**Before use:** run `supabase/migrations/0013_lessons_learned.sql` and redeploy `supabase functions deploy generate-proposal-doc` (changed to add retrieval). No new secrets.
+
 ## Ask ACSD Intelligence
 
 Natural-language search over the expert roster (`docs/admin/ask.html`), the last named idea from the original proposal's "Fonctionnalités IA Avancées" section. Claude only interprets the free-text question into structured criteria (sectors/geographies/languages/donors/seniority/an opportunity reference) — it never sees or names actual experts, so it can't hallucinate a match. Retrieval and scoring are deterministic: if the question resolves to an open opportunity, results reuse whatever match scores `compute-matches` already computed for it; otherwise a transparent relevance-count filter ranks experts against the extracted criteria. No second AI pass composes the answer — the UI renders real query results directly.
