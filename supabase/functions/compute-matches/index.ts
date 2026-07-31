@@ -159,6 +159,31 @@ serve(async (req: Request) => {
   if (insErr?.code === '23505') insErr = await writeRows()
   if (insErr) return respond({ error: insErr.message }, 500)
 
+  // Best-effort — a notification failure must never fail the actual
+  // matching request, so errors here are only logged. Coarse dedupe (one
+  // per opportunity/position pair) means recomputing repeatedly won't spam
+  // the same admin every time; it only fires the first time a strong match
+  // shows up for this pair.
+  try {
+    const NEW_MATCH_THRESHOLD = 80
+    if (scored.length > 0 && scored[0].matchScore >= NEW_MATCH_THRESHOLD) {
+      const best = scored[0]
+      const { error: notifErr } = await adminClient.from('notifications').insert({
+        user_id: user.id,
+        type: 'new_match',
+        title: 'New strong match found',
+        body: `${best.expert.full_name} scored ${best.matchScore}/100 for "${opportunity.title}".`,
+        link_url: `opportunity-detail.html?id=${opportunityId}`,
+        dedupe_key: `new_match:${opportunityId}:${positionId ?? 'none'}`,
+      })
+      if (notifErr && notifErr.code !== '23505') {
+        console.error('[compute-matches] failed to insert notification', notifErr.message)
+      }
+    }
+  } catch (err) {
+    console.error('[compute-matches] notification step threw', err instanceof Error ? err.message : err)
+  }
+
   return respond({
     success: true,
     computed_at: now,

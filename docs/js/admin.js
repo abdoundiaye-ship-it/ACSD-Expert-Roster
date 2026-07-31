@@ -21,6 +21,7 @@ async function initAdmin(activePage) {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', logout)
     if (typeof i18nInsertToggle === 'function') i18nInsertToggle(logoutBtn, 'dark')
+    await insertNotificationBell(logoutBtn, session.user.id)
   }
   translateAdminChrome()
 
@@ -96,6 +97,114 @@ function renderAdminNav(active) {
         ${aesc(it.label)}
       </a>`).join('')}
   `).join('')
+}
+
+// ── Notifications (bell dropdown) ───────────────────────────────────────────────
+// Reload-based, not push/real-time — consistent with the rest of this app,
+// which has no websocket/Realtime subscriptions anywhere else. Refreshes on
+// page load and whenever the dropdown is opened. RLS scopes every query to
+// auth.uid() = user_id automatically (migration 0018), so this can safely
+// use the regular anon-key client — no service-role calls from the browser.
+
+let _notifUserId = null
+let _notifications = []
+
+async function insertNotificationBell(beforeEl, userId) {
+  if (!beforeEl || !beforeEl.parentElement) return
+  _notifUserId = userId
+
+  const wrap = document.createElement('div')
+  wrap.className = 'relative flex-shrink-0'
+  wrap.id = 'notif-bell-wrap'
+  wrap.innerHTML = `
+    <button type="button" onclick="toggleNotificationDropdown()" class="relative text-xs bg-blue-900 hover:bg-blue-800 px-2.5 py-1.5 rounded-lg transition-colors" aria-label="Notifications">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+      </svg>
+      <span id="notif-badge" class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center"></span>
+    </button>
+    <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white rounded-xl shadow-2xl border border-gray-200 z-50 text-gray-800">
+      <div class="flex items-center justify-between px-3 py-2 border-b border-gray-100">
+        <p class="text-xs font-bold text-gray-700">Notifications</p>
+        <button onclick="markAllNotificationsRead()" class="text-[11px] text-blue-600 hover:text-blue-800 font-medium">Mark all read</button>
+      </div>
+      <div id="notif-list" class="divide-y divide-gray-50"></div>
+    </div>`
+  beforeEl.parentElement.insertBefore(wrap, beforeEl)
+
+  document.addEventListener('click', e => {
+    if (!wrap.contains(e.target)) document.getElementById('notif-dropdown')?.classList.add('hidden')
+  })
+
+  await loadNotifications()
+}
+
+async function loadNotifications() {
+  if (!_notifUserId) return
+  const { data, error } = await sb.from('notifications')
+    .select('*').eq('user_id', _notifUserId).order('created_at', { ascending: false }).limit(20)
+  if (error) return
+  _notifications = data ?? []
+  renderNotificationBadge()
+  renderNotificationList()
+}
+
+function renderNotificationBadge() {
+  const badge = document.getElementById('notif-badge')
+  if (!badge) return
+  const unread = _notifications.filter(n => !n.read).length
+  if (unread === 0) { badge.classList.add('hidden'); return }
+  badge.textContent = unread > 9 ? '9+' : String(unread)
+  badge.classList.remove('hidden')
+}
+
+function renderNotificationList() {
+  const list = document.getElementById('notif-list')
+  if (!list) return
+  if (_notifications.length === 0) {
+    list.innerHTML = '<p class="text-xs text-gray-400 text-center py-6">No notifications yet.</p>'
+    return
+  }
+  list.innerHTML = _notifications.map(n => `
+    <button onclick="openNotification('${aesc(n.id)}')" class="w-full text-left px-3 py-2.5 hover:bg-gray-50 transition-colors ${n.read ? '' : 'bg-blue-50/50'}">
+      <div class="flex items-start gap-2">
+        <span class="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${n.read ? '' : 'bg-blue-600'}"></span>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-semibold text-gray-800">${aesc(n.title)}</p>
+          ${n.body ? `<p class="text-xs text-gray-500 mt-0.5 line-clamp-2">${aesc(n.body)}</p>` : ''}
+          <p class="text-[10px] text-gray-400 mt-1">${fmtDate(n.created_at)}</p>
+        </div>
+      </div>
+    </button>`).join('')
+}
+
+function toggleNotificationDropdown() {
+  const dd = document.getElementById('notif-dropdown')
+  if (!dd) return
+  const opening = dd.classList.contains('hidden')
+  dd.classList.toggle('hidden')
+  if (opening) loadNotifications()
+}
+
+async function openNotification(id) {
+  const n = _notifications.find(x => x.id === id)
+  if (!n) return
+  if (!n.read) {
+    await sb.from('notifications').update({ read: true }).eq('id', id)
+    n.read = true
+    renderNotificationBadge()
+    renderNotificationList()
+  }
+  if (n.link_url) window.location.href = n.link_url
+}
+
+async function markAllNotificationsRead() {
+  const unreadIds = _notifications.filter(n => !n.read).map(n => n.id)
+  if (unreadIds.length === 0) return
+  await sb.from('notifications').update({ read: true }).in('id', unreadIds)
+  _notifications.forEach(n => { n.read = true })
+  renderNotificationBadge()
+  renderNotificationList()
 }
 
 // ── Mobile navigation (sidebar drawer below the md breakpoint) ─────────────────

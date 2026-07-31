@@ -183,3 +183,25 @@ In-context comment/review threads (`docs/js/comments.js`, a shared module — no
 - [ ] **Deliberately not built**: @mention notifications (would depend on the still-unbuilt Notifications roadmap item — this feature marks who wrote a comment, it doesn't page anyone), and nested (multi-level) reply threads — one level keeps a review thread readable without the UI complexity a full comment tree needs, and covers the actual use case (a reply, and replies-to-the-reply are just further replies on the same thread).
 
 **Before use:** run `supabase/migrations/0017_collaboration_workspace.sql` in the Supabase SQL Editor and push the updated `docs/` files. No Edge Function, no new secrets — pure schema + frontend, same as Contract Management.
+
+## Notifications
+
+A bell icon in the admin shell (every page, via `initAdmin()` — no per-page markup needed) plus an optional daily email digest, closing the roadmap gap: "nothing time-sensitive should depend on someone remembering to log in."
+
+- [x] **In-app notifications — real, no external dependency.** `notifications` is the first table in this schema with per-user (not per-role) RLS: `auth.uid() = user_id`, so even an admin can't browse anyone else's feed the way they can browse everyone else's tasks or contracts. Three sources feed it:
+  - `compute-matches` notifies the admin who ran it when a new match scores ≥80.
+  - `scan-opportunities` notifies the triggering admin (manual run) or every admin (scheduled run) when a scan finds new opportunities.
+  - `send-notification-digest` (new Edge Function, scheduled daily at 07:00 UTC via the same pg_cron + Vault pattern as the opportunity scan) checks for tasks due soon, meetings starting soon, contract milestones due soon, and opportunity deadlines approaching, and notifies the relevant assignee or — for milestones/deadlines, which have no single owner — every admin.
+  - Every insert goes through a `(user_id, dedupe_key)` unique index with `ON CONFLICT DO NOTHING`, so a rerun of the daily check never re-notifies about the same still-pending deadline, but a due date that actually changes gets a fresh notification.
+- [x] **Bell dropdown** (`docs/js/admin.js`) — unread badge, last 20 notifications, click-to-navigate (marks read and opens the linked page), Mark All Read. Reload-based, not push/real-time, consistent with the rest of this app (no websocket/Realtime subscriptions used anywhere else in this schema).
+- [x] **Email digest — real, but bring-your-own-key.** `send-notification-digest` also emails anyone with unsent notifications, once per item (a `notified_via_email` flag prevents re-emailing the same notification every day), via Resend's HTTP API. This only activates once a `RESEND_API_KEY` secret is set — Resend has a free tier with no credit card, unlike the paid procurement APIs left unbuilt in Module 1. Without the key, this function still runs and still generates in-app notifications; it just logs that the email step was skipped rather than failing or faking it.
+- [ ] **Deliberately not built**: push notifications (mobile push needs a registered app in Apple/Google's push services — the same category of external-dependency constraint as Task Management's OAuth calendar sync) and SMS. Email digest recipients beyond the Resend account's own address also require a verified sending domain in Resend's dashboard — a one-time setup step outside what any migration can do.
+
+**Before use:** run `supabase/migrations/0018_notifications.sql` in the Supabase SQL Editor and deploy the three touched/new functions:
+```
+supabase functions deploy compute-matches scan-opportunities send-notification-digest
+```
+The scheduled digest reuses the `service_role_key` Vault secret already created for scan-opportunities-daily (migration 0011) — nothing new to configure there. To enable the optional email step:
+```
+supabase secrets set RESEND_API_KEY=<your resend api key>
+```

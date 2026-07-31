@@ -102,8 +102,51 @@ serve(async (req: Request) => {
   }
 
   await logScanRun(adminClient, triggeredBy, triggeredByUserId, { ...totals, results }, null)
+  if (totals.new_count > 0) {
+    await notifyScanComplete(adminClient, triggeredBy, triggeredByUserId, totals)
+  }
   return respond({ success: true, ...totals, results })
 })
+
+// A scan that found nothing new isn't worth interrupting anyone about —
+// only notify when new_count > 0 (checked by the caller above).
+async function notifyScanComplete(
+  adminClient: any,
+  triggeredBy: 'manual' | 'scheduled',
+  triggeredByUserId: string | null,
+  totals: { new_count: number; go: number; a_etudier: number; veille: number; rejet: number },
+): Promise<void> {
+  const title = 'Scan complete'
+  const body = `${totals.new_count} new opportunit${totals.new_count === 1 ? 'y' : 'ies'} found — ${totals.go} GO, ${totals.a_etudier} À étudier, ${totals.veille} Veille, ${totals.rejet} Rejet (archived).`
+  // Minute-granular timestamp keeps a genuine accidental double-invoke from
+  // creating duplicates within the same run, without permanently blocking a
+  // later, separate run from notifying again.
+  const runStamp = new Date().toISOString().slice(0, 16)
+
+  let recipientIds: string[] = []
+  if (triggeredBy === 'manual' && triggeredByUserId) {
+    recipientIds = [triggeredByUserId]
+  } else {
+    // A scheduled run has no single human trigger — notify every admin,
+    // since the whole team benefits from knowing new opportunities landed.
+    const { data: admins } = await adminClient.from('user_roles').select('user_id').eq('role', 'admin')
+    recipientIds = (admins ?? []).map((r: { user_id: string }) => r.user_id)
+  }
+  if (recipientIds.length === 0) return
+
+  const rows = recipientIds.map(uid => ({
+    user_id: uid,
+    type: 'scan_result',
+    title,
+    body,
+    link_url: 'opportunities.html',
+    dedupe_key: `scan_result:${triggeredBy}:${runStamp}:${uid}`,
+  }))
+  const { error } = await adminClient.from('notifications').insert(rows)
+  if (error && error.code !== '23505') {
+    console.error('[scan-opportunities] failed to insert notifications', error.message)
+  }
+}
 
 // Every run — manual button click or scheduled pg_cron job — is logged so
 // admins can see what the automated daily scan actually did without
