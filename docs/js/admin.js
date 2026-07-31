@@ -76,9 +76,10 @@ function renderAdminNav(active) {
       { id: 'contracts', href: 'contracts.html', label: t('nav_contracts') },
     ] },
     { label: t('nav_group_admin'), items: [
-      { id: 'users', href: 'users.html', label: t('nav_users') },
-      { id: 'roles', href: 'roles.html', label: t('nav_roles') },
-      { id: 'audit', href: 'audit.html', label: t('nav_audit') },
+      { id: 'users',    href: 'users.html',    label: t('nav_users') },
+      { id: 'roles',    href: 'roles.html',    label: t('nav_roles') },
+      { id: 'webhooks', href: 'webhooks.html', label: t('nav_webhooks') },
+      { id: 'audit',    href: 'audit.html',    label: t('nav_audit') },
     ] },
     { label: null, items: [
       { id: 'reports', href: '../reports.html', label: t('nav_reports') },
