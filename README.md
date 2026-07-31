@@ -172,3 +172,14 @@ supabase functions deploy analyze-meeting-notes
 supabase functions deploy calendar-feed --no-verify-jwt
 ```
 No new secrets — `analyze-meeting-notes` reuses `ANTHROPIC_API_KEY`.
+
+## Collaboration Workspace
+
+In-context comment/review threads (`docs/js/comments.js`, a shared module — not a new page), replacing the email-and-file-name version control the original roadmap entry named as the gap to close.
+
+- [x] **Threads attach to any record** via a polymorphic `(entity_type, entity_id)` pair — the same "point at whatever record this was about" convention `audit_logs` already uses, rather than a one-off join table per entity type. Comments support one level of replies (a comment can be replied to, a reply can't be replied to again), resolve/reopen, and delete — the reviewer-thread vocabulary this feature is named for.
+- [x] **Wired into the two places the roadmap named** — "live opportunities and drafts": a general **Discussion** tab on `opportunity-detail.html` (`entity_type='opportunity'`), and a per-document **Comments** button on every generated proposal document card — EOI, Technical Approach, Workplan, each tailored CV (`entity_type='proposal_document'`), so review feedback on one specific draft doesn't get mixed into the opportunity's general discussion.
+- [x] Author names resolve the same way `tasks.html` already resolves `assigned_to` — a separately-fetched `profiles` list matched by id in JS, not a PostgREST embed, since `comments.author_id` references `auth.users(id)` and PostgREST can't auto-join across that boundary to `profiles`.
+- [ ] **Deliberately not built**: @mention notifications (would depend on the still-unbuilt Notifications roadmap item — this feature marks who wrote a comment, it doesn't page anyone), and nested (multi-level) reply threads — one level keeps a review thread readable without the UI complexity a full comment tree needs, and covers the actual use case (a reply, and replies-to-the-reply are just further replies on the same thread).
+
+**Before use:** run `supabase/migrations/0017_collaboration_workspace.sql` in the Supabase SQL Editor and push the updated `docs/` files. No Edge Function, no new secrets — pure schema + frontend, same as Contract Management.

@@ -94,6 +94,7 @@
           <button id="tab-matching"  onclick="switchDetailTab('matching')"  class="px-4 py-2 text-sm font-medium rounded-t-lg"></button>
           <button id="tab-team"      onclick="switchDetailTab('team')"      class="px-4 py-2 text-sm font-medium rounded-t-lg"></button>
           <button id="tab-documents" onclick="switchDetailTab('documents')" class="px-4 py-2 text-sm font-medium rounded-t-lg"></button>
+          <button id="tab-discussion" onclick="switchDetailTab('discussion')" class="px-4 py-2 text-sm font-medium rounded-t-lg"></button>
         </div>
 
         <!-- ══ Overview panel ══ -->
@@ -293,8 +294,30 @@
           </div>
         </div>
 
+        <!-- ══ Discussion panel ══ -->
+        <div id="panel-discussion" class="hidden">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <h3 class="text-sm font-bold text-gray-800 mb-1">Discussion</h3>
+            <p class="text-xs text-gray-500 mb-4">General comments about this opportunity — for feedback on a specific document, use the "Comments" button on that document's card in the Documents tab instead.</p>
+            <div id="opp-discussion-thread"></div>
+          </div>
+        </div>
+
       </div>
     </main>
+  </div>
+
+  <!-- Document Comments modal (retargeted per document) -->
+  <div id="doc-comments-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('doc-comments-modal')"></div>
+    <div class="relative flex items-start justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+        <h3 class="font-bold text-gray-900 text-base">Comments</h3>
+        <p id="dc-doc-title" class="text-sm text-gray-500 mb-4"></p>
+        <div id="dc-thread"></div>
+        <button onclick="closeAdminModal('doc-comments-modal')" class="w-full border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm mt-4">Close</button>
+      </div>
+    </div>
   </div>
 
   <!-- Position modal -->
@@ -394,6 +417,7 @@
   <script src="../js/i18n.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/admin.js"></script>
+  <script src="../js/comments.js"></script>
   <script>
     const oppId = new URLSearchParams(window.location.search).get('id')
 
@@ -468,6 +492,7 @@
       renderTeam()
       renderDocuments()
       renderExpenseItems()
+      renderComments(document.getElementById('opp-discussion-thread'), 'opportunity', oppId)
       switchDetailTab('overview')
     }
 
@@ -494,11 +519,12 @@
       document.getElementById('tab-matching').textContent = 'Positions & Matching'
       document.getElementById('tab-team').textContent = `Team (${selectedExperts.length})`
       document.getElementById('tab-documents').textContent = 'Documents'
+      document.getElementById('tab-discussion').textContent = 'Discussion'
     }
 
     function switchDetailTab(tab) {
       currentTab = tab
-      ;['overview','matching','team','documents'].forEach(t => {
+      ;['overview','matching','team','documents','discussion'].forEach(t => {
         const active = t === tab
         document.getElementById('tab-' + t).classList.toggle('bg-blue-950', active)
         document.getElementById('tab-' + t).classList.toggle('text-white', active)
@@ -969,6 +995,7 @@
             ${doc.status === 'draft' ? `<button onclick="markDocReviewed('${docType}', ${expertId ? `'${expertId}'` : 'null'})" class="text-xs bg-green-700 hover:bg-green-800 text-white px-3 py-1 rounded-lg">Mark Reviewed</button>` : ''}
             <button onclick="exportWord('${docType}', ${expertId ? `'${expertId}'` : 'null'})" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded-lg">Export Word</button>
             <button onclick="exportPdf('${docType}', ${expertId ? `'${expertId}'` : 'null'})" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded-lg">Export PDF</button>
+            <button onclick="openDocComments('${aesc(doc.id)}', '${aesc(label)}')" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded-lg">Comments</button>
           </div>` : `<p class="text-xs text-gray-400">Not generated yet.</p>`}
       </div>`
     }
@@ -1026,6 +1053,12 @@
       showToast('Marked reviewed.')
       await loadDetail()
       switchDetailTab('documents')
+    }
+
+    function openDocComments(docId, docLabel) {
+      document.getElementById('dc-doc-title').textContent = docLabel
+      openAdminModal('doc-comments-modal')
+      renderComments(document.getElementById('dc-thread'), 'proposal_document', docId)
     }
 
     // ── Expense items & Budget ──────────────────────────────────────────────
