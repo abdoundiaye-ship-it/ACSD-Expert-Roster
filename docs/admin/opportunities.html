@@ -246,6 +246,13 @@
                 <option value="">— none / not in list —</option>
               </select>
             </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Client (CRM, optional)</label>
+              <select id="of-client"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">— none —</option>
+              </select>
+            </div>
           </div>
 
           <div class="grid grid-cols-3 gap-4">
@@ -422,6 +429,7 @@
   <script>
     let allOpportunities = []
     let allDonors        = []
+    let allClientsOP     = []
     let allGeographies    = []
     let allSectors        = []
     let allLanguages      = []
@@ -439,11 +447,12 @@
       const session = await initAdmin('opportunities')
       if (!session) return
 
-      const [oppRes, donorRes, geoRes, secRes, langRes, actRes, worRes] = await Promise.all([
+      const [oppRes, donorRes, cliRes, geoRes, secRes, langRes, actRes, worRes] = await Promise.all([
         sb.from('opportunities')
           .select('id, title, organization, opportunity_type, deadline, status, strategic_score, strategic_score_breakdown, strategic_score_confidence, source')
           .order('created_at', { ascending: false }),
         sb.from('donors').select('id, name').order('name'),
+        sb.from('clients').select('id, name').order('name'),
         sb.from('geographies').select('id, country_name').order('country_name'),
         sb.from('sectors').select('id, name').order('sort_order'),
         sb.from('languages').select('id, name').order('name'),
@@ -453,6 +462,7 @@
 
       allOpportunities = oppRes.data ?? []
       allDonors        = donorRes.data ?? []
+      allClientsOP     = cliRes.data ?? []
       allGeographies   = geoRes.data ?? []
       allSectors       = secRes.data ?? []
       allLanguages     = langRes.data ?? []
@@ -545,6 +555,9 @@
     function populateLookupSelects() {
       const donorSel = document.getElementById('of-donor')
       allDonors.forEach(d => donorSel.appendChild(new Option(d.name, d.id)))
+
+      const clientSel = document.getElementById('of-client')
+      allClientsOP.forEach(c => clientSel.appendChild(new Option(c.name, c.id)))
 
       const countrySel = document.getElementById('of-country')
       allGeographies.forEach(g => countrySel.appendChild(new Option(g.country_name, g.id)))
@@ -716,6 +729,7 @@
         reference_number: document.getElementById('of-reference').value.trim() || null,
         organization,
         donor_id: document.getElementById('of-donor').value || null,
+        client_id: document.getElementById('of-client').value || null,
         primary_country_id: document.getElementById('of-country').value || null,
         opportunity_type: document.getElementById('of-type').value,
         deadline: document.getElementById('of-deadline').value || null,

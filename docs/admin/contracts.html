@@ -130,11 +130,19 @@
             </select>
           </div>
 
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Donor (optional)</label>
-            <select id="cm-donor" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-              <option value="">— none —</option>
-            </select>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Donor (optional)</label>
+              <select id="cm-donor" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="">— none —</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Client (CRM, optional)</label>
+              <select id="cm-client" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="">— none —</option>
+              </select>
+            </div>
           </div>
 
           <div class="grid grid-cols-3 gap-3">
@@ -263,6 +271,7 @@
     let allContracts = []
     let allOpportunitiesCT = []
     let allDonorsCT = []
+    let allClientsCT = []
     let contractFile = null
     let currentMilestones = []
     let currentContractCurrency = 'USD'
@@ -293,19 +302,23 @@
       const session = await initAdmin('contracts')
       if (!session) return
 
-      const [ctRes, oppRes, donRes] = await Promise.all([
+      const [ctRes, oppRes, donRes, cliRes] = await Promise.all([
         sb.from('contracts').select('*, opportunities(title), contract_milestones(id, amount, status)').order('created_at', { ascending: false }),
         sb.from('opportunities').select('id, title').order('title'),
         sb.from('donors').select('id, name').order('name'),
+        sb.from('clients').select('id, name').order('name'),
       ])
       allContracts = ctRes.data ?? []
       allOpportunitiesCT = oppRes.data ?? []
       allDonorsCT = donRes.data ?? []
+      allClientsCT = cliRes.data ?? []
 
       const oppSel = document.getElementById('cm-opportunity')
       allOpportunitiesCT.forEach(o => oppSel.appendChild(new Option(o.title, o.id)))
       const donorSel = document.getElementById('cm-donor')
       allDonorsCT.forEach(d => donorSel.appendChild(new Option(d.name, d.id)))
+      const clientSel = document.getElementById('cm-client')
+      allClientsCT.forEach(c => clientSel.appendChild(new Option(c.name, c.id)))
 
       renderSummary()
       filterContracts()
@@ -396,6 +409,7 @@
       document.getElementById('cm-number').value = contract?.contract_number ?? ''
       document.getElementById('cm-opportunity').value = contract?.opportunity_id ?? ''
       document.getElementById('cm-donor').value = contract?.donor_id ?? ''
+      document.getElementById('cm-client').value = contract?.client_id ?? ''
       document.getElementById('cm-value').value = contract?.contract_value ?? ''
       document.getElementById('cm-currency').value = contract?.currency ?? 'USD'
       document.getElementById('cm-status').value = contract?.status ?? 'draft'
@@ -422,6 +436,7 @@
         contract_number: document.getElementById('cm-number').value.trim() || null,
         opportunity_id: document.getElementById('cm-opportunity').value || null,
         donor_id: document.getElementById('cm-donor').value || null,
+        client_id: document.getElementById('cm-client').value || null,
         contract_value: document.getElementById('cm-value').value || null,
         currency: document.getElementById('cm-currency').value,
         status: document.getElementById('cm-status').value,

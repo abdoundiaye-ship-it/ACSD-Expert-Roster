@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACSD Expert Intelligence Platform — Clients</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>body { font-family: system-ui, -apple-system, sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-blue-950 text-white shadow sticky top-0 z-30">
+    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap">
+      <div class="flex items-center gap-2.5">
+        <button type="button" class="mobile-nav-toggle" onclick="toggleMobileNav()" aria-label="Open menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+        <img src="../img/logo.png" alt="ACSD Logo" class="h-9 w-auto flex-shrink-0">
+        <span class="font-bold text-sm tracking-tight">ACSD Expert Intelligence Platform</span>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0 header-actions">
+        <span id="admin-user-email" class="text-xs text-blue-300 hidden sm:block"></span>
+        <button id="admin-logout-btn"
+          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-screen-xl mx-auto px-4 py-6 flex gap-6">
+    <div id="admin-sidebar-backdrop" class="admin-sidebar-backdrop" onclick="closeMobileNav()"></div>
+    <aside class="w-48 flex-shrink-0 admin-sidebar" id="admin-sidebar">
+      <button type="button" class="mobile-nav-close" onclick="closeMobileNav()" aria-label="Close menu">&times;</button>
+      <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
+      <div class="mt-4 px-1">
+        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+      </div>
+    </aside>
+
+    <main class="flex-1 min-w-0 space-y-5">
+
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">Clients</h2>
+          <p class="text-sm text-gray-500 mt-0.5">Client and donor relationship tracking — contacts, interaction history, and every opportunity/contract tied to each one, in one place that outlives any single staff member.</p>
+        </div>
+        <button onclick="openClientModal()"
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0">
+          + Add Client
+        </button>
+      </div>
+
+      <div class="flex gap-3 items-center flex-wrap">
+        <div class="relative flex-1 max-w-sm">
+          <input id="cl-search" type="search" placeholder="Search name, notes…"
+            class="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            oninput="filterClients()">
+        </div>
+        <select id="cl-filter-type" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterClients()">
+          <option value="">All types</option>
+          <option value="donor">Donor</option>
+          <option value="government">Government</option>
+          <option value="ngo">NGO</option>
+          <option value="private">Private</option>
+          <option value="other">Other</option>
+        </select>
+        <select id="cl-filter-status" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterClients()">
+          <option value="">All statuses</option>
+          <option value="active">Active</option>
+          <option value="dormant">Dormant</option>
+          <option value="prospective">Prospective</option>
+        </select>
+      </div>
+
+      <div id="cl-count" class="text-sm text-gray-500 font-medium"></div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              <th class="text-left px-5 py-3">Name</th>
+              <th class="text-left px-5 py-3 hidden sm:table-cell">Type</th>
+              <th class="text-left px-5 py-3 hidden md:table-cell">Relationship Owner</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell">Linked Records</th>
+              <th class="text-left px-5 py-3">Status</th>
+              <th class="text-right px-5 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="cl-tbody" class="divide-y divide-gray-100">
+            <tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Add/Edit Client modal -->
+  <div id="client-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('client-modal')"></div>
+    <div class="relative flex items-start justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+
+        <h3 id="cm-title-heading" class="font-bold text-gray-900 text-base mb-4">Add Client</h3>
+        <input type="hidden" id="cm-id">
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Name</label>
+            <input id="cm-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. Ministry of Health — Burkina Faso">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Type</label>
+              <select id="cm-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="donor">Donor</option>
+                <option value="government">Government</option>
+                <option value="ngo">NGO</option>
+                <option value="private">Private</option>
+                <option value="other" selected>Other</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
+              <select id="cm-status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="active" selected>Active</option>
+                <option value="dormant">Dormant</option>
+                <option value="prospective">Prospective</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Matching Donor (optional)</label>
+            <select id="cm-donor" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <option value="">— none / not a funding-body donor —</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Relationship Owner (optional)</label>
+            <select id="cm-owner" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <option value="">— unassigned —</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Website (optional)</label>
+            <input id="cm-website" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="https://…">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Notes (optional)</label>
+            <textarea id="cm-notes" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-5">
+          <button onclick="saveClient()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">Save</button>
+          <button onclick="closeAdminModal('client-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    let allClients = []
+    let allDonorsCL = []
+    let allProfilesCL = []
+
+    const TYPE_LABEL = { donor: 'Donor', government: 'Government', ngo: 'NGO', private: 'Private', other: 'Other' }
+    const STATUS_LABEL = { active: 'Active', dormant: 'Dormant', prospective: 'Prospective' }
+    const STATUS_COLOR = {
+      active: 'bg-green-100 text-green-800', dormant: 'bg-gray-100 text-gray-500', prospective: 'bg-amber-100 text-amber-800',
+    }
+
+    async function loadClients() {
+      const session = await initAdmin('clients')
+      if (!session) return
+
+      const [clRes, donRes, profRes] = await Promise.all([
+        sb.from('clients').select('*, opportunities(id), contracts(id), profiles(full_name, email)').order('name'),
+        sb.from('donors').select('id, name').order('name'),
+        sb.from('profiles').select('id, full_name, email').eq('is_active', true).order('full_name'),
+      ])
+      if (clRes.error) { showToast('Failed to load clients: ' + clRes.error.message, 'error'); return }
+      allClients = clRes.data ?? []
+      allDonorsCL = donRes.data ?? []
+      allProfilesCL = profRes.data ?? []
+
+      const donorSel = document.getElementById('cm-donor')
+      allDonorsCL.forEach(d => donorSel.appendChild(new Option(d.name, d.id)))
+      const ownerSel = document.getElementById('cm-owner')
+      allProfilesCL.forEach(p => ownerSel.appendChild(new Option(p.full_name || p.email, p.id)))
+
+      filterClients()
+    }
+
+    function filterClients() {
+      const q = document.getElementById('cl-search').value.toLowerCase()
+      const type = document.getElementById('cl-filter-type').value
+      const status = document.getElementById('cl-filter-status').value
+      const filtered = allClients.filter(c => {
+        if (q && ![c.name, c.notes].filter(Boolean).join(' ').toLowerCase().includes(q)) return false
+        if (type && c.type !== type) return false
+        if (status && c.status !== status) return false
+        return true
+      })
+
+      document.getElementById('cl-count').textContent =
+        filtered.length === allClients.length ? `${allClients.length} client${allClients.length !== 1 ? 's' : ''}` : `${filtered.length} of ${allClients.length} clients`
+
+      const tbody = document.getElementById('cl-tbody')
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">No clients match your filters.</td></tr>'
+        return
+      }
+      tbody.innerHTML = filtered.map(c => {
+        const owner = c.profiles?.full_name || c.profiles?.email || '—'
+        const oppCount = (c.opportunities ?? []).length
+        const ctCount = (c.contracts ?? []).length
+        return `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-5 py-3 font-medium text-gray-900">${aesc(c.name)}</td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden sm:table-cell">${TYPE_LABEL[c.type] ?? c.type}</td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden md:table-cell">${aesc(owner)}</td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell">${oppCount} opportunit${oppCount !== 1 ? 'ies' : 'y'}, ${ctCount} contract${ctCount !== 1 ? 's' : ''}</td>
+          <td class="px-5 py-3"><span class="text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLOR[c.status] ?? 'bg-gray-100 text-gray-600'}">${STATUS_LABEL[c.status] ?? c.status}</span></td>
+          <td class="px-5 py-3 text-right">
+            <div class="flex items-center justify-end gap-3">
+              <a href="client-detail.html?id=${aesc(c.id)}" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Manage</a>
+              <button onclick="openClientModal(allClients.find(x=>x.id==='${aesc(c.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</button>
+              <button onclick="deleteClient('${aesc(c.id)}', '${aesc(c.name)}')" class="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+            </div>
+          </td>
+        </tr>`
+      }).join('')
+    }
+
+    function openClientModal(client = null) {
+      document.getElementById('cm-title-heading').textContent = client ? 'Edit Client' : 'Add Client'
+      document.getElementById('cm-id').value = client?.id ?? ''
+      document.getElementById('cm-name').value = client?.name ?? ''
+      document.getElementById('cm-type').value = client?.type ?? 'other'
+      document.getElementById('cm-status').value = client?.status ?? 'active'
+      document.getElementById('cm-donor').value = client?.donor_id ?? ''
+      document.getElementById('cm-owner').value = client?.relationship_owner ?? ''
+      document.getElementById('cm-website').value = client?.website ?? ''
+      document.getElementById('cm-notes').value = client?.notes ?? ''
+      openAdminModal('client-modal')
+    }
+
+    async function saveClient() {
+      const id = document.getElementById('cm-id').value
+      const name = document.getElementById('cm-name').value.trim()
+      if (!name) { showToast('Name is required.', 'error'); return }
+
+      const body = {
+        name,
+        type: document.getElementById('cm-type').value,
+        status: document.getElementById('cm-status').value,
+        donor_id: document.getElementById('cm-donor').value || null,
+        relationship_owner: document.getElementById('cm-owner').value || null,
+        website: document.getElementById('cm-website').value.trim() || null,
+        notes: document.getElementById('cm-notes').value.trim() || null,
+      }
+
+      const { data, error } = id
+        ? await sb.from('clients').update(body).eq('id', id).select('id').single()
+        : await sb.from('clients').insert(body).select('id').single()
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return }
+
+      await logAudit(id ? 'UPDATE' : 'CREATE', 'client', id || data.id, name, null, body)
+      closeAdminModal('client-modal')
+      showToast('Client saved.')
+      await loadClients()
+    }
+
+    async function deleteClient(id, name) {
+      if (!confirm(`Delete "${name}"? This also deletes its contacts and interaction log, and unlinks any opportunities/contracts pointing to it. This cannot be undone.`)) return
+      const { error } = await sb.from('clients').delete().eq('id', id)
+      if (error) { showToast('Delete failed: ' + error.message, 'error'); return }
+      await logAudit('DELETE', 'client', id, name, { name }, null)
+      showToast('Client deleted.')
+      await loadClients()
+    }
+
+    loadClients()
+  </script>
+</body>
+</html>

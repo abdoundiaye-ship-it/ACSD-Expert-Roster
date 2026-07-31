@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACSD Expert Intelligence Platform — Client</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>body { font-family: system-ui, -apple-system, sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-blue-950 text-white shadow sticky top-0 z-30">
+    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap">
+      <div class="flex items-center gap-2.5">
+        <button type="button" class="mobile-nav-toggle" onclick="toggleMobileNav()" aria-label="Open menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+        <img src="../img/logo.png" alt="ACSD Logo" class="h-9 w-auto flex-shrink-0">
+        <span class="font-bold text-sm tracking-tight">ACSD Expert Intelligence Platform</span>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0 header-actions">
+        <span id="admin-user-email" class="text-xs text-blue-300 hidden sm:block"></span>
+        <button id="admin-logout-btn"
+          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-screen-xl mx-auto px-4 py-6 flex gap-6">
+    <div id="admin-sidebar-backdrop" class="admin-sidebar-backdrop" onclick="closeMobileNav()"></div>
+    <aside class="w-48 flex-shrink-0 admin-sidebar" id="admin-sidebar">
+      <button type="button" class="mobile-nav-close" onclick="closeMobileNav()" aria-label="Close menu">&times;</button>
+      <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
+      <div class="mt-4 px-1">
+        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+      </div>
+    </aside>
+
+    <main class="flex-1 min-w-0 space-y-5">
+
+      <div id="detail-loading" class="text-sm text-gray-400">Loading…</div>
+
+      <div id="detail-content" class="hidden space-y-5">
+
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <a href="clients.html" class="text-xs text-gray-400 hover:text-blue-600">← Back to Clients</a>
+            <div class="flex items-center gap-2 mt-1">
+              <h2 id="dh-name" class="text-lg font-bold text-gray-900"></h2>
+              <span id="dh-type" class="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-700"></span>
+              <span id="dh-status" class="text-xs font-medium px-2 py-0.5 rounded-full"></span>
+            </div>
+          </div>
+          <button onclick="deleteClientDetail()"
+            class="text-xs text-red-500 hover:text-red-700 font-medium border border-red-200 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors">
+            Delete Client
+          </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex gap-1 border-b border-gray-200">
+          <button id="tab-overview"     onclick="switchClientTab('overview')"     class="px-4 py-2 text-sm font-medium rounded-t-lg">Overview</button>
+          <button id="tab-contacts"     onclick="switchClientTab('contacts')"     class="px-4 py-2 text-sm font-medium rounded-t-lg">Contacts</button>
+          <button id="tab-interactions" onclick="switchClientTab('interactions')" class="px-4 py-2 text-sm font-medium rounded-t-lg">Interactions</button>
+          <button id="tab-related"      onclick="switchClientTab('related')"      class="px-4 py-2 text-sm font-medium rounded-t-lg">Related</button>
+          <button id="tab-discussion"   onclick="switchClientTab('discussion')"   class="px-4 py-2 text-sm font-medium rounded-t-lg">Discussion</button>
+        </div>
+
+        <!-- ══ Overview ══ -->
+        <div id="panel-overview" class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Name</label>
+            <input id="ov-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Type</label>
+              <select id="ov-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="donor">Donor</option>
+                <option value="government">Government</option>
+                <option value="ngo">NGO</option>
+                <option value="private">Private</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
+              <select id="ov-status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="active">Active</option>
+                <option value="dormant">Dormant</option>
+                <option value="prospective">Prospective</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Matching Donor (optional)</label>
+              <select id="ov-donor" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="">— none —</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Relationship Owner</label>
+              <select id="ov-owner" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="">— unassigned —</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Website</label>
+            <input id="ov-website" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Notes</label>
+            <textarea id="ov-notes" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
+          </div>
+          <button onclick="saveOverview()" class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-semibold px-4 py-2 rounded-lg">Save</button>
+        </div>
+
+        <!-- ══ Contacts ══ -->
+        <div id="panel-contacts" class="hidden bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <div id="cc-list" class="space-y-2 mb-4"></div>
+
+          <div id="cc-form" class="hidden bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 mb-4">
+            <input type="hidden" id="ccf-id">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Name</label>
+                <input id="ccf-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Role / Title</label>
+                <input id="ccf-role" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Email</label>
+                <input id="ccf-email" type="email" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Phone</label>
+                <input id="ccf-phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              </div>
+            </div>
+            <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="ccf-primary"> Primary contact</label>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Notes</label>
+              <textarea id="ccf-notes" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
+            </div>
+            <div class="flex gap-3">
+              <button onclick="saveContact()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">Save Contact</button>
+              <button onclick="closeContactForm()" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Cancel</button>
+            </div>
+          </div>
+
+          <button id="cc-add-btn" type="button" onclick="openContactForm()"
+            class="w-full border border-blue-300 text-blue-700 hover:bg-blue-50 text-sm font-medium py-2 rounded-lg transition-colors">
+            + Add Contact
+          </button>
+        </div>
+
+        <!-- ══ Interactions ══ -->
+        <div id="panel-interactions" class="hidden bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <div id="ci-list" class="space-y-2 mb-4"></div>
+
+          <div id="ci-form" class="hidden bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 mb-4">
+            <input type="hidden" id="cif-id">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Type</label>
+                <select id="cif-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                  <option value="call">Call</option>
+                  <option value="email">Email</option>
+                  <option value="meeting">Meeting</option>
+                  <option value="other" selected>Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Date</label>
+                <input id="cif-date" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Link to a logged meeting (optional)</label>
+              <select id="cif-meeting" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <option value="">— none —</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Summary</label>
+              <textarea id="cif-summary" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
+            </div>
+            <div class="flex gap-3">
+              <button onclick="saveInteraction()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">Save Interaction</button>
+              <button onclick="closeInteractionForm()" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Cancel</button>
+            </div>
+          </div>
+
+          <button id="ci-add-btn" type="button" onclick="openInteractionForm()"
+            class="w-full border border-blue-300 text-blue-700 hover:bg-blue-50 text-sm font-medium py-2 rounded-lg transition-colors">
+            + Log Interaction
+          </button>
+        </div>
+
+        <!-- ══ Related ══ -->
+        <div id="panel-related" class="hidden space-y-4">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <h3 class="text-sm font-bold text-gray-800 mb-3">Opportunities</h3>
+            <div id="rel-opportunities" class="space-y-2"></div>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-bold text-gray-800">Contracts</h3>
+              <a href="contracts.html" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Go to Contracts →</a>
+            </div>
+            <div id="rel-contracts" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <!-- ══ Discussion ══ -->
+        <div id="panel-discussion" class="hidden bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <div id="client-discussion-thread"></div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+  <script src="../js/comments.js"></script>
+  <script>
+    const clientId = new URLSearchParams(window.location.search).get('id')
+
+    let client = null
+    let allDonorsCD = []
+    let allProfilesCD = []
+    let allMeetingsCD = []
+    let currentContacts = []
+    let currentInteractions = []
+
+    const TYPE_LABEL = { donor: 'Donor', government: 'Government', ngo: 'NGO', private: 'Private', other: 'Other' }
+    const STATUS_LABEL = { active: 'Active', dormant: 'Dormant', prospective: 'Prospective' }
+    const STATUS_COLOR = {
+      active: 'bg-green-100 text-green-800', dormant: 'bg-gray-100 text-gray-500', prospective: 'bg-amber-100 text-amber-800',
+    }
+    const INTERACTION_LABEL = { call: 'Call', email: 'Email', meeting: 'Meeting', other: 'Other' }
+
+    async function loadClientDetail() {
+      const session = await initAdmin('clients')
+      if (!session) return
+      if (!clientId) { document.getElementById('detail-loading').textContent = 'No client id in URL.'; return }
+
+      const [clRes, donRes, profRes, mtRes, ccRes, ciRes] = await Promise.all([
+        sb.from('clients').select('*, opportunities(id, title, status, deadline), contracts(id, title, status, currency, contract_value)').eq('id', clientId).single(),
+        sb.from('donors').select('id, name').order('name'),
+        sb.from('profiles').select('id, full_name, email').eq('is_active', true).order('full_name'),
+        sb.from('meetings').select('id, title, start_time').order('start_time', { ascending: false }),
+        sb.from('client_contacts').select('*').eq('client_id', clientId).order('is_primary', { ascending: false }).order('name'),
+        sb.from('client_interactions').select('*').eq('client_id', clientId).order('interaction_date', { ascending: false }),
+      ])
+
+      if (clRes.error || !clRes.data) {
+        document.getElementById('detail-loading').textContent = 'Client not found.'
+        return
+      }
+      client = clRes.data
+      allDonorsCD = donRes.data ?? []
+      allProfilesCD = profRes.data ?? []
+      allMeetingsCD = mtRes.data ?? []
+      currentContacts = ccRes.data ?? []
+      currentInteractions = ciRes.data ?? []
+
+      const donorSel = document.getElementById('ov-donor')
+      allDonorsCD.forEach(d => donorSel.appendChild(new Option(d.name, d.id)))
+      const ownerSel = document.getElementById('ov-owner')
+      allProfilesCD.forEach(p => ownerSel.appendChild(new Option(p.full_name || p.email, p.id)))
+      const meetingSel = document.getElementById('cif-meeting')
+      allMeetingsCD.forEach(m => meetingSel.appendChild(new Option(`${m.title} — ${fmtDate(m.start_time)}`, m.id)))
+
+      document.getElementById('detail-loading').classList.add('hidden')
+      document.getElementById('detail-content').classList.remove('hidden')
+
+      renderHeader()
+      renderOverviewForm()
+      renderContacts()
+      renderInteractions()
+      renderRelated()
+      switchClientTab('overview')
+    }
+
+    function renderHeader() {
+      document.getElementById('dh-name').textContent = client.name
+      document.getElementById('dh-type').textContent = TYPE_LABEL[client.type] ?? client.type
+      const statusEl = document.getElementById('dh-status')
+      statusEl.textContent = STATUS_LABEL[client.status] ?? client.status
+      statusEl.className = `text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLOR[client.status] ?? 'bg-gray-100 text-gray-600'}`
+    }
+
+    function switchClientTab(tab) {
+      ;['overview', 'contacts', 'interactions', 'related', 'discussion'].forEach(t => {
+        const active = t === tab
+        document.getElementById('tab-' + t).classList.toggle('bg-blue-950', active)
+        document.getElementById('tab-' + t).classList.toggle('text-white', active)
+        document.getElementById('tab-' + t).classList.toggle('text-gray-500', !active)
+        document.getElementById('tab-' + t).classList.toggle('hover:bg-gray-100', !active)
+        document.getElementById('panel-' + t).classList.toggle('hidden', !active)
+      })
+      if (tab === 'discussion') {
+        renderComments(document.getElementById('client-discussion-thread'), 'client', clientId)
+      }
+    }
+
+    // ── Overview ─────────────────────────────────────────────────────────────
+
+    function renderOverviewForm() {
+      document.getElementById('ov-name').value = client.name ?? ''
+      document.getElementById('ov-type').value = client.type ?? 'other'
+      document.getElementById('ov-status').value = client.status ?? 'active'
+      document.getElementById('ov-donor').value = client.donor_id ?? ''
+      document.getElementById('ov-owner').value = client.relationship_owner ?? ''
+      document.getElementById('ov-website').value = client.website ?? ''
+      document.getElementById('ov-notes').value = client.notes ?? ''
+    }
+
+    async function saveOverview() {
+      const name = document.getElementById('ov-name').value.trim()
+      if (!name) { showToast('Name is required.', 'error'); return }
+
+      const body = {
+        name,
+        type: document.getElementById('ov-type').value,
+        status: document.getElementById('ov-status').value,
+        donor_id: document.getElementById('ov-donor').value || null,
+        relationship_owner: document.getElementById('ov-owner').value || null,
+        website: document.getElementById('ov-website').value.trim() || null,
+        notes: document.getElementById('ov-notes').value.trim() || null,
+      }
+      const { error } = await sb.from('clients').update(body).eq('id', clientId)
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return }
+
+      await logAudit('UPDATE', 'client', clientId, name, null, body)
+      Object.assign(client, body)
+      renderHeader()
+      showToast('Saved.')
+    }
+
+    async function deleteClientDetail() {
+      if (!confirm(`Delete "${client.name}"? This also deletes its contacts and interaction log, and unlinks any opportunities/contracts pointing to it. This cannot be undone.`)) return
+      const { error } = await sb.from('clients').delete().eq('id', clientId)
+      if (error) { showToast('Delete failed: ' + error.message, 'error'); return }
+      await logAudit('DELETE', 'client', clientId, client.name, { name: client.name }, null)
+      window.location.href = 'clients.html'
+    }
+
+    // ── Contacts ─────────────────────────────────────────────────────────────
+
+    function renderContacts() {
+      const el = document.getElementById('cc-list')
+      if (currentContacts.length === 0) {
+        el.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">No contacts yet.</p>'
+        return
+      }
+      el.innerHTML = currentContacts.map(c => `
+        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-gray-900">${aesc(c.name)} ${c.is_primary ? '<span class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 ml-1">Primary</span>' : ''}</p>
+            <p class="text-xs text-gray-400">${aesc(c.role_title || '—')}${c.email ? ' · ' + aesc(c.email) : ''}${c.phone ? ' · ' + aesc(c.phone) : ''}</p>
+          </div>
+          <button onclick="openContactForm(currentContacts.find(x=>x.id==='${aesc(c.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium flex-shrink-0">Edit</button>
+          <button onclick="deleteContact('${aesc(c.id)}')" class="text-xs text-red-500 hover:text-red-700 font-medium flex-shrink-0">Delete</button>
+        </div>`).join('')
+    }
+
+    function openContactForm(contact = null) {
+      document.getElementById('ccf-id').value = contact?.id ?? ''
+      document.getElementById('ccf-name').value = contact?.name ?? ''
+      document.getElementById('ccf-role').value = contact?.role_title ?? ''
+      document.getElementById('ccf-email').value = contact?.email ?? ''
+      document.getElementById('ccf-phone').value = contact?.phone ?? ''
+      document.getElementById('ccf-primary').checked = contact?.is_primary ?? false
+      document.getElementById('ccf-notes').value = contact?.notes ?? ''
+      document.getElementById('cc-form').classList.remove('hidden')
+      document.getElementById('cc-add-btn').classList.add('hidden')
+    }
+
+    function closeContactForm() {
+      document.getElementById('cc-form').classList.add('hidden')
+      document.getElementById('cc-add-btn').classList.remove('hidden')
+    }
+
+    async function saveContact() {
+      const id = document.getElementById('ccf-id').value
+      const name = document.getElementById('ccf-name').value.trim()
+      if (!name) { showToast('Contact name is required.', 'error'); return }
+
+      const body = {
+        client_id: clientId,
+        name,
+        role_title: document.getElementById('ccf-role').value.trim() || null,
+        email: document.getElementById('ccf-email').value.trim() || null,
+        phone: document.getElementById('ccf-phone').value.trim() || null,
+        is_primary: document.getElementById('ccf-primary').checked,
+        notes: document.getElementById('ccf-notes').value.trim() || null,
+      }
+
+      const { error } = id
+        ? await sb.from('client_contacts').update(body).eq('id', id)
+        : await sb.from('client_contacts').insert(body)
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return }
+
+      closeContactForm()
+      showToast('Contact saved.')
+      const { data } = await sb.from('client_contacts').select('*').eq('client_id', clientId).order('is_primary', { ascending: false }).order('name')
+      currentContacts = data ?? []
+      renderContacts()
+    }
+
+    async function deleteContact(id) {
+      if (!confirm('Delete this contact? This cannot be undone.')) return
+      const { error } = await sb.from('client_contacts').delete().eq('id', id)
+      if (error) { showToast('Delete failed: ' + error.message, 'error'); return }
+      currentContacts = currentContacts.filter(c => c.id !== id)
+      renderContacts()
+      showToast('Contact deleted.')
+    }
+
+    // ── Interactions ─────────────────────────────────────────────────────────
+
+    function renderInteractions() {
+      const el = document.getElementById('ci-list')
+      if (currentInteractions.length === 0) {
+        el.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">No interactions logged yet.</p>'
+        return
+      }
+      el.innerHTML = currentInteractions.map(i => {
+        const meeting = allMeetingsCD.find(m => m.id === i.meeting_id)
+        return `
+        <div class="border border-gray-200 rounded-lg px-3 py-2">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-medium px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800">${INTERACTION_LABEL[i.interaction_type] ?? i.interaction_type}</span>
+              <span class="text-xs text-gray-400">${i.interaction_date}</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <button onclick="openInteractionForm(currentInteractions.find(x=>x.id==='${aesc(i.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</button>
+              <button onclick="deleteInteraction('${aesc(i.id)}')" class="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+            </div>
+          </div>
+          <p class="text-sm text-gray-800 mt-1">${aesc(i.summary)}</p>
+          ${meeting ? `<p class="text-xs text-indigo-600 mt-1">↳ Linked meeting: ${aesc(meeting.title)}</p>` : ''}
+        </div>`
+      }).join('')
+    }
+
+    function openInteractionForm(interaction = null) {
+      document.getElementById('cif-id').value = interaction?.id ?? ''
+      document.getElementById('cif-type').value = interaction?.interaction_type ?? 'other'
+      document.getElementById('cif-date').value = interaction?.interaction_date ?? new Date().toISOString().slice(0, 10)
+      document.getElementById('cif-meeting').value = interaction?.meeting_id ?? ''
+      document.getElementById('cif-summary').value = interaction?.summary ?? ''
+      document.getElementById('ci-form').classList.remove('hidden')
+      document.getElementById('ci-add-btn').classList.add('hidden')
+    }
+
+    function closeInteractionForm() {
+      document.getElementById('ci-form').classList.add('hidden')
+      document.getElementById('ci-add-btn').classList.remove('hidden')
+    }
+
+    async function saveInteraction() {
+      const id = document.getElementById('cif-id').value
+      const summary = document.getElementById('cif-summary').value.trim()
+      if (!summary) { showToast('Summary is required.', 'error'); return }
+
+      const body = {
+        client_id: clientId,
+        interaction_type: document.getElementById('cif-type').value,
+        interaction_date: document.getElementById('cif-date').value || new Date().toISOString().slice(0, 10),
+        meeting_id: document.getElementById('cif-meeting').value || null,
+        summary,
+      }
+
+      const { error } = id
+        ? await sb.from('client_interactions').update(body).eq('id', id)
+        : await sb.from('client_interactions').insert(body)
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return }
+
+      closeInteractionForm()
+      showToast('Interaction saved.')
+      const { data } = await sb.from('client_interactions').select('*').eq('client_id', clientId).order('interaction_date', { ascending: false })
+      currentInteractions = data ?? []
+      renderInteractions()
+    }
+
+    async function deleteInteraction(id) {
+      if (!confirm('Delete this interaction? This cannot be undone.')) return
+      const { error } = await sb.from('client_interactions').delete().eq('id', id)
+      if (error) { showToast('Delete failed: ' + error.message, 'error'); return }
+      currentInteractions = currentInteractions.filter(i => i.id !== id)
+      renderInteractions()
+      showToast('Interaction deleted.')
+    }
+
+    // ── Related ──────────────────────────────────────────────────────────────
+
+    function renderRelated() {
+      const opps = client.opportunities ?? []
+      const oppEl = document.getElementById('rel-opportunities')
+      oppEl.innerHTML = opps.length === 0
+        ? '<p class="text-xs text-gray-400">No opportunities linked to this client yet.</p>'
+        : opps.map(o => `
+          <a href="opportunity-detail.html?id=${aesc(o.id)}" class="flex items-center justify-between gap-2 border border-gray-200 rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors">
+            <span class="text-sm text-gray-800">${aesc(o.title)}</span>
+            <span class="text-xs text-gray-400 flex-shrink-0">${aesc(o.status)}${o.deadline ? ' · due ' + o.deadline : ''}</span>
+          </a>`).join('')
+
+      const contracts = client.contracts ?? []
+      const ctEl = document.getElementById('rel-contracts')
+      ctEl.innerHTML = contracts.length === 0
+        ? '<p class="text-xs text-gray-400">No contracts linked to this client yet.</p>'
+        : contracts.map(c => `
+          <div class="flex items-center justify-between gap-2 border border-gray-200 rounded-lg px-3 py-2">
+            <span class="text-sm text-gray-800">${aesc(c.title)}</span>
+            <span class="text-xs text-gray-400 flex-shrink-0">${aesc(c.status)}</span>
+          </div>`).join('')
+    }
+
+    loadClientDetail()
+  </script>
+</body>
+</html>

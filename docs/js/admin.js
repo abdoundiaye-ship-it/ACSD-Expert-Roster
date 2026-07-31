@@ -73,6 +73,7 @@ function renderAdminNav(active) {
       { id: 'lessons-learned',    href: 'lessons-learned.html',   label: t('nav_lessons_learned') },
     ] },
     { label: t('nav_group_delivery'), items: [
+      { id: 'clients',   href: 'clients.html',   label: t('nav_clients') },
       { id: 'contracts', href: 'contracts.html', label: t('nav_contracts') },
     ] },
     { label: t('nav_group_admin'), items: [

@@ -135,6 +135,12 @@
                   <option value="">— none —</option>
                 </select>
               </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Client (CRM)</label>
+                <select id="ov-client" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">— none —</option>
+                </select>
+              </div>
             </div>
             <div class="grid grid-cols-3 gap-4">
               <div>
@@ -422,7 +428,7 @@
     const oppId = new URLSearchParams(window.location.search).get('id')
 
     let opportunity = null
-    let allDonors = [], allGeographies = [], allSectors = [], allLanguages = [], allActivityTypes = [], allWorkOrderRoles = [], allExperts = []
+    let allDonors = [], allClients = [], allGeographies = [], allSectors = [], allLanguages = [], allActivityTypes = [], allWorkOrderRoles = [], allExperts = []
     let positions = [], selectedExperts = [], documents = [], expenseItems = []
     let matchesByPosition = {}   // key: positionId or 'null'
     let currentTab = 'overview'
@@ -445,7 +451,7 @@
       if (!session) return
       if (!oppId) { document.getElementById('detail-loading').textContent = 'No opportunity id in URL.'; return }
 
-      const [oppRes, donorRes, geoRes, secRes, langRes, actRes, worRes, expRes] = await Promise.all([
+      const [oppRes, donorRes, cliRes, geoRes, secRes, langRes, actRes, worRes, expRes] = await Promise.all([
         sb.from('opportunities').select(`
           *,
           opportunity_sectors(sector_id, importance),
@@ -457,6 +463,7 @@
           proposal_documents(*)
         `).eq('id', oppId).single(),
         sb.from('donors').select('id, name').order('name'),
+        sb.from('clients').select('id, name').order('name'),
         sb.from('geographies').select('id, country_name').order('country_name'),
         sb.from('sectors').select('id, name').order('sort_order'),
         sb.from('languages').select('id, name').order('name'),
@@ -471,7 +478,7 @@
       }
 
       opportunity = oppRes.data
-      allDonors = donorRes.data ?? []; allGeographies = geoRes.data ?? []; allSectors = secRes.data ?? []
+      allDonors = donorRes.data ?? []; allClients = cliRes.data ?? []; allGeographies = geoRes.data ?? []; allSectors = secRes.data ?? []
       allLanguages = langRes.data ?? []; allActivityTypes = actRes.data ?? []; allWorkOrderRoles = worRes.data ?? []
       allExperts = expRes.data ?? []
       positions = opportunity.opportunity_positions ?? []
@@ -548,6 +555,8 @@
     function populateLookupSelects() {
       const donorSel = document.getElementById('ov-donor')
       allDonors.forEach(d => donorSel.appendChild(new Option(d.name, d.id)))
+      const clientSel = document.getElementById('ov-client')
+      allClients.forEach(c => clientSel.appendChild(new Option(c.name, c.id)))
       const countrySel = document.getElementById('ov-country')
       allGeographies.forEach(g => countrySel.appendChild(new Option(g.country_name, g.id)))
       const pmSector = document.getElementById('pm-sector')
@@ -642,6 +651,7 @@
       document.getElementById('ov-reference').value = opportunity.reference_number ?? ''
       document.getElementById('ov-organization').value = opportunity.organization ?? ''
       document.getElementById('ov-donor').value = opportunity.donor_id ?? ''
+      document.getElementById('ov-client').value = opportunity.client_id ?? ''
       document.getElementById('ov-type').value = opportunity.opportunity_type
       document.getElementById('ov-country').value = opportunity.primary_country_id ?? ''
       document.getElementById('ov-deadline').value = opportunity.deadline ?? ''
@@ -701,6 +711,7 @@
         title, organization,
         reference_number: document.getElementById('ov-reference').value.trim() || null,
         donor_id: document.getElementById('ov-donor').value || null,
+        client_id: document.getElementById('ov-client').value || null,
         primary_country_id: document.getElementById('ov-country').value || null,
         opportunity_type: document.getElementById('ov-type').value,
         deadline: document.getElementById('ov-deadline').value || null,
