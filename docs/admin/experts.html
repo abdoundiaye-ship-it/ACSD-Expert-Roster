@@ -41,7 +41,7 @@
       <button type="button" class="mobile-nav-close" onclick="closeMobileNav()" aria-label="Close menu">&times;</button>
       <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
       <div class="mt-4 px-1">
-        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+        <a href="../index.html" class="text-xs text-gray-500 hover:text-blue-600 transition-colors">← Back to Roster</a>
       </div>
     </aside>
 
@@ -135,11 +135,13 @@
           </div>
 
           <!-- Drop zone — always visible -->
-          <div id="cv-dropzone"
+          <div id="cv-dropzone" tabindex="0" role="button" aria-label="Choose or drop a CV to upload"
             ondragover="cvDragover(event)" ondragleave="cvDragleave(event)" ondrop="cvDrop(event)"
             onclick="document.getElementById('cv-file-input').click()"
+            onkeydown="triggerFileInputOnKey(event, 'cv-file-input')"
             class="border-2 border-dashed border-blue-300 rounded-xl p-6 text-center cursor-pointer
-                   hover:border-blue-600 hover:bg-blue-50 transition-all bg-gradient-to-br from-blue-50 to-indigo-50">
+                   hover:border-blue-600 hover:bg-blue-50 transition-all bg-gradient-to-br from-blue-50 to-indigo-50
+                   focus:outline-none focus:ring-2 focus:ring-blue-500">
             <svg class="w-8 h-8 text-blue-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
@@ -201,13 +203,13 @@
           <!-- Row 1: Names -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_firstname">First Name</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_firstname" for="ef-firstname">First Name</label>
               <input id="ef-firstname" type="text"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 oninput="composeName()">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_lastname">Last Name</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_lastname" for="ef-lastname">Last Name</label>
               <input id="ef-lastname" type="text"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 oninput="composeName()">
@@ -224,7 +226,7 @@
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_jobtitle">Job Title</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_jobtitle" for="ef-title">Job Title</label>
               <input id="ef-title" type="text"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
@@ -244,7 +246,7 @@
               </select>
             </div>
             <div id="partner-org-wrap">
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_organization">Organization</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_organization" for="ef-partnerorg">Organization</label>
               <input id="ef-partnerorg" type="text"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
@@ -253,7 +255,7 @@
           <!-- Row 4: Seniority + years experience -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_seniority_tier">Seniority Tier</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_seniority_tier" for="ef-seniority">Seniority Tier</label>
               <select id="ef-seniority"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="" data-i18n="exp_opt_not_set">— not set —</option>
@@ -264,7 +266,7 @@
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_years">Years of Experience</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_years" for="ef-years">Years of Experience</label>
               <input id="ef-years" type="number" min="0" max="50" step="0.5"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
@@ -273,12 +275,12 @@
           <!-- Row 5: Email + phone -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_email">Email Address</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_email" for="ef-email">Email Address</label>
               <input id="ef-email" type="email"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_phone">Phone</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_phone" for="ef-phone">Phone</label>
               <input id="ef-phone" type="tel"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
@@ -287,7 +289,7 @@
           <!-- Row 6: Availability + active -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="label_availability">Availability Status</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="label_availability" for="ef-avail">Availability Status</label>
               <select id="ef-avail"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="unknown" data-i18n="avail_unknown">Not specified</option>
@@ -305,7 +307,7 @@
 
           <!-- Bio -->
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_bio">Biography / Profile</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_bio" for="ef-bio">Biography / Profile</label>
             <textarea id="ef-bio" rows="3"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"></textarea>
           </div>

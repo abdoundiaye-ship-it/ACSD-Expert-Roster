@@ -37,7 +37,7 @@
       <button type="button" class="mobile-nav-close" onclick="closeMobileNav()" aria-label="Close menu">&times;</button>
       <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
       <div class="mt-4 px-1">
-        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+        <a href="../index.html" class="text-xs text-gray-500 hover:text-blue-600 transition-colors">← Back to Roster</a>
       </div>
     </aside>
 
@@ -49,7 +49,7 @@
 
         <div class="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <a href="clients.html" class="text-xs text-gray-400 hover:text-blue-600" data-i18n="cd_back_to_clients">← Back to Clients</a>
+            <a href="clients.html" class="text-xs text-gray-500 hover:text-blue-600" data-i18n="cd_back_to_clients">← Back to Clients</a>
             <div class="flex items-center gap-2 mt-1">
               <h2 id="dh-name" class="text-lg font-bold text-gray-900"></h2>
               <span id="dh-type" class="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-700"></span>
@@ -74,12 +74,12 @@
         <!-- ══ Overview ══ -->
         <div id="panel-overview" class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-3">
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_name">Name</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_name" for="ov-name">Name</label>
             <input id="ov-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_type">Type</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_type" for="ov-type">Type</label>
               <select id="ov-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="donor" data-i18n="cl_type_donor">Donor</option>
                 <option value="government" data-i18n="cl_type_government">Government</option>
@@ -89,7 +89,7 @@
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_status">Status</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_status" for="ov-status">Status</label>
               <select id="ov-status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="active" data-i18n="cl_status_active">Active</option>
                 <option value="dormant" data-i18n="cl_status_dormant">Dormant</option>
@@ -99,24 +99,24 @@
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_lbl_matching_donor">Matching Donor (optional)</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_lbl_matching_donor" for="ov-donor">Matching Donor (optional)</label>
               <select id="ov-donor" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="" data-i18n="opt_none_dash">— none —</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cd_lbl_relationship_owner">Relationship Owner</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cd_lbl_relationship_owner" for="ov-owner">Relationship Owner</label>
               <select id="ov-owner" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="" data-i18n="cl_opt_unassigned">— unassigned —</option>
               </select>
             </div>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_lbl_website">Website</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_lbl_website" for="ov-website">Website</label>
             <input id="ov-website" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="src_lbl_notes">Notes</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="src_lbl_notes" for="ov-notes">Notes</label>
             <textarea id="ov-notes" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
           </div>
           <button onclick="saveOverview()" class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-semibold px-4 py-2 rounded-lg" data-i18n="btn_save">Save</button>
@@ -130,27 +130,27 @@
             <input type="hidden" id="ccf-id">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_name">Name</label>
+                <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_name" for="ccf-name">Name</label>
                 <input id="ccf-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cd_lbl_role_title">Role / Title</label>
+                <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cd_lbl_role_title" for="ccf-role">Role / Title</label>
                 <input id="ccf-role" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
               </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cd_lbl_email">Email</label>
+                <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cd_lbl_email" for="ccf-email">Email</label>
                 <input id="ccf-email" type="email" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cd_lbl_phone">Phone</label>
+                <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cd_lbl_phone" for="ccf-phone">Phone</label>
                 <input id="ccf-phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
               </div>
             </div>
             <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="ccf-primary"> <span data-i18n="cd_primary_contact">Primary contact</span></label>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="src_lbl_notes">Notes</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="src_lbl_notes" for="ccf-notes">Notes</label>
               <textarea id="ccf-notes" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
             </div>
             <div class="flex gap-3">
@@ -173,7 +173,7 @@
             <input type="hidden" id="cif-id">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_type">Type</label>
+                <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_type" for="cif-type">Type</label>
                 <select id="cif-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                   <option value="call" data-i18n="cd_interaction_call">Call</option>
                   <option value="email" data-i18n="cd_interaction_email">Email</option>
@@ -182,18 +182,18 @@
                 </select>
               </div>
               <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cd_lbl_date">Date</label>
+                <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cd_lbl_date" for="cif-date">Date</label>
                 <input id="cif-date" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
               </div>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cd_lbl_link_meeting">Link to a logged meeting (optional)</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cd_lbl_link_meeting" for="cif-meeting">Link to a logged meeting (optional)</label>
               <select id="cif-meeting" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="" data-i18n="opt_none_dash">— none —</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cd_lbl_summary">Summary</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cd_lbl_summary" for="cif-summary">Summary</label>
               <textarea id="cif-summary" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
             </div>
             <div class="flex gap-3">

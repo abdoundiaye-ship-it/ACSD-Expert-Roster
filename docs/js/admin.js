@@ -234,6 +234,15 @@ function debounce(fn, ms) {
   let timer; return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms) }
 }
 
+// Lets a keyboard user (dropzones aren't natively focusable/activatable)
+// open the same file picker a mouse click on the dropzone triggers.
+function triggerFileInputOnKey(event, inputId) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault()
+    document.getElementById(inputId).click()
+  }
+}
+
 function showToast(msg, type = 'success') {
   const el = document.createElement('div')
   el.className = `fixed bottom-5 right-5 z-50 px-5 py-3 rounded-xl shadow-xl text-sm font-medium text-white
@@ -243,22 +252,35 @@ function showToast(msg, type = 'success') {
   setTimeout(() => el.remove(), 3500)
 }
 
+let _modalReturnFocusEl = null
+
 function openAdminModal(id) {
   const m = document.getElementById(id)
-  if (m) { m.classList.remove('hidden'); document.body.style.overflow = 'hidden' }
+  if (!m) return
+  m.classList.remove('hidden')
+  document.body.style.overflow = 'hidden'
+  m.setAttribute('role', 'dialog')
+  m.setAttribute('aria-modal', 'true')
+  if (!m.hasAttribute('tabindex')) m.setAttribute('tabindex', '-1')
+  _modalReturnFocusEl = document.activeElement
+  const focusable = m.querySelector('input, select, textarea, button, [href]')
+  ;(focusable || m).focus()
 }
 
 function closeAdminModal(id) {
   const m = document.getElementById(id)
   if (m) { m.classList.add('hidden'); document.body.style.overflow = '' }
+  if (_modalReturnFocusEl && typeof _modalReturnFocusEl.focus === 'function') {
+    _modalReturnFocusEl.focus()
+  }
+  _modalReturnFocusEl = null
 }
 
 // Close any modal (and the mobile nav drawer) on Escape key
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     document.querySelectorAll('.admin-modal').forEach(m => {
-      m.classList.add('hidden')
-      document.body.style.overflow = ''
+      if (!m.classList.contains('hidden')) closeAdminModal(m.id)
     })
     closeMobileNav()
   }

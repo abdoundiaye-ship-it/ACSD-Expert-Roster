@@ -37,7 +37,7 @@
       <button type="button" class="mobile-nav-close" onclick="closeMobileNav()" aria-label="Close menu">&times;</button>
       <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
       <div class="mt-4 px-1">
-        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+        <a href="../index.html" class="text-xs text-gray-500 hover:text-blue-600 transition-colors">← Back to Roster</a>
       </div>
     </aside>
 
@@ -108,23 +108,23 @@
 
         <div class="space-y-3">
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_title">Title</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_title" for="cm-title">Title</label>
             <input id="cm-title" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. Technical Support Services — Pool of Experts" data-i18n-placeholder="ct_title_ph">
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_client_org">Client / Organization</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_client_org" for="cm-client">Client / Organization</label>
               <input id="cm-client" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_contract_number">Contract Number (optional)</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_contract_number" for="cm-number">Contract Number (optional)</label>
               <input id="cm-number" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_related_opportunity">Related Opportunity (optional)</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_related_opportunity" for="cm-opportunity">Related Opportunity (optional)</label>
             <select id="cm-opportunity" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
               <option value="" data-i18n="opt_none_dash">— none —</option>
             </select>
@@ -132,14 +132,14 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_donor_optional">Donor (optional)</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_donor_optional" for="cm-donor">Donor (optional)</label>
               <select id="cm-donor" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="" data-i18n="opt_none_dash">— none —</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_client_crm">Client (CRM, optional)</label>
-              <select id="cm-client" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_client_crm" for="cm-client-id">Client (CRM, optional)</label>
+              <select id="cm-client-id" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="" data-i18n="opt_none_dash">— none —</option>
               </select>
             </div>
@@ -147,11 +147,11 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_value">Value</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_value" for="cm-value">Value</label>
               <input id="cm-value" type="number" step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_currency">Currency</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_currency" for="cm-currency">Currency</label>
               <select id="cm-currency" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
@@ -160,7 +160,7 @@
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_col_status">Status</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_col_status" for="cm-status">Status</label>
               <select id="cm-status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="draft" data-i18n="ct_status_draft">Draft</option>
                 <option value="active" data-i18n="ct_status_active">Active</option>
@@ -172,26 +172,26 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_signed_date">Signed Date</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_signed_date" for="cm-signed">Signed Date</label>
               <input id="cm-signed" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_start_date">Start Date</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_start_date" for="cm-start">Start Date</label>
               <input id="cm-start" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_end_date">End Date</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_end_date" for="cm-end">End Date</label>
               <input id="cm-end" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_notes">Notes</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_notes" for="cm-notes">Notes</label>
             <textarea id="cm-notes" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_signed_agreement">Signed Agreement (optional)</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_signed_agreement" for="cm-file-input">Signed Agreement (optional)</label>
             <input type="file" id="cm-file-input" accept=".pdf,.docx,.doc" class="w-full text-xs">
             <p id="cm-file-current" class="text-xs text-gray-400 mt-1"></p>
           </div>
@@ -220,24 +220,24 @@
         <div id="ms-form" class="hidden bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 mb-4">
           <input type="hidden" id="mf-id">
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_title">Title</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_title" for="mf-title">Title</label>
             <input id="mf-title" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. Inception report, Q1 progress report, Final payment" data-i18n-placeholder="ct_milestone_title_ph">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_description_optional">Description (optional)</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_description_optional" for="mf-description">Description (optional)</label>
             <textarea id="mf-description" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_due_date">Due Date</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_due_date" for="mf-due">Due Date</label>
               <input id="mf-due" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_amount_optional">Amount (optional)</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_amount_optional" for="mf-amount">Amount (optional)</label>
               <input id="mf-amount" type="number" step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="Leave blank if non-payment" data-i18n-placeholder="ct_amount_ph">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_col_status">Status</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_col_status" for="mf-status">Status</label>
               <select id="mf-status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="not_started" data-i18n="ms_status_not_started">Not Started</option>
                 <option value="delivered" data-i18n="ms_status_delivered">Delivered</option>
@@ -317,7 +317,7 @@
       allOpportunitiesCT.forEach(o => oppSel.appendChild(new Option(o.title, o.id)))
       const donorSel = document.getElementById('cm-donor')
       allDonorsCT.forEach(d => donorSel.appendChild(new Option(d.name, d.id)))
-      const clientSel = document.getElementById('cm-client')
+      const clientSel = document.getElementById('cm-client-id')
       allClientsCT.forEach(c => clientSel.appendChild(new Option(c.name, c.id)))
 
       renderSummary()
@@ -340,24 +340,24 @@
       const el = document.getElementById('contracts-summary')
 
       if (currencies.length === 0) {
-        el.innerHTML = `<div class="bg-white rounded-xl border border-gray-200 p-4"><p class="text-xs text-gray-400 uppercase font-semibold">${t('ct_total_contracts')}</p><p class="text-2xl font-bold text-gray-900 mt-1">0</p></div>`
+        el.innerHTML = `<div class="bg-white rounded-xl border border-gray-200 p-4"><p class="text-xs text-gray-500 uppercase font-semibold">${t('ct_total_contracts')}</p><p class="text-2xl font-bold text-gray-900 mt-1">0</p></div>`
         return
       }
 
-      const cards = [`<div class="bg-white rounded-xl border border-gray-200 p-4"><p class="text-xs text-gray-400 uppercase font-semibold">${t('ct_total_contracts')}</p><p class="text-2xl font-bold text-gray-900 mt-1">${allContracts.length}</p></div>`]
+      const cards = [`<div class="bg-white rounded-xl border border-gray-200 p-4"><p class="text-xs text-gray-500 uppercase font-semibold">${t('ct_total_contracts')}</p><p class="text-2xl font-bold text-gray-900 mt-1">${allContracts.length}</p></div>`]
       for (const cur of currencies) {
         const s = byCurrency[cur]
         cards.push(`
           <div class="bg-white rounded-xl border border-gray-200 p-4">
-            <p class="text-xs text-gray-400 uppercase font-semibold">${t('ct_contract_value')} (${aesc(cur)})</p>
+            <p class="text-xs text-gray-500 uppercase font-semibold">${t('ct_contract_value')} (${aesc(cur)})</p>
             <p class="text-2xl font-bold text-gray-900 mt-1">${fmtMoney(s.value, cur)}</p>
           </div>
           <div class="bg-white rounded-xl border border-gray-200 p-4">
-            <p class="text-xs text-gray-400 uppercase font-semibold">${t('ct_paid_to_date')} (${aesc(cur)})</p>
+            <p class="text-xs text-gray-500 uppercase font-semibold">${t('ct_paid_to_date')} (${aesc(cur)})</p>
             <p class="text-2xl font-bold text-green-700 mt-1">${fmtMoney(s.paid, cur)}</p>
           </div>
           <div class="bg-white rounded-xl border border-gray-200 p-4">
-            <p class="text-xs text-gray-400 uppercase font-semibold">${t('ct_outstanding_invoiced')} (${aesc(cur)})</p>
+            <p class="text-xs text-gray-500 uppercase font-semibold">${t('ct_outstanding_invoiced')} (${aesc(cur)})</p>
             <p class="text-2xl font-bold text-amber-700 mt-1">${fmtMoney(s.invoiced, cur)}</p>
           </div>`)
       }
@@ -410,7 +410,7 @@
       document.getElementById('cm-number').value = contract?.contract_number ?? ''
       document.getElementById('cm-opportunity').value = contract?.opportunity_id ?? ''
       document.getElementById('cm-donor').value = contract?.donor_id ?? ''
-      document.getElementById('cm-client').value = contract?.client_id ?? ''
+      document.getElementById('cm-client-id').value = contract?.client_id ?? ''
       document.getElementById('cm-value').value = contract?.contract_value ?? ''
       document.getElementById('cm-currency').value = contract?.currency ?? 'USD'
       document.getElementById('cm-status').value = contract?.status ?? 'draft'
@@ -437,7 +437,7 @@
         contract_number: document.getElementById('cm-number').value.trim() || null,
         opportunity_id: document.getElementById('cm-opportunity').value || null,
         donor_id: document.getElementById('cm-donor').value || null,
-        client_id: document.getElementById('cm-client').value || null,
+        client_id: document.getElementById('cm-client-id').value || null,
         contract_value: document.getElementById('cm-value').value || null,
         currency: document.getElementById('cm-currency').value,
         status: document.getElementById('cm-status').value,
@@ -456,12 +456,18 @@
       const file = fileInput.files?.[0]
       if (file) {
         const ext = file.name.split('.').pop().toLowerCase()
-        const storagePath = `${data.id}/agreement.${ext}`
-        const { error: upErr } = await sb.storage.from('contracts').upload(storagePath, file, { upsert: true })
-        if (upErr) {
-          showToast(t('ct_saved_but_upload_failed') + upErr.message, 'error')
+        if (!['pdf','docx','doc'].includes(ext)) {
+          showToast(t('ct_unsupported_file_type'), 'error')
+        } else if (file.size > 10 * 1024 * 1024) {
+          showToast(t('ct_file_too_large'), 'error')
         } else {
-          await sb.from('contracts').update({ file_storage_path: storagePath, file_name: file.name }).eq('id', data.id)
+          const storagePath = `${data.id}/agreement.${ext}`
+          const { error: upErr } = await sb.storage.from('contracts').upload(storagePath, file, { upsert: true })
+          if (upErr) {
+            showToast(t('ct_saved_but_upload_failed') + upErr.message, 'error')
+          } else {
+            await sb.from('contracts').update({ file_storage_path: storagePath, file_name: file.name }).eq('id', data.id)
+          }
         }
       }
 

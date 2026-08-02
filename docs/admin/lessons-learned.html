@@ -37,7 +37,7 @@
       <button type="button" class="mobile-nav-close" onclick="closeMobileNav()" aria-label="Close menu">&times;</button>
       <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
       <div class="mt-4 px-1">
-        <a href="../index.html" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">← Back to Roster</a>
+        <a href="../index.html" class="text-xs text-gray-500 hover:text-blue-600 transition-colors">← Back to Roster</a>
       </div>
     </aside>
 
@@ -116,20 +116,20 @@
 
         <div class="space-y-3">
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ll_col_title">Title</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ll_col_title" for="lm-title">Title</label>
             <input id="lm-title" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" data-i18n-placeholder="ll_title_placeholder" placeholder="Short headline for this lesson">
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ll_col_type">Type</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ll_col_type" for="lm-type">Type</label>
               <select id="lm-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="challenge" data-i18n="ll_opt_type_challenge">Challenge — avoid next time</option>
                 <option value="success" data-i18n="ll_opt_type_success">Success — repeat next time</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ll_col_category">Category</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ll_col_category" for="lm-category">Category</label>
               <select id="lm-category" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="proposal_process" data-i18n="ll_cat_proposal_process">Proposal Process</option>
                 <option value="technical_delivery" data-i18n="ll_cat_technical_delivery">Technical Delivery</option>
@@ -144,7 +144,7 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ll_lbl_related_opportunity">Related Opportunity (optional)</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ll_lbl_related_opportunity" for="lm-opportunity">Related Opportunity (optional)</label>
             <select id="lm-opportunity" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
               <option value="" data-i18n="opt_none_dash">— none —</option>
             </select>
@@ -152,13 +152,13 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="kb_lbl_sector_optional">Sector (optional)</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="kb_lbl_sector_optional" for="lm-sector">Sector (optional)</label>
               <select id="lm-sector" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="" data-i18n="opt_none_dash">— none —</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="kb_lbl_donor_optional">Donor (optional)</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="kb_lbl_donor_optional" for="lm-donor">Donor (optional)</label>
               <select id="lm-donor" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="" data-i18n="opt_none_dash">— none —</option>
               </select>
@@ -166,12 +166,12 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ll_lbl_what_happened">What happened</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ll_lbl_what_happened" for="lm-what-happened">What happened</label>
             <textarea id="lm-what-happened" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y" data-i18n-placeholder="ll_what_happened_placeholder" placeholder="Brief context — what occurred and why it mattered"></textarea>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ll_col_recommendation">Recommendation</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ll_col_recommendation" for="lm-recommendation">Recommendation</label>
             <textarea id="lm-recommendation" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y" data-i18n-placeholder="ll_recommendation_placeholder" placeholder="What to do differently — or repeat — next time"></textarea>
             <p class="text-[11px] text-gray-400 mt-1" data-i18n="ll_recommendation_hint">Challenge entries: this is what gets pulled into future Technical Approach / Workplan drafts as guidance.</p>
           </div>

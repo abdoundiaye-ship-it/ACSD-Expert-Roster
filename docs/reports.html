@@ -994,16 +994,25 @@ async function exportReport(fmt) {
   } catch(err) { showToast(t('rp_export_failed_prefix') + err.message, 'error') }
 }
 
+// Neutralizes CSV/formula injection: a cell whose text starts with
+// =, +, -, @, tab, or CR is interpreted as a formula by Excel/Sheets
+// when the exported file is reopened — prefixing it with a leading
+// apostrophe forces it to be read as plain text instead.
+function sanitizeCsvCell(v) {
+  if (typeof v !== 'string') return v
+  return /^[=+\-@\t\r]/.test(v) ? "'" + v : v
+}
+
 function doCSV(fname) {
   const { cols, rows } = flatData()
-  const q = v => `"${String(v??'').replace(/"/g,'""')}"`
+  const q = v => `"${String(sanitizeCsvCell(v)??'').replace(/"/g,'""')}"`
   const csv = [cols.map(q).join(','), ...rows.map(r=>r.map(q).join(','))].join('\r\n')
   dl(new Blob(['﻿'+csv], { type:'text/csv;charset=utf-8;' }), fname+'.csv')
 }
 
 function doExcel(fname) {
   const { cols, rows } = flatData()
-  const ws = XLSX.utils.aoa_to_sheet([cols, ...rows])
+  const ws = XLSX.utils.aoa_to_sheet([cols, ...rows.map(r => r.map(sanitizeCsvCell))])
   ws['!cols'] = cols.map((_,i) => ({ wch: Math.min(Math.max(cols[i].length, ...rows.map(r=>String(r[i]??'').length))+2, 50) }))
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Report')
