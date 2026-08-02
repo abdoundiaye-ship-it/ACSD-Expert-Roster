@@ -419,6 +419,7 @@
   <script src="https://unpkg.com/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
   <script src="https://unpkg.com/html-docx-js@0.3.1/dist/html-docx.js"></script>
   <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://unpkg.com/dompurify@3.1.6/dist/purify.min.js"></script>
   <script src="../js/config.js"></script>
   <script src="../js/i18n.js"></script>
   <script src="../js/auth.js"></script>
@@ -1007,7 +1008,7 @@
         </div>
         ${doc ? `
           <p class="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 mb-2 inline-block">${t('oppdetail_draft_ai_banner')}</p>
-          <div class="doc-content border border-gray-100 rounded-lg p-3 text-sm" contenteditable="true" id="content-${cardId}">${doc.content_html}</div>
+          <div class="doc-content border border-gray-100 rounded-lg p-3 text-sm" contenteditable="true" id="content-${cardId}">${DOMPurify.sanitize(doc.content_html)}</div>
           <div class="flex gap-2 mt-2">
             <button onclick="saveDocEdit('${docType}', ${expertId ? `'${expertId}'` : 'null'})" class="text-xs bg-blue-900 hover:bg-blue-800 text-white px-3 py-1 rounded-lg">${t('oppdetail_save_edits_btn')}</button>
             ${doc.status === 'draft' ? `<button onclick="markDocReviewed('${docType}', ${expertId ? `'${expertId}'` : 'null'})" class="text-xs bg-green-700 hover:bg-green-800 text-white px-3 py-1 rounded-lg">${t('oppdetail_mark_reviewed_btn')}</button>` : ''}
@@ -1045,7 +1046,11 @@
       // Regenerated content is always unreviewed, even if the prior version
       // had been marked reviewed/final — a stale approval must not silently
       // carry over onto content that's actually new.
-      const body = { opportunity_id: oppId, doc_type: docType, expert_id: expertId, title, content_html: contentHtml, generated_by_ai: generatedByAi, ai_prompt_snapshot: promptSnapshot, status: 'draft' }
+      // Sanitized before storage (not just before render) so every
+      // downstream read — on-screen card, print view, PDF/Word export —
+      // trusts a value that's already safe, with one point of truth
+      // rather than re-sanitizing at every render site.
+      const body = { opportunity_id: oppId, doc_type: docType, expert_id: expertId, title, content_html: DOMPurify.sanitize(contentHtml), generated_by_ai: generatedByAi, ai_prompt_snapshot: promptSnapshot, status: 'draft' }
       if (existing) {
         await sb.from('proposal_documents').update(body).eq('id', existing.id)
       } else {
@@ -1057,7 +1062,7 @@
       const doc = findDoc(docType, expertId)
       if (!doc) return
       const cardId = `doc-${docType}-${expertId ?? 'none'}`
-      const html = document.getElementById(`content-${cardId}`).innerHTML
+      const html = DOMPurify.sanitize(document.getElementById(`content-${cardId}`).innerHTML)
       const newStatus = doc.status === 'draft' ? 'reviewed' : doc.status
       const { error } = await sb.from('proposal_documents').update({ content_html: html, status: newStatus }).eq('id', doc.id)
       if (error) { showToast(t('save_failed_prefix') + error.message, 'error'); return }
@@ -1243,7 +1248,7 @@
       container.style.width = '700px'
       container.style.padding = '20px'
       container.style.fontFamily = 'Arial, sans-serif'
-      container.innerHTML = `<h2 style="color:#1e3a8a">${doc.title}</h2>${doc.content_html}`
+      container.innerHTML = `<h2 style="color:#1e3a8a">${doc.title}</h2>${DOMPurify.sanitize(doc.content_html)}`
       document.body.appendChild(container)
       try {
         const canvas = await window.html2canvas(container, { scale: 2 })
@@ -1343,7 +1348,7 @@
     function reportSections() {
       return reportComponents().map(p => ({
         label: p.label,
-        html: `<h1>${aesc(p.label)}</h1>${p.doc.content_html}`,
+        html: `<h1>${aesc(p.label)}</h1>${DOMPurify.sanitize(p.doc.content_html)}`,
       }))
     }
 

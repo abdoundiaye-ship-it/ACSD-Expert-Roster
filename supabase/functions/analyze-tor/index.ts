@@ -73,7 +73,8 @@ serve(async (req: Request) => {
   } else if (sourceUrl) {
     let urlObj: URL
     try { urlObj = new URL(sourceUrl) } catch { return respond({ error: 'Invalid URL' }, 400) }
-    if (!['http:', 'https:'].includes(urlObj.protocol)) return respond({ error: 'URL must be http(s)' }, 400)
+    if (urlObj.protocol !== 'https:') return respond({ error: 'URL must be https' }, 400)
+    if (isBlockedHost(urlObj.hostname)) return respond({ error: 'This URL is not allowed' }, 400)
 
     let fetchRes: Response
     try { fetchRes = await fetch(urlObj.toString(), { headers: { 'User-Agent': 'ACSD-Opportunity-Intelligence/1.0' } }) }
@@ -243,6 +244,33 @@ function respond(body: unknown, status = 200): Response {
     status,
     headers: { ...CORS, 'Content-Type': 'application/json' },
   })
+}
+
+// SSRF guard for the source_url intake path: blocks the obvious
+// internal/loopback/link-local/cloud-metadata targets by hostname or
+// IP-literal before this admin-gated endpoint fetches it server-side.
+// This is a pattern check, not a DNS-rebinding-proof resolver — an
+// attacker who fully controls DNS for a public hostname could still
+// point it at a private IP after this check passes. Accepted residual
+// risk given the caller must already hold a valid admin session token.
+function isBlockedHost(hostname: string): boolean {
+  const h = hostname.toLowerCase().replace(/\.$/, '')
+  if (h === 'localhost' || h.endsWith('.localhost') || h.endsWith('.local')) return true
+
+  const ipv4 = h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/)
+  if (ipv4) {
+    const [a, b] = [Number(ipv4[1]), Number(ipv4[2])]
+    if (a === 127) return true                       // loopback
+    if (a === 10) return true                         // 10.0.0.0/8
+    if (a === 172 && b >= 16 && b <= 31) return true   // 172.16.0.0/12
+    if (a === 192 && b === 168) return true            // 192.168.0.0/16
+    if (a === 169 && b === 254) return true             // link-local + cloud metadata (169.254.169.254)
+    if (a === 0) return true                            // 0.0.0.0/8
+    return false
+  }
+  if (h === '::1' || h.startsWith('fe80:') || h.startsWith('fc') || h.startsWith('fd')) return true // IPv6 loopback/link-local/unique-local
+
+  return false
 }
 
 function mimeFromExt(ext: string): string {

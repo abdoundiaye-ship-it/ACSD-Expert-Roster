@@ -540,7 +540,11 @@ async function init() {
     document.getElementById('admin-badge').classList.remove('hidden')
     document.getElementById('admin-panel-link').classList.remove('hidden')
   } else {
-    ;['tab-users','tab-audit','tab-financials'].forEach(id => {
+    // All report types except Expert Roster read from tables that are
+    // now admin-only at the RLS layer (2026-08-02 security hardening) —
+    // disabling the tabs here keeps the UI honest about that instead of
+    // letting a viewer pick one and silently see an empty report.
+    ;['tab-users','tab-audit','tab-financials','tab-opportunities','tab-documents','tab-knowledgebase'].forEach(id => {
       const btn = document.getElementById(id)
       btn.disabled = true
       btn.classList.add('opacity-40','cursor-not-allowed')
@@ -580,7 +584,7 @@ function fill(id, items, vk, lk) {
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 function switchTab(tab) {
-  if (!isAdmin && (tab === 'users' || tab === 'audit' || tab === 'financials')) return
+  if (!isAdmin && tab !== 'experts') return
   currentTab = tab
   ;['experts','users','audit','opportunities','financials','documents','knowledgebase'].forEach(t => {
     const btn   = document.getElementById('tab-' + t)
