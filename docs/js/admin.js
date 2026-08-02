@@ -148,11 +148,11 @@ function renderAdminNav(active) {
 
     const header = g.collapsible
       ? `<button type="button" onclick="toggleNavGroup('${g.key}')"
-           class="w-full flex items-center justify-between px-3 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider first:pt-0 hover:text-gray-600">
+           class="w-full flex items-center justify-between px-3 pt-3 pb-1 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider first:pt-0 hover:text-gray-600">
            <span>${aesc(g.label)}</span>
            <svg class="w-3.5 h-3.5 transition-transform ${collapsed ? '' : 'rotate-180'}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
          </button>`
-      : `<p class="px-3 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider first:pt-0">${aesc(g.label)}</p>`
+      : `<p class="px-3 pt-3 pb-1 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider first:pt-0">${aesc(g.label)}</p>`
 
     return header + (collapsed ? '' : g.items.map(it => _navLink(it, active)).join(''))
   }).join('')
