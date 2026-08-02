@@ -45,34 +45,34 @@
 
       <div class="flex items-center justify-between gap-4">
         <div>
-          <h2 class="text-lg font-bold text-gray-900">Clients</h2>
-          <p class="text-sm text-gray-500 mt-0.5">Client and donor relationship tracking — contacts, interaction history, and every opportunity/contract tied to each one, in one place that outlives any single staff member.</p>
+          <h2 class="text-lg font-bold text-gray-900" data-i18n="cl_title">Clients</h2>
+          <p class="text-sm text-gray-500 mt-0.5" data-i18n="cl_subtitle">Client and donor relationship tracking — contacts, interaction history, and every opportunity/contract tied to each one, in one place that outlives any single staff member.</p>
         </div>
         <button onclick="openClientModal()"
-          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0">
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0" data-i18n="cl_add_client">
           + Add Client
         </button>
       </div>
 
       <div class="flex gap-3 items-center flex-wrap">
         <div class="relative flex-1 max-w-sm">
-          <input id="cl-search" type="search" placeholder="Search name, notes…"
+          <input id="cl-search" type="search" data-i18n-placeholder="cl_search_placeholder" placeholder="Search name, notes…"
             class="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             oninput="filterClients()">
         </div>
         <select id="cl-filter-type" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterClients()">
-          <option value="">All types</option>
-          <option value="donor">Donor</option>
-          <option value="government">Government</option>
-          <option value="ngo">NGO</option>
-          <option value="private">Private</option>
-          <option value="other">Other</option>
+          <option value="" data-i18n="cl_opt_all_types">All types</option>
+          <option value="donor" data-i18n="cl_type_donor">Donor</option>
+          <option value="government" data-i18n="cl_type_government">Government</option>
+          <option value="ngo" data-i18n="cl_type_ngo">NGO</option>
+          <option value="private" data-i18n="cl_type_private">Private</option>
+          <option value="other" data-i18n="cl_type_other">Other</option>
         </select>
         <select id="cl-filter-status" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterClients()">
-          <option value="">All statuses</option>
-          <option value="active">Active</option>
-          <option value="dormant">Dormant</option>
-          <option value="prospective">Prospective</option>
+          <option value="" data-i18n="cl_opt_all_statuses">All statuses</option>
+          <option value="active" data-i18n="cl_status_active">Active</option>
+          <option value="dormant" data-i18n="cl_status_dormant">Dormant</option>
+          <option value="prospective" data-i18n="cl_status_prospective">Prospective</option>
         </select>
       </div>
 
@@ -82,16 +82,16 @@
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              <th class="text-left px-5 py-3">Name</th>
-              <th class="text-left px-5 py-3 hidden sm:table-cell">Type</th>
-              <th class="text-left px-5 py-3 hidden md:table-cell">Relationship Owner</th>
-              <th class="text-left px-5 py-3 hidden lg:table-cell">Linked Records</th>
-              <th class="text-left px-5 py-3">Status</th>
-              <th class="text-right px-5 py-3">Actions</th>
+              <th class="text-left px-5 py-3" data-i18n="cl_col_name">Name</th>
+              <th class="text-left px-5 py-3 hidden sm:table-cell" data-i18n="cl_col_type">Type</th>
+              <th class="text-left px-5 py-3 hidden md:table-cell" data-i18n="cl_col_owner">Relationship Owner</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell" data-i18n="cl_col_linked_records">Linked Records</th>
+              <th class="text-left px-5 py-3" data-i18n="cl_col_status">Status</th>
+              <th class="text-right px-5 py-3" data-i18n="cl_col_actions">Actions</th>
             </tr>
           </thead>
           <tbody id="cl-tbody" class="divide-y divide-gray-100">
-            <tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+            <tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400" data-i18n="loading">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -105,64 +105,64 @@
     <div class="relative flex items-start justify-center min-h-full px-4 py-10">
       <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
 
-        <h3 id="cm-title-heading" class="font-bold text-gray-900 text-base mb-4">Add Client</h3>
+        <h3 id="cm-title-heading" class="font-bold text-gray-900 text-base mb-4" data-i18n="cl_modal_add_title">Add Client</h3>
         <input type="hidden" id="cm-id">
 
         <div class="space-y-3">
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Name</label>
-            <input id="cm-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. Ministry of Health — Burkina Faso">
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_name">Name</label>
+            <input id="cm-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" data-i18n-placeholder="cl_name_placeholder" placeholder="e.g. Ministry of Health — Burkina Faso">
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Type</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_type">Type</label>
               <select id="cm-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                <option value="donor">Donor</option>
-                <option value="government">Government</option>
-                <option value="ngo">NGO</option>
-                <option value="private">Private</option>
-                <option value="other" selected>Other</option>
+                <option value="donor" data-i18n="cl_type_donor">Donor</option>
+                <option value="government" data-i18n="cl_type_government">Government</option>
+                <option value="ngo" data-i18n="cl_type_ngo">NGO</option>
+                <option value="private" data-i18n="cl_type_private">Private</option>
+                <option value="other" selected data-i18n="cl_type_other">Other</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_status">Status</label>
               <select id="cm-status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                <option value="active" selected>Active</option>
-                <option value="dormant">Dormant</option>
-                <option value="prospective">Prospective</option>
+                <option value="active" selected data-i18n="cl_status_active">Active</option>
+                <option value="dormant" data-i18n="cl_status_dormant">Dormant</option>
+                <option value="prospective" data-i18n="cl_status_prospective">Prospective</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Matching Donor (optional)</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_lbl_matching_donor">Matching Donor (optional)</label>
             <select id="cm-donor" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-              <option value="">— none / not a funding-body donor —</option>
+              <option value="" data-i18n="cl_opt_none_not_funding">— none / not a funding-body donor —</option>
             </select>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Relationship Owner (optional)</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_lbl_relationship_owner">Relationship Owner (optional)</label>
             <select id="cm-owner" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-              <option value="">— unassigned —</option>
+              <option value="" data-i18n="cl_opt_unassigned">— unassigned —</option>
             </select>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Website (optional)</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_lbl_website">Website (optional)</label>
             <input id="cm-website" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="https://…">
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Notes (optional)</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_lbl_notes">Notes (optional)</label>
             <textarea id="cm-notes" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
           </div>
         </div>
 
         <div class="flex gap-3 mt-5">
-          <button onclick="saveClient()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">Save</button>
-          <button onclick="closeAdminModal('client-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Cancel</button>
+          <button onclick="saveClient()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm" data-i18n="btn_save">Save</button>
+          <button onclick="closeAdminModal('client-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm" data-i18n="btn_cancel">Cancel</button>
         </div>
       </div>
     </div>
@@ -178,8 +178,8 @@
     let allDonorsCL = []
     let allProfilesCL = []
 
-    const TYPE_LABEL = { donor: 'Donor', government: 'Government', ngo: 'NGO', private: 'Private', other: 'Other' }
-    const STATUS_LABEL = { active: 'Active', dormant: 'Dormant', prospective: 'Prospective' }
+    function typeLabel(ty) { return { donor: t('cl_type_donor'), government: t('cl_type_government'), ngo: t('cl_type_ngo'), private: t('cl_type_private'), other: t('cl_type_other') }[ty] ?? ty }
+    function statusLabel(s) { return { active: t('cl_status_active'), dormant: t('cl_status_dormant'), prospective: t('cl_status_prospective') }[s] ?? s }
     const STATUS_COLOR = {
       active: 'bg-green-100 text-green-800', dormant: 'bg-gray-100 text-gray-500', prospective: 'bg-amber-100 text-amber-800',
     }
@@ -193,7 +193,7 @@
         sb.from('donors').select('id, name').order('name'),
         sb.from('profiles').select('id, full_name, email').eq('is_active', true).order('full_name'),
       ])
-      if (clRes.error) { showToast('Failed to load clients: ' + clRes.error.message, 'error'); return }
+      if (clRes.error) { showToast(t('cl_load_failed_prefix') + clRes.error.message, 'error'); return }
       allClients = clRes.data ?? []
       allDonorsCL = donRes.data ?? []
       allProfilesCL = profRes.data ?? []
@@ -218,11 +218,11 @@
       })
 
       document.getElementById('cl-count').textContent =
-        filtered.length === allClients.length ? `${allClients.length} client${allClients.length !== 1 ? 's' : ''}` : `${filtered.length} of ${allClients.length} clients`
+        filtered.length === allClients.length ? t('cl_count_all', allClients.length) : t('cl_count_filtered', filtered.length, allClients.length)
 
       const tbody = document.getElementById('cl-tbody')
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">No clients match your filters.</td></tr>'
+        tbody.innerHTML = `<tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">${t('cl_no_match')}</td></tr>`
         return
       }
       tbody.innerHTML = filtered.map(c => {
@@ -232,15 +232,15 @@
         return `
         <tr class="hover:bg-gray-50 transition-colors">
           <td class="px-5 py-3 font-medium text-gray-900">${aesc(c.name)}</td>
-          <td class="px-5 py-3 text-xs text-gray-500 hidden sm:table-cell">${TYPE_LABEL[c.type] ?? c.type}</td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden sm:table-cell">${aesc(typeLabel(c.type))}</td>
           <td class="px-5 py-3 text-xs text-gray-500 hidden md:table-cell">${aesc(owner)}</td>
-          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell">${oppCount} opportunit${oppCount !== 1 ? 'ies' : 'y'}, ${ctCount} contract${ctCount !== 1 ? 's' : ''}</td>
-          <td class="px-5 py-3"><span class="text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLOR[c.status] ?? 'bg-gray-100 text-gray-600'}">${STATUS_LABEL[c.status] ?? c.status}</span></td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell">${t('cl_linked_counts', oppCount, ctCount)}</td>
+          <td class="px-5 py-3"><span class="text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLOR[c.status] ?? 'bg-gray-100 text-gray-600'}">${aesc(statusLabel(c.status))}</span></td>
           <td class="px-5 py-3 text-right">
             <div class="flex items-center justify-end gap-3">
-              <a href="client-detail.html?id=${aesc(c.id)}" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Manage</a>
-              <button onclick="openClientModal(allClients.find(x=>x.id==='${aesc(c.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</button>
-              <button onclick="deleteClient('${aesc(c.id)}', '${aesc(c.name)}')" class="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+              <a href="client-detail.html?id=${aesc(c.id)}" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">${t('cl_manage')}</a>
+              <button onclick="openClientModal(allClients.find(x=>x.id==='${aesc(c.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium">${t('btn_edit')}</button>
+              <button onclick="deleteClient('${aesc(c.id)}', '${aesc(c.name)}')" class="text-xs text-red-500 hover:text-red-700 font-medium">${t('btn_delete')}</button>
             </div>
           </td>
         </tr>`
@@ -248,7 +248,7 @@
     }
 
     function openClientModal(client = null) {
-      document.getElementById('cm-title-heading').textContent = client ? 'Edit Client' : 'Add Client'
+      document.getElementById('cm-title-heading').textContent = client ? t('cl_modal_edit_title') : t('cl_modal_add_title')
       document.getElementById('cm-id').value = client?.id ?? ''
       document.getElementById('cm-name').value = client?.name ?? ''
       document.getElementById('cm-type').value = client?.type ?? 'other'
@@ -263,7 +263,7 @@
     async function saveClient() {
       const id = document.getElementById('cm-id').value
       const name = document.getElementById('cm-name').value.trim()
-      if (!name) { showToast('Name is required.', 'error'); return }
+      if (!name) { showToast(t('src_name_required'), 'error'); return }
 
       const body = {
         name,
@@ -278,22 +278,24 @@
       const { data, error } = id
         ? await sb.from('clients').update(body).eq('id', id).select('id').single()
         : await sb.from('clients').insert(body).select('id').single()
-      if (error) { showToast('Save failed: ' + error.message, 'error'); return }
+      if (error) { showToast(t('save_failed_prefix') + error.message, 'error'); return }
 
       await logAudit(id ? 'UPDATE' : 'CREATE', 'client', id || data.id, name, null, body)
       closeAdminModal('client-modal')
-      showToast('Client saved.')
+      showToast(t('cl_saved'))
       await loadClients()
     }
 
     async function deleteClient(id, name) {
-      if (!confirm(`Delete "${name}"? This also deletes its contacts and interaction log, and unlinks any opportunities/contracts pointing to it. This cannot be undone.`)) return
+      if (!confirm(t('cl_confirm_delete', name))) return
       const { error } = await sb.from('clients').delete().eq('id', id)
-      if (error) { showToast('Delete failed: ' + error.message, 'error'); return }
+      if (error) { showToast(t('delete_failed_prefix') + error.message, 'error'); return }
       await logAudit('DELETE', 'client', id, name, { name }, null)
-      showToast('Client deleted.')
+      showToast(t('cl_deleted'))
       await loadClients()
     }
+
+    document.addEventListener('acsd:langchange', () => { if (allClients.length || document.getElementById('cl-count').textContent) filterClients() })
 
     loadClients()
   </script>

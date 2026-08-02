@@ -45,11 +45,11 @@
 
       <div class="flex items-center justify-between gap-4">
         <div>
-          <h2 class="text-lg font-bold text-gray-900">Webhooks</h2>
-          <p class="text-sm text-gray-500 mt-0.5">Connect this platform to outside systems — Slack, Zapier, Make.com, n8n, or your own — by receiving a signed HTTP callback when something real happens here.</p>
+          <h2 class="text-lg font-bold text-gray-900" data-i18n="wh_title">Webhooks</h2>
+          <p class="text-sm text-gray-500 mt-0.5" data-i18n="wh_subtitle">Connect this platform to outside systems — Slack, Zapier, Make.com, n8n, or your own — by receiving a signed HTTP callback when something real happens here.</p>
         </div>
         <button onclick="openWebhookModal()"
-          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0">
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0" data-i18n="wh_add_webhook">
           + Add Webhook
         </button>
       </div>
@@ -60,15 +60,15 @@
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              <th class="text-left px-5 py-3">Name</th>
-              <th class="text-left px-5 py-3 hidden md:table-cell">URL</th>
-              <th class="text-left px-5 py-3 hidden lg:table-cell">Events</th>
-              <th class="text-left px-5 py-3">Status</th>
-              <th class="text-right px-5 py-3">Actions</th>
+              <th class="text-left px-5 py-3" data-i18n="cl_col_name">Name</th>
+              <th class="text-left px-5 py-3 hidden md:table-cell" data-i18n="wh_col_url">URL</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell" data-i18n="wh_col_events">Events</th>
+              <th class="text-left px-5 py-3" data-i18n="cl_col_status">Status</th>
+              <th class="text-right px-5 py-3" data-i18n="wh_col_actions">Actions</th>
             </tr>
           </thead>
           <tbody id="wh-tbody" class="divide-y divide-gray-100">
-            <tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+            <tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400" data-i18n="loading">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -82,45 +82,45 @@
     <div class="relative flex items-start justify-center min-h-full px-4 py-10">
       <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
 
-        <h3 id="wm-title-heading" class="font-bold text-gray-900 text-base mb-4">Add Webhook</h3>
+        <h3 id="wm-title-heading" class="font-bold text-gray-900 text-base mb-4" data-i18n="wh_modal_add_title">Add Webhook</h3>
         <input type="hidden" id="wm-id">
 
         <div class="space-y-3">
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Name</label>
-            <input id="wm-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. Slack — #new-opportunities">
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_name">Name</label>
+            <input id="wm-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" data-i18n-placeholder="wh_name_placeholder" placeholder="e.g. Slack — #new-opportunities">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">URL</label>
-            <input id="wm-url" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="https://hooks.slack.com/services/... or your Zapier/Make/n8n webhook URL">
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="wh_col_url">URL</label>
+            <input id="wm-url" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" data-i18n-placeholder="wh_url_placeholder" placeholder="https://hooks.slack.com/services/... or your Zapier/Make/n8n webhook URL">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-2">Events</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-2" data-i18n="wh_col_events">Events</label>
             <div class="space-y-1.5 text-sm">
-              <label class="flex items-center gap-2"><input type="checkbox" value="opportunity.created" class="wm-event-cb"> New opportunity created</label>
-              <label class="flex items-center gap-2"><input type="checkbox" value="opportunity.status_changed" class="wm-event-cb"> Opportunity status changed</label>
-              <label class="flex items-center gap-2"><input type="checkbox" value="task.completed" class="wm-event-cb"> Task completed</label>
-              <label class="flex items-center gap-2"><input type="checkbox" value="contract.status_changed" class="wm-event-cb"> Contract status changed</label>
+              <label class="flex items-center gap-2"><input type="checkbox" value="opportunity.created" class="wm-event-cb"> <span data-i18n="wh_event_opportunity_created">New opportunity created</span></label>
+              <label class="flex items-center gap-2"><input type="checkbox" value="opportunity.status_changed" class="wm-event-cb"> <span data-i18n="wh_event_opportunity_status_changed">Opportunity status changed</span></label>
+              <label class="flex items-center gap-2"><input type="checkbox" value="task.completed" class="wm-event-cb"> <span data-i18n="wh_event_task_completed">Task completed</span></label>
+              <label class="flex items-center gap-2"><input type="checkbox" value="contract.status_changed" class="wm-event-cb"> <span data-i18n="wh_event_contract_status_changed">Contract status changed</span></label>
             </div>
           </div>
           <label class="flex items-center gap-2 text-sm">
-            <input type="checkbox" id="wm-active" checked> Active
+            <input type="checkbox" id="wm-active" checked> <span data-i18n="cl_status_active">Active</span>
           </label>
 
           <div id="wm-secret-wrap" class="hidden bg-gray-50 border border-gray-200 rounded-lg p-3">
-            <p class="text-xs font-semibold text-gray-600 mb-1">Signing secret</p>
-            <p class="text-xs text-gray-500 mb-2">Every delivery is HMAC-SHA256 signed with this secret in the <code class="text-[11px]">X-Webhook-Signature</code> header, so the receiving system can verify it really came from here. Share it with whatever verifies the callback (a Zapier/n8n step, your own endpoint code — Slack's incoming webhooks don't check this, so it's not needed there).</p>
+            <p class="text-xs font-semibold text-gray-600 mb-1" data-i18n="wh_signing_secret">Signing secret</p>
+            <p id="wh-signing-secret-note" class="text-xs text-gray-500 mb-2">Every delivery is HMAC-SHA256 signed with this secret in the <code class="text-[11px]">X-Webhook-Signature</code> header, so the receiving system can verify it really came from here. Share it with whatever verifies the callback (a Zapier/n8n step, your own endpoint code — Slack's incoming webhooks don't check this, so it's not needed there).</p>
             <div class="flex gap-2 items-center">
               <input id="wm-secret" readonly class="flex-1 min-w-0 border border-gray-300 rounded-lg px-2 py-1.5 text-xs font-mono bg-white text-gray-600">
-              <button onclick="copySecret()" class="text-xs font-medium border border-gray-300 hover:bg-gray-100 px-2 py-1.5 rounded-lg flex-shrink-0">Copy</button>
-              <button onclick="regenerateSecret()" class="text-xs font-medium border border-gray-300 hover:bg-gray-100 px-2 py-1.5 rounded-lg flex-shrink-0">Regenerate</button>
+              <button onclick="copySecret()" class="text-xs font-medium border border-gray-300 hover:bg-gray-100 px-2 py-1.5 rounded-lg flex-shrink-0" data-i18n="wh_copy">Copy</button>
+              <button onclick="regenerateSecret()" class="text-xs font-medium border border-gray-300 hover:bg-gray-100 px-2 py-1.5 rounded-lg flex-shrink-0" data-i18n="wh_regenerate">Regenerate</button>
             </div>
           </div>
         </div>
 
         <div class="flex gap-3 mt-5">
-          <button onclick="saveWebhook()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">Save</button>
-          <button onclick="closeAdminModal('webhook-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Cancel</button>
+          <button onclick="saveWebhook()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm" data-i18n="btn_save">Save</button>
+          <button onclick="closeAdminModal('webhook-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm" data-i18n="btn_cancel">Cancel</button>
         </div>
       </div>
     </div>
@@ -131,11 +131,11 @@
     <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('deliveries-modal')"></div>
     <div class="relative flex items-start justify-center min-h-full px-4 py-10">
       <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl p-6">
-        <h3 class="font-bold text-gray-900 text-base">Recent Deliveries</h3>
+        <h3 class="font-bold text-gray-900 text-base" data-i18n="wh_recent_deliveries">Recent Deliveries</h3>
         <p id="dl-webhook-name" class="text-sm text-gray-500 mb-4"></p>
-        <p class="text-xs text-gray-400 mb-3">Delivery is fire-and-forget (via pg_net) — this shows what was sent and when, not a confirmed receipt from the destination.</p>
+        <p class="text-xs text-gray-400 mb-3" data-i18n="wh_delivery_note">Delivery is fire-and-forget (via pg_net) — this shows what was sent and when, not a confirmed receipt from the destination.</p>
         <div id="dl-list" class="space-y-2 max-h-96 overflow-y-auto"></div>
-        <button onclick="closeAdminModal('deliveries-modal')" class="w-full border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm mt-4">Close</button>
+        <button onclick="closeAdminModal('deliveries-modal')" class="w-full border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm mt-4" data-i18n="btn_close">Close</button>
       </div>
     </div>
   </div>
@@ -148,11 +148,13 @@
   <script>
     let allWebhooks = []
 
-    const EVENT_LABEL = {
-      'opportunity.created': 'Opportunity created',
-      'opportunity.status_changed': 'Opportunity status changed',
-      'task.completed': 'Task completed',
-      'contract.status_changed': 'Contract status changed',
+    function eventLabel(e) {
+      return {
+        'opportunity.created': t('wh_event_opportunity_created'),
+        'opportunity.status_changed': t('wh_event_opportunity_status_changed'),
+        'task.completed': t('wh_event_task_completed'),
+        'contract.status_changed': t('wh_event_contract_status_changed'),
+      }[e] ?? e
     }
 
     function randomHex(numBytes) {
@@ -166,37 +168,38 @@
       if (!session) return
 
       const { data, error } = await sb.from('webhooks').select('*').order('created_at', { ascending: false })
-      if (error) { showToast('Failed to load webhooks: ' + error.message, 'error'); return }
+      if (error) { showToast(t('wh_load_failed_prefix') + error.message, 'error'); return }
       allWebhooks = data ?? []
       renderWebhooks()
     }
 
     function renderWebhooks() {
-      document.getElementById('wh-count').textContent = `${allWebhooks.length} webhook${allWebhooks.length !== 1 ? 's' : ''}`
+      document.getElementById('wh-count').textContent = t('wh_count', allWebhooks.length)
 
       const tbody = document.getElementById('wh-tbody')
       if (allWebhooks.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">No webhooks configured yet.</td></tr>'
+        tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">${t('wh_no_webhooks')}</td></tr>`
         return
       }
       tbody.innerHTML = allWebhooks.map(w => `
         <tr class="hover:bg-gray-50 transition-colors">
           <td class="px-5 py-3 font-medium text-gray-900">${aesc(w.name)}</td>
           <td class="px-5 py-3 text-xs text-gray-500 hidden md:table-cell max-w-xs truncate">${aesc(w.url)}</td>
-          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell">${(w.event_types ?? []).map(e => EVENT_LABEL[e] ?? e).join(', ') || '—'}</td>
-          <td class="px-5 py-3"><span class="text-xs font-medium px-2 py-0.5 rounded-full ${w.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}">${w.active ? 'Active' : 'Paused'}</span></td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell">${(w.event_types ?? []).map(e => aesc(eventLabel(e))).join(', ') || '—'}</td>
+          <td class="px-5 py-3"><span class="text-xs font-medium px-2 py-0.5 rounded-full ${w.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}">${w.active ? t('cl_status_active') : t('wh_paused')}</span></td>
           <td class="px-5 py-3 text-right">
             <div class="flex items-center justify-end gap-3">
-              <button onclick="openDeliveries(allWebhooks.find(x=>x.id==='${aesc(w.id)}'))" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Deliveries</button>
-              <button onclick="openWebhookModal(allWebhooks.find(x=>x.id==='${aesc(w.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</button>
-              <button onclick="deleteWebhook('${aesc(w.id)}', '${aesc(w.name)}')" class="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+              <button onclick="openDeliveries(allWebhooks.find(x=>x.id==='${aesc(w.id)}'))" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">${t('wh_deliveries')}</button>
+              <button onclick="openWebhookModal(allWebhooks.find(x=>x.id==='${aesc(w.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium">${t('btn_edit')}</button>
+              <button onclick="deleteWebhook('${aesc(w.id)}', '${aesc(w.name)}')" class="text-xs text-red-500 hover:text-red-700 font-medium">${t('btn_delete')}</button>
             </div>
           </td>
         </tr>`).join('')
     }
 
     function openWebhookModal(webhook = null) {
-      document.getElementById('wm-title-heading').textContent = webhook ? 'Edit Webhook' : 'Add Webhook'
+      document.getElementById('wm-title-heading').textContent = webhook ? t('wh_modal_edit_title') : t('wh_modal_add_title')
+      document.getElementById('wh-signing-secret-note').innerHTML = t('wh_signing_secret_note')
       document.getElementById('wm-id').value = webhook?.id ?? ''
       document.getElementById('wm-name').value = webhook?.name ?? ''
       document.getElementById('wm-url').value = webhook?.url ?? ''
@@ -220,32 +223,32 @@
       const id = document.getElementById('wm-id').value
       const name = document.getElementById('wm-name').value.trim()
       const url = document.getElementById('wm-url').value.trim()
-      if (!name) { showToast('Name is required.', 'error'); return }
-      if (!url) { showToast('URL is required.', 'error'); return }
-      if (!/^https:\/\//i.test(url)) { showToast('URL must start with https://', 'error'); return }
+      if (!name) { showToast(t('src_name_required'), 'error'); return }
+      if (!url) { showToast(t('wh_url_required'), 'error'); return }
+      if (!/^https:\/\//i.test(url)) { showToast(t('wh_url_must_be_https'), 'error'); return }
 
       const eventTypes = [...document.querySelectorAll('.wm-event-cb:checked')].map(cb => cb.value)
-      if (eventTypes.length === 0) { showToast('Select at least one event.', 'error'); return }
+      if (eventTypes.length === 0) { showToast(t('wh_select_one_event'), 'error'); return }
 
       const body = { name, url, event_types: eventTypes, active: document.getElementById('wm-active').checked }
 
       const { error } = id
         ? await sb.from('webhooks').update(body).eq('id', id)
         : await sb.from('webhooks').insert(body)
-      if (error) { showToast('Save failed: ' + error.message, 'error'); return }
+      if (error) { showToast(t('save_failed_prefix') + error.message, 'error'); return }
 
       await logAudit(id ? 'UPDATE' : 'CREATE', 'webhook', id || name, name, null, body)
       closeAdminModal('webhook-modal')
-      showToast('Webhook saved.')
+      showToast(t('wh_saved'))
       await loadWebhooks()
     }
 
     async function deleteWebhook(id, name) {
-      if (!confirm(`Delete "${name}"? This also deletes its delivery log and cannot be undone.`)) return
+      if (!confirm(t('wh_confirm_delete', name))) return
       const { error } = await sb.from('webhooks').delete().eq('id', id)
-      if (error) { showToast('Delete failed: ' + error.message, 'error'); return }
+      if (error) { showToast(t('delete_failed_prefix') + error.message, 'error'); return }
       await logAudit('DELETE', 'webhook', id, name, { name }, null)
-      showToast('Webhook deleted.')
+      showToast(t('wh_deleted'))
       await loadWebhooks()
     }
 
@@ -253,20 +256,20 @@
       const input = document.getElementById('wm-secret')
       input.select()
       navigator.clipboard?.writeText(input.value).then(
-        () => showToast('Secret copied.'),
-        () => showToast('Could not copy — select and copy manually.', 'error')
+        () => showToast(t('wh_secret_copied')),
+        () => showToast(t('wh_copy_failed'), 'error')
       )
     }
 
     async function regenerateSecret() {
       const id = document.getElementById('wm-id').value
       if (!id) return
-      if (!confirm('Regenerate this webhook\'s signing secret? Any system verifying signatures with the old secret must be updated with the new one.')) return
+      if (!confirm(t('wh_confirm_regenerate'))) return
       const newSecret = randomHex(24)
       const { error } = await sb.from('webhooks').update({ secret: newSecret }).eq('id', id)
-      if (error) { showToast('Failed: ' + error.message, 'error'); return }
+      if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
       document.getElementById('wm-secret').value = newSecret
-      showToast('Secret regenerated.')
+      showToast(t('wh_secret_regenerated'))
       await loadWebhooks()
     }
 
@@ -278,20 +281,22 @@
       const { data, error } = await sb.from('webhook_deliveries').select('*')
         .eq('webhook_id', webhook.id).order('created_at', { ascending: false }).limit(20)
       const list = document.getElementById('dl-list')
-      if (error) { list.innerHTML = `<p class="text-xs text-red-500">Failed to load: ${aesc(error.message)}</p>`; return }
+      if (error) { list.innerHTML = `<p class="text-xs text-red-500">${t('failed_prefix')}${aesc(error.message)}</p>`; return }
       if (!data || data.length === 0) {
-        list.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">No deliveries yet.</p>'
+        list.innerHTML = `<p class="text-xs text-gray-400 text-center py-4">${t('wh_no_deliveries')}</p>`
         return
       }
       list.innerHTML = data.map(d => `
         <div class="border border-gray-200 rounded-lg p-2.5">
           <div class="flex items-center justify-between gap-2">
-            <span class="text-xs font-semibold text-gray-700">${aesc(EVENT_LABEL[d.event_type] ?? d.event_type)}</span>
+            <span class="text-xs font-semibold text-gray-700">${aesc(eventLabel(d.event_type))}</span>
             <span class="text-[10px] text-gray-400">${fmtDate(d.created_at)}</span>
           </div>
           <pre class="text-[11px] text-gray-500 bg-gray-50 rounded p-2 mt-1.5 overflow-x-auto">${aesc(JSON.stringify(d.payload, null, 2))}</pre>
         </div>`).join('')
     }
+
+    document.addEventListener('acsd:langchange', () => { if (allWebhooks.length || document.getElementById('wh-count').textContent) renderWebhooks() })
 
     loadWebhooks()
   </script>

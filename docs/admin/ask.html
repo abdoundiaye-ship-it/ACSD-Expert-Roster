@@ -48,17 +48,17 @@
     <main class="flex-1 min-w-0 space-y-5 max-w-3xl">
 
       <div>
-        <h2 class="text-lg font-bold text-gray-900">Ask ACSD Intelligence</h2>
-        <p class="text-sm text-gray-500 mt-0.5">Search the expert roster in plain language. Results come straight from the database (roster filters, or already-computed match scores if you reference an open opportunity) — the AI only interprets your question, it never invents a name or a score.</p>
+        <h2 class="text-lg font-bold text-gray-900" data-i18n="ask_title">Ask ACSD Intelligence</h2>
+        <p class="text-sm text-gray-500 mt-0.5" data-i18n="ask_subtitle">Search the expert roster in plain language. Results come straight from the database (roster filters, or already-computed match scores if you reference an open opportunity) — the AI only interprets your question, it never invents a name or a score.</p>
       </div>
 
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <div class="flex gap-2">
-          <input id="ask-input" type="text" placeholder="e.g. Find me the 5 best experts for the DRC framework contract, or: Who speaks French and has WASH experience in Chad?"
+          <input id="ask-input" type="text" data-i18n-placeholder="ask_input_placeholder" placeholder="e.g. Find me the 5 best experts for the DRC framework contract, or: Who speaks French and has WASH experience in Chad?"
             class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             onkeydown="if(event.key==='Enter') askIntelligence()">
           <button id="ask-btn" onclick="askIntelligence()"
-            class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors flex-shrink-0">
+            class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors flex-shrink-0" data-i18n="ask_btn">
             Ask
           </button>
         </div>
@@ -76,7 +76,8 @@
   <script src="../js/auth.js"></script>
   <script src="../js/admin.js"></script>
   <script>
-    const TIER_LABEL = { junior: 'Junior', intermediary: 'Intermediary', senior: 'Senior', principal_expert: 'Principal Expert' }
+    function tierLabel(t2) { return { junior: t('seniority_junior'), intermediary: t('seniority_intermediary'), senior: t('seniority_senior'), principal_expert: t('seniority_principal_expert') }[t2] ?? t2 }
+    let lastAskResult = null
 
     async function init() {
       const session = await initAdmin('ask')
@@ -110,7 +111,7 @@
         renderResults(json)
       } catch (err) {
         const el = document.getElementById('ask-error')
-        el.textContent = err.message || 'Something went wrong.'
+        el.textContent = err.message || t('ask_something_went_wrong')
         el.classList.remove('hidden')
       } finally {
         btn.disabled = false
@@ -119,25 +120,26 @@
     }
 
     function renderResults(json) {
+      lastAskResult = json
       const wrap = document.getElementById('ask-results')
 
       const header = `
         <div class="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 mb-3">
-          <p class="text-xs font-semibold text-blue-800">Understood as:</p>
+          <p class="text-xs font-semibold text-blue-800">${t('ask_understood_as')}</p>
           <p class="text-sm text-blue-900 mt-0.5">${aesc(json.interpretation)}</p>
-          ${json.opportunity ? `<p class="text-xs text-blue-600 mt-1">Matched to opportunity: <a href="opportunity-detail.html?id=${aesc(json.opportunity.id)}" class="underline hover:text-blue-800">${aesc(json.opportunity.title)}</a>${json.used_computed_matches ? ' (using already-computed match scores)' : ' (no matches computed yet for this opportunity — showing a general roster search instead)'}</p>` : ''}
+          ${json.opportunity ? `<p class="text-xs text-blue-600 mt-1">${t('ask_matched_to_opportunity')} <a href="opportunity-detail.html?id=${aesc(json.opportunity.id)}" class="underline hover:text-blue-800">${aesc(json.opportunity.title)}</a>${json.used_computed_matches ? ' ' + t('ask_using_computed_matches') : ' ' + t('ask_no_matches_computed')}</p>` : ''}
         </div>`
 
       if (!json.results || json.results.length === 0) {
-        wrap.innerHTML = header + '<p class="text-sm text-gray-400 px-1">No matching experts found.</p>'
+        wrap.innerHTML = header + `<p class="text-sm text-gray-400 px-1">${t('ask_no_matches_found')}</p>`
         return
       }
 
       const rows = json.results.map(r => `
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex items-center justify-between gap-4">
           <div class="min-w-0">
-            <a href="experts.html?edit=${aesc(r.expert_id)}" class="font-semibold text-gray-900 hover:text-blue-700 truncate block">${aesc(r.full_name ?? 'Unknown')}</a>
-            <p class="text-xs text-gray-500 truncate">${aesc(r.title ?? '')}${r.title && r.seniority_tier ? ' · ' : ''}${aesc(TIER_LABEL[r.seniority_tier] ?? r.seniority_tier ?? '')}</p>
+            <a href="experts.html?edit=${aesc(r.expert_id)}" class="font-semibold text-gray-900 hover:text-blue-700 truncate block">${aesc(r.full_name ?? t('ask_unknown_name'))}</a>
+            <p class="text-xs text-gray-500 truncate">${aesc(r.title ?? '')}${r.title && r.seniority_tier ? ' · ' : ''}${aesc(tierLabel(r.seniority_tier) ?? '')}</p>
             <p class="text-xs text-gray-400 mt-1">${aesc(r.basis ?? '')}</p>
           </div>
           <div class="text-right flex-shrink-0">
@@ -149,6 +151,8 @@
 
       wrap.innerHTML = header + `<div>${rows}</div>`
     }
+
+    document.addEventListener('acsd:langchange', () => { if (lastAskResult) renderResults(lastAskResult) })
 
     init()
   </script>

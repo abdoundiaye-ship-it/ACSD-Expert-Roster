@@ -45,11 +45,11 @@
 
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="text-lg font-bold text-gray-900">Users</h2>
-          <p class="text-sm text-gray-500 mt-0.5">Manage accounts, roles, and access.</p>
+          <h2 class="text-lg font-bold text-gray-900" data-i18n="us_title">Users</h2>
+          <p class="text-sm text-gray-500 mt-0.5" data-i18n="us_subtitle">Manage accounts, roles, and access.</p>
         </div>
         <button onclick="openInviteModal()"
-          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors" data-i18n="us_invite_user">
           + Invite User
         </button>
       </div>
@@ -60,15 +60,15 @@
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              <th class="text-left px-5 py-3">User</th>
-              <th class="text-left px-5 py-3">Role</th>
-              <th class="text-left px-5 py-3 hidden sm:table-cell">Status</th>
-              <th class="text-left px-5 py-3 hidden md:table-cell">Created</th>
-              <th class="text-right px-5 py-3">Actions</th>
+              <th class="text-left px-5 py-3" data-i18n="us_col_user">User</th>
+              <th class="text-left px-5 py-3" data-i18n="us_col_role">Role</th>
+              <th class="text-left px-5 py-3 hidden sm:table-cell" data-i18n="us_col_status">Status</th>
+              <th class="text-left px-5 py-3 hidden md:table-cell" data-i18n="us_col_created">Created</th>
+              <th class="text-right px-5 py-3" data-i18n="us_col_actions">Actions</th>
             </tr>
           </thead>
           <tbody id="users-tbody" class="divide-y divide-gray-100">
-            <tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+            <tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400" data-i18n="loading">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -84,35 +84,35 @@
 
         <!-- Form view -->
         <div id="invite-form-view">
-          <h3 class="font-bold text-gray-900 text-base mb-5">Add New User</h3>
+          <h3 class="font-bold text-gray-900 text-base mb-5" data-i18n="us_add_new_user">Add New User</h3>
           <div id="invite-error" class="hidden mb-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg px-4 py-3"></div>
           <div class="space-y-4">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Full Name</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="us_lbl_full_name">Full Name</label>
               <input id="inv-name" type="text" placeholder="Jane Smith"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Email Address <span class="text-red-500">*</span></label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1"><span data-i18n="us_lbl_email">Email Address</span> <span class="text-red-500">*</span></label>
               <input id="inv-email" type="email" placeholder="jane@example.com"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Role <span class="text-red-500">*</span></label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1"><span data-i18n="us_lbl_role">Role</span> <span class="text-red-500">*</span></label>
               <select id="inv-role"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="viewer">Viewer</option>
-                <option value="admin">Admin</option>
+                <option value="viewer" data-i18n="us_role_viewer">Viewer</option>
+                <option value="admin" data-i18n="us_role_admin">Admin</option>
               </select>
             </div>
           </div>
           <div class="flex gap-3 mt-6">
             <button onclick="sendInvite()"
-              class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+              class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors" data-i18n="us_create_account">
               Create Account
             </button>
             <button onclick="closeAdminModal('invite-modal')"
-              class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
+              class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors" data-i18n="btn_cancel">
               Cancel
             </button>
           </div>
@@ -126,21 +126,21 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
               </svg>
             </div>
-            <h3 class="font-bold text-gray-900 text-base">Account created</h3>
+            <h3 class="font-bold text-gray-900 text-base" data-i18n="us_account_created">Account created</h3>
           </div>
-          <p class="text-xs text-gray-500 mb-4">
+          <p id="us-share-credentials-note" class="text-xs text-gray-500 mb-4">
             Share these credentials with the new user. They can change their password after logging in
             via <strong>Forgot password</strong> on the login page.
           </p>
           <div class="space-y-3 bg-gray-50 rounded-xl p-4 border border-gray-200 text-sm font-mono">
             <div class="flex items-center justify-between gap-3">
-              <span class="text-xs text-gray-400 uppercase tracking-wide w-16 flex-shrink-0">Email</span>
+              <span class="text-xs text-gray-400 uppercase tracking-wide w-16 flex-shrink-0" data-i18n="cd_lbl_email">Email</span>
               <span id="cred-email" class="flex-1 text-gray-800 text-xs break-all"></span>
             </div>
             <div class="flex items-center justify-between gap-3">
-              <span class="text-xs text-gray-400 uppercase tracking-wide w-16 flex-shrink-0">Password</span>
+              <span class="text-xs text-gray-400 uppercase tracking-wide w-16 flex-shrink-0" data-i18n="us_password">Password</span>
               <span id="cred-password" class="flex-1 text-gray-800 text-xs font-bold tracking-wide"></span>
-              <button onclick="copyCredentials()" title="Copy to clipboard"
+              <button onclick="copyCredentials()" data-i18n-title="us_copy_to_clipboard" title="Copy to clipboard"
                 class="flex-shrink-0 text-blue-600 hover:text-blue-800 p-1 rounded transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -149,9 +149,9 @@
               </button>
             </div>
           </div>
-          <p id="copy-confirmation" class="hidden text-xs text-green-600 mt-2 text-center">Copied to clipboard!</p>
+          <p id="copy-confirmation" class="hidden text-xs text-green-600 mt-2 text-center" data-i18n="us_copied_to_clipboard">Copied to clipboard!</p>
           <button onclick="closeAdminModal('invite-modal')"
-            class="mt-5 w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+            class="mt-5 w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors" data-i18n="us_done">
             Done
           </button>
         </div>
@@ -232,12 +232,12 @@
     function renderTable() {
       const bar = document.getElementById('admin-count-bar')
       const count = adminCount()
-      bar.textContent = `${count} admin${count !== 1 ? 's' : ''} — any number of users can hold the Admin role`
+      bar.textContent = t('us_admin_count_bar', count)
       bar.classList.remove('hidden')
 
       const tbody = document.getElementById('users-tbody')
       if (usersCache.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">No users found.</td></tr>'
+        tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-6 text-center text-xs text-gray-400">${t('us_no_users_found')}</td></tr>`
         return
       }
 
@@ -249,40 +249,40 @@
         return `
         <tr class="hover:bg-gray-50 transition-colors">
           <td class="px-5 py-3">
-            <p class="font-medium text-gray-900">${aesc(u.full_name || '—')} ${isSelf ? '<span class="text-xs text-gray-400">(you)</span>' : ''}</p>
+            <p class="font-medium text-gray-900">${aesc(u.full_name || '—')} ${isSelf ? `<span class="text-xs text-gray-400">${t('us_you_suffix')}</span>` : ''}</p>
             <p class="text-xs text-gray-500">${aesc(u.email)}</p>
           </td>
           <td class="px-5 py-3">
             <select
               data-uid="${aesc(u.id)}"
               onchange="changeRole(this)"
-              ${isSelf ? 'disabled title="You cannot change your own role"' : ''}
+              ${isSelf ? `disabled title="${aesc(t('us_cannot_change_own_role'))}"` : ''}
               class="text-xs font-semibold rounded-full px-2.5 py-1 border-0 focus:ring-2 focus:ring-blue-500 cursor-pointer
                      ${role === 'admin'
                        ? 'bg-amber-100 text-amber-800'
                        : 'bg-blue-50 text-blue-700'}
                      ${isSelf ? 'opacity-60 cursor-not-allowed' : ''}">
-              <option value="viewer" ${role === 'viewer' ? 'selected' : ''}>Viewer</option>
-              <option value="admin"  ${role === 'admin'  ? 'selected' : ''}>Admin</option>
+              <option value="viewer" ${role === 'viewer' ? 'selected' : ''}>${t('us_role_viewer')}</option>
+              <option value="admin"  ${role === 'admin'  ? 'selected' : ''}>${t('us_role_admin')}</option>
             </select>
           </td>
           <td class="px-5 py-3 hidden sm:table-cell">
             <span class="inline-flex items-center gap-1.5 text-xs font-medium
               ${active ? 'text-green-700' : 'text-gray-400'}">
               <span class="w-1.5 h-1.5 rounded-full ${active ? 'bg-green-500' : 'bg-gray-300'}"></span>
-              ${active ? 'Active' : 'Inactive'}
+              ${active ? t('us_status_active') : t('us_status_inactive')}
             </span>
           </td>
           <td class="px-5 py-3 text-xs text-gray-400 hidden md:table-cell">${fmtDate(u.created_at)}</td>
           <td class="px-5 py-3 text-right whitespace-nowrap">
             <button onclick="toggleUserActive('${aesc(u.id)}', ${active})"
               class="text-xs font-medium ${active ? 'text-amber-600 hover:text-amber-800' : 'text-green-600 hover:text-green-800'}">
-              ${active ? 'Deactivate' : 'Activate'}
+              ${active ? t('us_deactivate') : t('us_activate')}
             </button>
             <button onclick="deleteUser('${aesc(u.id)}', '${aesc(u.full_name || '')}', '${aesc(u.email)}')"
-              ${isSelf ? 'disabled title="You cannot delete your own account"' : ''}
+              ${isSelf ? `disabled title="${aesc(t('us_cannot_delete_own_account'))}"` : ''}
               class="text-xs font-medium ml-3 ${isSelf ? 'text-gray-300 cursor-not-allowed' : 'text-red-500 hover:text-red-700'}">
-              Delete
+              ${t('btn_delete')}
             </button>
           </td>
         </tr>`
@@ -304,7 +304,7 @@
 
       if (error) {
         selectEl.value = oldRole   // revert dropdown
-        showToast('Failed to update role: ' + error.message, 'error')
+        showToast(t('us_role_update_failed_prefix') + error.message, 'error')
         return
       }
 
@@ -324,9 +324,9 @@
 
       const countEl = document.getElementById('admin-count-bar')
       const count = adminCount()
-      countEl.textContent = `${count} admin${count !== 1 ? 's' : ''} — any number of users can hold the Admin role`
+      countEl.textContent = t('us_admin_count_bar', count)
 
-      showToast(`${u?.email ?? 'User'} is now ${newRole}.`)
+      showToast(t('us_role_changed', u?.email ?? t('us_user_fallback'), newRole === 'admin' ? t('us_role_admin') : t('us_role_viewer')))
     }
 
     function openInviteModal() {
@@ -337,6 +337,7 @@
       document.getElementById('invite-form-view').classList.remove('hidden')
       document.getElementById('invite-success-view').classList.add('hidden')
       document.getElementById('copy-confirmation').classList.add('hidden')
+      document.getElementById('us-share-credentials-note').innerHTML = t('us_share_credentials_html')
       openAdminModal('invite-modal')
     }
 
@@ -347,7 +348,7 @@
       const errDiv = document.getElementById('invite-error')
       errDiv.classList.add('hidden')
 
-      if (!email) { errDiv.textContent = 'Email is required.'; errDiv.classList.remove('hidden'); return }
+      if (!email) { errDiv.textContent = t('us_email_required'); errDiv.classList.remove('hidden'); return }
 
       try {
         const { data: { user: me } } = await sb.auth.getUser()
@@ -361,7 +362,7 @@
           }
         )
         const json = await resp.json()
-        if (!resp.ok) throw new Error(json.error || 'Account creation failed')
+        if (!resp.ok) throw new Error(json.error || t('us_account_creation_failed'))
 
         await logAudit('CREATE', 'user', json.userId, email, null, { role })
 
@@ -373,7 +374,7 @@
         await loadUsers()
       } catch (err) {
         errDiv.textContent = err.message.includes('Failed to fetch')
-          ? 'Edge Function not reachable. Deploy it first via the Supabase CLI.'
+          ? t('us_edge_function_not_reachable')
           : err.message
         errDiv.classList.remove('hidden')
       }
@@ -399,7 +400,7 @@
       document.getElementById('delete-error').classList.add('hidden')
       const btn = document.getElementById('del-confirm-btn')
       btn.disabled = false
-      btn.textContent = 'Delete permanently'
+      btn.textContent = t('us_delete_permanently')
       openAdminModal('delete-modal')
     }
 
@@ -408,7 +409,7 @@
 
       const btn = document.getElementById('del-confirm-btn')
       btn.disabled = true
-      btn.textContent = 'Deleting…'
+      btn.textContent = t('us_deleting_ellipsis')
       document.getElementById('delete-error').classList.add('hidden')
 
       try {
@@ -422,7 +423,7 @@
           }
         )
         const result = await resp.json()
-        if (!resp.ok) throw new Error(result.error || 'Delete failed')
+        if (!resp.ok) throw new Error(result.error || t('us_delete_failed_generic'))
 
         const u = usersCache.find(x => x.id === pendingDeleteId)
         await logAudit('DELETE', 'user', pendingDeleteId, u?.email ?? pendingDeleteId, null, null)
@@ -430,14 +431,14 @@
         closeAdminModal('delete-modal')
         pendingDeleteId = null
         await loadUsers()
-        showToast('User deleted.')
+        showToast(t('us_user_deleted'))
       } catch (err) {
         document.getElementById('delete-error').textContent = err.message.includes('Failed to fetch')
-          ? 'Edge Function not reachable. Deploy it first via the Supabase CLI.'
+          ? t('us_edge_function_not_reachable')
           : err.message
         document.getElementById('delete-error').classList.remove('hidden')
         btn.disabled = false
-        btn.textContent = 'Delete permanently'
+        btn.textContent = t('us_delete_permanently')
       }
     }
 
@@ -446,7 +447,7 @@
       const u = usersCache.find(x => x.id === userId)
 
       const { error } = await sb.from('profiles').update({ is_active: newState }).eq('id', userId)
-      if (error) { showToast('Failed: ' + error.message, 'error'); return }
+      if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
 
       await logAudit(newState ? 'ACTIVATE' : 'DEACTIVATE', 'user', userId, u?.email ?? userId,
         { is_active: currentlyActive }, { is_active: newState })
@@ -454,8 +455,10 @@
       const idx = usersCache.findIndex(x => x.id === userId)
       if (idx !== -1) usersCache[idx].is_active = newState
       renderTable()
-      showToast(newState ? 'User activated.' : 'User deactivated.')
+      showToast(newState ? t('us_user_activated') : t('us_user_deactivated'))
     }
+
+    document.addEventListener('acsd:langchange', () => { if (usersCache.length) renderTable() })
 
     loadUsers()
   </script>

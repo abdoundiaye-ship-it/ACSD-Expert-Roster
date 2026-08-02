@@ -44,8 +44,8 @@
     <main class="flex-1 min-w-0 space-y-6">
 
       <div>
-        <h2 class="text-lg font-bold text-gray-900">Dashboard</h2>
-        <p class="text-sm text-gray-500 mt-0.5">Overview of roster data and recent activity.</p>
+        <h2 class="text-lg font-bold text-gray-900" data-i18n="nav_dashboard">Dashboard</h2>
+        <p class="text-sm text-gray-500 mt-0.5" data-i18n="dash_subtitle">Overview of roster data and recent activity.</p>
       </div>
 
       <!-- Stat cards -->
@@ -60,11 +60,11 @@
       <!-- Recent activity -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200">
         <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h3 class="font-semibold text-gray-800 text-sm">Recent Activity</h3>
-          <a href="audit.html" class="text-xs text-blue-600 hover:underline">View all →</a>
+          <h3 class="font-semibold text-gray-800 text-sm" data-i18n="dash_recent_activity">Recent Activity</h3>
+          <a href="audit.html" class="text-xs text-blue-600 hover:underline" data-i18n="dash_view_all">View all →</a>
         </div>
         <div id="activity-table" class="divide-y divide-gray-50">
-          <div class="px-5 py-4 text-xs text-gray-400">Loading…</div>
+          <div class="px-5 py-4 text-xs text-gray-400" data-i18n="loading">Loading…</div>
         </div>
       </div>
 
@@ -104,11 +104,11 @@
       const upcomingDeadlines = openOpps.filter(o => o.deadline && o.deadline <= soonDeadline).length
 
       const statCards = [
-        { label: 'Total Experts',  value: totalExperts,  sub: `${totalExperts - activeExperts} inactive`, color: 'text-blue-700' },
-        { label: 'Active Experts', value: activeExperts, sub: 'in roster',                                color: 'text-green-700' },
-        { label: 'Total Users',    value: totalUsers,    sub: `${activeUsers} active`,                    color: 'text-purple-700' },
-        { label: 'Open Opportunities', value: openOpps.length, sub: `${upcomingDeadlines} due within 14 days`, color: 'text-indigo-700' },
-        { label: 'Audit Events',   value: logs.length,   sub: 'last 10 loaded',                          color: 'text-amber-700' },
+        { label: t('dash_total_experts'),  value: totalExperts,  sub: t('dash_inactive_count', totalExperts - activeExperts), color: 'text-blue-700' },
+        { label: t('dash_active_experts'), value: activeExperts, sub: t('dash_in_roster'),                                    color: 'text-green-700' },
+        { label: t('dash_total_users'),    value: totalUsers,    sub: t('dash_active_count', activeUsers),                    color: 'text-purple-700' },
+        { label: t('dash_open_opportunities'), value: openOpps.length, sub: t('dash_due_within_14', upcomingDeadlines), color: 'text-indigo-700' },
+        { label: t('dash_audit_events'),   value: logs.length,   sub: t('dash_last_10_loaded'),                          color: 'text-amber-700' },
       ]
 
       document.getElementById('stats-grid').innerHTML = statCards.map(s => `
@@ -119,7 +119,7 @@
         </div>`).join('')
 
       document.getElementById('activity-table').innerHTML = logs.length === 0
-        ? '<div class="px-5 py-4 text-xs text-gray-400">No activity recorded yet.</div>'
+        ? `<div class="px-5 py-4 text-xs text-gray-400">${t('dash_no_activity')}</div>`
         : logs.map(l => `
           <div class="px-5 py-3 flex items-start gap-4 text-sm hover:bg-gray-50 transition-colors">
             <span class="text-xs text-gray-400 flex-shrink-0 mt-0.5 w-28">${fmtDate(l.timestamp)}</span>
@@ -142,6 +142,8 @@
       if (['DEACTIVATE','SESSION_TIMEOUT'].includes(a)) return 'bg-gray-100 text-gray-600'
       return 'bg-gray-100 text-gray-600'
     }
+
+    document.addEventListener('acsd:langchange', () => { if (!document.getElementById('stats-grid').querySelector('.animate-pulse')) loadDashboard() })
 
     loadDashboard()
   </script>

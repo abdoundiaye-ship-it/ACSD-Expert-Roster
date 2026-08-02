@@ -57,11 +57,11 @@
   <!-- Page heading -->
   <div class="flex items-start justify-between gap-3 flex-wrap mb-6">
     <div>
-      <h2 class="text-xl font-bold text-gray-900">Reports</h2>
-      <p class="text-sm text-gray-500 mt-0.5">Generate, filter, preview, and export data reports</p>
+      <h2 class="text-xl font-bold text-gray-900" data-i18n="rp_title">Reports</h2>
+      <p class="text-sm text-gray-500 mt-0.5" data-i18n="rp_subtitle">Generate, filter, preview, and export data reports</p>
     </div>
     <button id="save-config-btn" onclick="openSaveModal()"
-      class="hidden text-sm font-medium text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
+      class="hidden text-sm font-medium text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors" data-i18n="rp_save_configuration">
       Save Configuration
     </button>
   </div>
@@ -69,113 +69,113 @@
   <!-- Tabs — grouped by functional area (Roster / Opportunities / Administration), matching the admin sidebar's grouping -->
   <div class="flex items-center flex-wrap gap-1 bg-white border border-gray-200 rounded-xl p-1 w-fit mb-4 shadow-sm">
     <button id="tab-experts" onclick="switchTab('experts')"
-      class="px-4 py-2 rounded-lg text-sm font-medium bg-blue-950 text-white transition-colors">
+      class="px-4 py-2 rounded-lg text-sm font-medium bg-blue-950 text-white transition-colors" data-i18n="rp_tab_experts">
       Expert Roster
     </button>
 
     <div class="w-px self-stretch bg-gray-200 mx-1"></div>
 
     <button id="tab-opportunities" onclick="switchTab('opportunities')"
-      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors" data-i18n="rp_tab_opportunities">
       Opportunities
     </button>
     <button id="tab-financials" onclick="switchTab('financials')"
-      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors" data-i18n="rp_tab_financials">
       Team &amp; Financials
     </button>
     <button id="tab-documents" onclick="switchTab('documents')"
-      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors" data-i18n="rp_tab_documents">
       Proposal Documents
     </button>
     <button id="tab-knowledgebase" onclick="switchTab('knowledgebase')"
-      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors" data-i18n="rp_tab_knowledgebase">
       Knowledge Base
     </button>
 
     <div class="w-px self-stretch bg-gray-200 mx-1"></div>
 
     <button id="tab-users" onclick="switchTab('users')"
-      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors" data-i18n="rp_tab_users">
       User Directory
     </button>
     <button id="tab-audit" onclick="switchTab('audit')"
-      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+      class="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors" data-i18n="rp_tab_audit">
       Audit Log
     </button>
   </div>
-  <p id="admin-hint" class="hidden text-xs text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2 rounded-lg mb-4 w-fit">
+  <p id="admin-hint" class="hidden text-xs text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2 rounded-lg mb-4 w-fit" data-i18n="rp_admin_hint">
     User Directory, Audit Log, and Team &amp; Financials reports require Admin access.
   </p>
 
   <!-- Filter card -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-5">
-    <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">Filters</p>
+    <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-4" data-i18n="rp_filters">Filters</p>
 
     <!-- Expert filters -->
     <div id="filters-experts">
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div class="col-span-2 lg:col-span-2">
-          <label class="block text-xs font-medium text-gray-500 mb-1">Name Search</label>
-          <input id="ef-search" type="text" placeholder="Search by name…" class="fi">
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_name_search">Name Search</label>
+          <input id="ef-search" type="text" data-i18n-placeholder="rp_search_by_name" placeholder="Search by name…" class="fi">
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Affiliation</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="cl_col_type">Affiliation</label>
           <select id="ef-affiliation" class="fi">
-            <option value="">All</option>
-            <option value="internal">Core (Internal)</option>
-            <option value="partner">Partner</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="internal" data-i18n="rp_core_internal">Core (Internal)</option>
+            <option value="partner" data-i18n="rp_partner">Partner</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Level</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_level">Level</label>
           <select id="ef-seniority" class="fi">
-            <option value="">All</option>
-            <option value="principal_expert">Principal Expert</option>
-            <option value="senior">Senior</option>
-            <option value="intermediary">Intermediary</option>
-            <option value="junior">Junior</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="principal_expert" data-i18n="seniority_principal_expert">Principal Expert</option>
+            <option value="senior" data-i18n="seniority_senior">Senior</option>
+            <option value="intermediary" data-i18n="seniority_intermediary">Intermediary</option>
+            <option value="junior" data-i18n="seniority_junior">Junior</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Availability</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_availability">Availability</label>
           <select id="ef-availability" class="fi">
-            <option value="">All</option>
-            <option value="available">Available</option>
-            <option value="assigned">On Assignment</option>
-            <option value="unavailable">Unavailable</option>
-            <option value="unknown">Not Specified</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="available" data-i18n="rp_available">Available</option>
+            <option value="assigned" data-i18n="rp_on_assignment">On Assignment</option>
+            <option value="unavailable" data-i18n="rp_unavailable">Unavailable</option>
+            <option value="unknown" data-i18n="rp_not_specified">Not Specified</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="cl_col_status">Status</label>
           <select id="ef-active" class="fi">
-            <option value="">All</option>
-            <option value="true">Active</option>
-            <option value="false">Inactive</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="true" data-i18n="cl_status_active">Active</option>
+            <option value="false" data-i18n="us_status_inactive">Inactive</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Sector</label>
-          <select id="ef-sector" class="fi"><option value="">All</option></select>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_sector">Sector</label>
+          <select id="ef-sector" class="fi"><option value="" data-i18n="rp_all">All</option></select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Geography</label>
-          <select id="ef-geography" class="fi"><option value="">All</option></select>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_geography">Geography</label>
+          <select id="ef-geography" class="fi"><option value="" data-i18n="rp_all">All</option></select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Language</label>
-          <select id="ef-language" class="fi"><option value="">All</option></select>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_language">Language</label>
+          <select id="ef-language" class="fi"><option value="" data-i18n="rp_all">All</option></select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Donor</label>
-          <select id="ef-donor" class="fi"><option value="">All</option></select>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_donor">Donor</label>
+          <select id="ef-donor" class="fi"><option value="" data-i18n="rp_all">All</option></select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Created After</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_created_after">Created After</label>
           <input id="ef-date-from" type="date" class="fi">
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Created Before</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_created_before">Created Before</label>
           <input id="ef-date-to" type="date" class="fi">
         </div>
       </div>
@@ -185,27 +185,27 @@
     <div id="filters-users" class="hidden">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Role</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="us_lbl_role">Role</label>
           <select id="uf-role" class="fi">
-            <option value="">All</option>
-            <option value="admin">Admin</option>
-            <option value="viewer">Viewer</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="admin" data-i18n="us_role_admin">Admin</option>
+            <option value="viewer" data-i18n="us_role_viewer">Viewer</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="cl_col_status">Status</label>
           <select id="uf-active" class="fi">
-            <option value="">All</option>
-            <option value="true">Active</option>
-            <option value="false">Inactive</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="true" data-i18n="cl_status_active">Active</option>
+            <option value="false" data-i18n="us_status_inactive">Inactive</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Created After</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_created_after">Created After</label>
           <input id="uf-date-from" type="date" class="fi">
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Created Before</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_created_before">Created Before</label>
           <input id="uf-date-to" type="date" class="fi">
         </div>
       </div>
@@ -215,9 +215,9 @@
     <div id="filters-audit" class="hidden">
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Action</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="au_col_action">Action</label>
           <select id="af-action" class="fi">
-            <option value="">All</option>
+            <option value="" data-i18n="rp_all">All</option>
             <option>LOGIN</option><option>LOGOUT</option><option>SESSION_TIMEOUT</option>
             <option>CREATE</option><option>UPDATE</option><option>DELETE</option>
             <option>ACTIVATE</option><option>DEACTIVATE</option><option>ASSIGN_ROLE</option>
@@ -225,23 +225,23 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Entity Type</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="au_col_entity_type">Entity Type</label>
           <select id="af-entity" class="fi">
-            <option value="">All</option>
+            <option value="" data-i18n="rp_all">All</option>
             <option>expert</option><option>user</option><option>role</option>
             <option>session</option><option>report</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">User Email</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_user_email">User Email</label>
           <input id="af-email" type="text" placeholder="user@example.com" class="fi">
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Date From</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_date_from">Date From</label>
           <input id="af-date-from" type="date" class="fi">
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Date To</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_date_to">Date To</label>
           <input id="af-date-to" type="date" class="fi">
         </div>
       </div>
@@ -251,44 +251,44 @@
     <div id="filters-opportunities" class="hidden">
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div class="col-span-2">
-          <label class="block text-xs font-medium text-gray-500 mb-1">Title Search</label>
-          <input id="of-search" type="text" placeholder="Search by title…" class="fi">
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_title_search">Title Search</label>
+          <input id="of-search" type="text" data-i18n-placeholder="rp_search_by_title" placeholder="Search by title…" class="fi">
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="cl_col_status">Status</label>
           <select id="of-status" class="fi">
-            <option value="">All</option>
-            <option value="open">Open</option><option value="in_progress">In Progress</option>
-            <option value="submitted">Submitted</option><option value="won">Won</option>
-            <option value="lost">Lost</option><option value="archived">Archived</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="open" data-i18n="opp_status_open">Open</option><option value="in_progress" data-i18n="opp_status_in_progress">In Progress</option>
+            <option value="submitted" data-i18n="opp_status_submitted">Submitted</option><option value="won" data-i18n="opp_status_won">Won</option>
+            <option value="lost" data-i18n="opp_status_lost">Lost</option><option value="archived" data-i18n="opp_status_archived">Archived</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Type</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_type">Type</label>
           <select id="of-type" class="fi">
-            <option value="">All</option>
+            <option value="" data-i18n="rp_all">All</option>
             <option value="RFP">RFP</option><option value="EOI">EOI</option>
             <option value="RFQ">RFQ</option><option value="REOI">REOI</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Source</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_source">Source</label>
           <select id="of-source" class="fi">
-            <option value="">All</option>
-            <option value="manual">Manual</option><option value="tor_upload">TOR Upload</option>
-            <option value="quick_intake">Quick Intake</option><option value="api_scan">API Scan</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="manual" data-i18n="opp_source_manual">Manual</option><option value="tor_upload" data-i18n="opp_source_tor_upload">TOR Upload</option>
+            <option value="quick_intake" data-i18n="opp_source_quick_intake">Quick Intake</option><option value="api_scan" data-i18n="opp_source_api_scan">API Scan</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Sector</label>
-          <select id="of-sector" class="fi"><option value="">All</option></select>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_sector">Sector</label>
+          <select id="of-sector" class="fi"><option value="" data-i18n="rp_all">All</option></select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Deadline From</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_deadline_from">Deadline From</label>
           <input id="of-date-from" type="date" class="fi">
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Deadline To</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_deadline_to">Deadline To</label>
           <input id="of-date-to" type="date" class="fi">
         </div>
       </div>
@@ -298,36 +298,36 @@
     <div id="filters-financials" class="hidden">
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Team Member Status</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_team_member_status">Team Member Status</label>
           <select id="tf-status" class="fi">
-            <option value="">All</option>
-            <option value="shortlisted">Shortlisted</option><option value="selected">Selected</option>
-            <option value="confirmed">Confirmed</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="shortlisted" data-i18n="rp_shortlisted">Shortlisted</option><option value="selected" data-i18n="rp_selected">Selected</option>
+            <option value="confirmed" data-i18n="rp_confirmed">Confirmed</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Opportunity Status</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_opportunity_status">Opportunity Status</label>
           <select id="tf-opp-status" class="fi">
-            <option value="">All</option>
-            <option value="open">Open</option><option value="in_progress">In Progress</option>
-            <option value="submitted">Submitted</option><option value="won">Won</option>
-            <option value="lost">Lost</option><option value="archived">Archived</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="open" data-i18n="opp_status_open">Open</option><option value="in_progress" data-i18n="opp_status_in_progress">In Progress</option>
+            <option value="submitted" data-i18n="opp_status_submitted">Submitted</option><option value="won" data-i18n="opp_status_won">Won</option>
+            <option value="lost" data-i18n="opp_status_lost">Lost</option><option value="archived" data-i18n="opp_status_archived">Archived</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Seniority</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_seniority">Seniority</label>
           <select id="tf-seniority" class="fi">
-            <option value="">All</option>
-            <option value="principal_expert">Principal Expert</option><option value="senior">Senior</option>
-            <option value="intermediary">Intermediary</option><option value="junior">Junior</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="principal_expert" data-i18n="seniority_principal_expert">Principal Expert</option><option value="senior" data-i18n="seniority_senior">Senior</option>
+            <option value="intermediary" data-i18n="seniority_intermediary">Intermediary</option><option value="junior" data-i18n="seniority_junior">Junior</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Added After</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_added_after">Added After</label>
           <input id="tf-date-from" type="date" class="fi">
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Added Before</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_added_before">Added Before</label>
           <input id="tf-date-to" type="date" class="fi">
         </div>
       </div>
@@ -337,36 +337,36 @@
     <div id="filters-documents" class="hidden">
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Document Type</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_document_type">Document Type</label>
           <select id="pd-doctype" class="fi">
-            <option value="">All</option>
-            <option value="eoi">Expression of Interest</option><option value="technical_approach">Technical Approach</option>
-            <option value="workplan">Workplan</option><option value="expert_cv">Tailored CV</option>
-            <option value="budget">Budget</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="eoi" data-i18n="doc_label_eoi">Expression of Interest</option><option value="technical_approach" data-i18n="doc_label_technical_approach">Technical Approach</option>
+            <option value="workplan" data-i18n="doc_label_workplan">Workplan</option><option value="expert_cv" data-i18n="doc_label_expert_cv">Tailored CV</option>
+            <option value="budget" data-i18n="doc_label_budget">Budget</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="cl_col_status">Status</label>
           <select id="pd-status" class="fi">
-            <option value="">All</option>
-            <option value="draft">Draft</option><option value="reviewed">Reviewed</option><option value="final">Final</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="draft" data-i18n="ct_status_draft">Draft</option><option value="reviewed" data-i18n="rp_reviewed">Reviewed</option><option value="final" data-i18n="rp_final">Final</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Opportunity Status</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_opportunity_status">Opportunity Status</label>
           <select id="pd-opp-status" class="fi">
-            <option value="">All</option>
-            <option value="open">Open</option><option value="in_progress">In Progress</option>
-            <option value="submitted">Submitted</option><option value="won">Won</option>
-            <option value="lost">Lost</option><option value="archived">Archived</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="open" data-i18n="opp_status_open">Open</option><option value="in_progress" data-i18n="opp_status_in_progress">In Progress</option>
+            <option value="submitted" data-i18n="opp_status_submitted">Submitted</option><option value="won" data-i18n="opp_status_won">Won</option>
+            <option value="lost" data-i18n="opp_status_lost">Lost</option><option value="archived" data-i18n="opp_status_archived">Archived</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Updated After</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_updated_after">Updated After</label>
           <input id="pd-date-from" type="date" class="fi">
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Updated Before</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_updated_before">Updated Before</label>
           <input id="pd-date-to" type="date" class="fi">
         </div>
       </div>
@@ -376,28 +376,28 @@
     <div id="filters-knowledgebase" class="hidden">
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div class="col-span-2">
-          <label class="block text-xs font-medium text-gray-500 mb-1">Title/Description Search</label>
-          <input id="kbf-search" type="text" placeholder="Search…" class="fi">
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_title_desc_search">Title/Description Search</label>
+          <input id="kbf-search" type="text" data-i18n-placeholder="rp_search_ellipsis" placeholder="Search…" class="fi">
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Category</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="kb_cat_label">Category</label>
           <select id="kbf-category" class="fi">
-            <option value="">All</option>
-            <option value="methodologies">Methodologies</option><option value="technical_proposals">Technical Proposals</option>
-            <option value="cvs">CVs</option><option value="references">References</option>
-            <option value="donor_requirements">Donor Requirements</option><option value="templates">Templates</option>
+            <option value="" data-i18n="rp_all">All</option>
+            <option value="methodologies" data-i18n="kb_cat_methodologies">Methodologies</option><option value="technical_proposals" data-i18n="kb_cat_technical_proposals">Technical Proposals</option>
+            <option value="cvs" data-i18n="kb_cat_cvs">CVs</option><option value="references" data-i18n="kb_cat_references">References</option>
+            <option value="donor_requirements" data-i18n="kb_cat_donor_requirements">Donor Requirements</option><option value="templates" data-i18n="kb_cat_templates">Templates</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Sector</label>
-          <select id="kbf-sector" class="fi"><option value="">All</option></select>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_sector">Sector</label>
+          <select id="kbf-sector" class="fi"><option value="" data-i18n="rp_all">All</option></select>
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Added After</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_added_after">Added After</label>
           <input id="kbf-date-from" type="date" class="fi">
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Added Before</label>
+          <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_added_before">Added Before</label>
           <input id="kbf-date-to" type="date" class="fi">
         </div>
       </div>
@@ -411,10 +411,10 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
-        Generate Report
+        <span id="generate-btn-label" data-i18n="rp_generate_report">Generate Report</span>
       </button>
       <button onclick="resetFilters()"
-        class="text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+        class="text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" data-i18n="rp_reset_filters">
         Reset Filters
       </button>
     </div>
@@ -426,7 +426,7 @@
       <svg id="saved-chevron" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
       </svg>
-      Saved Configurations
+      <span data-i18n="rp_saved_configurations">Saved Configurations</span>
       <span id="saved-count" class="bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-0.5 rounded-full">0</span>
     </button>
     <div id="saved-list" class="hidden"></div>
@@ -465,7 +465,7 @@
             Word
           </button>
           <button onclick="printReport()"
-            class="bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">
+            class="bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors" data-i18n="rp_print">
             Print
           </button>
         </div>
@@ -484,8 +484,8 @@
         </table>
       </div>
       <div id="no-results" class="hidden text-center py-16 text-gray-400">
-        <p class="font-medium">No results match your filters</p>
-        <p class="text-xs mt-1">Try broadening your criteria.</p>
+        <p class="font-medium" data-i18n="rp_no_results">No results match your filters</p>
+        <p class="text-xs mt-1" data-i18n="rp_broaden_criteria">Try broadening your criteria.</p>
       </div>
     </div>
   </div>
@@ -496,13 +496,13 @@
   <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeSaveModal()"></div>
   <div class="fixed inset-0 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
-      <h3 class="text-base font-bold text-gray-900 mb-4">Save Report Configuration</h3>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-      <input id="config-name" type="text" placeholder="e.g. Active Partners — Health Sector"
+      <h3 class="text-base font-bold text-gray-900 mb-4" data-i18n="rp_save_report_configuration">Save Report Configuration</h3>
+      <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="cl_col_name">Name</label>
+      <input id="config-name" type="text" data-i18n-placeholder="rp_config_name_placeholder" placeholder="e.g. Active Partners — Health Sector"
         class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4">
       <div class="flex gap-3">
-        <button onclick="saveConfig()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white py-2.5 rounded-lg text-sm font-semibold">Save</button>
-        <button onclick="closeSaveModal()" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 py-2.5 rounded-lg text-sm">Cancel</button>
+        <button onclick="saveConfig()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white py-2.5 rounded-lg text-sm font-semibold" data-i18n="btn_save">Save</button>
+        <button onclick="closeSaveModal()" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 py-2.5 rounded-lg text-sm" data-i18n="btn_cancel">Cancel</button>
       </div>
     </div>
   </div>
@@ -601,7 +601,7 @@ async function generateReport() {
   btn.disabled = true
   btn.innerHTML = `<svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Generating…`
+    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> ${t('rp_generating_ellipsis')}`
   try {
     const filters = readFilters()
     let data, title
@@ -620,13 +620,13 @@ async function generateReport() {
     document.getElementById('save-config-btn').classList.remove('hidden')
     await logAudit('REPORT_GENERATE','report',null,title,null,
       { reportType: currentTab, filters: pillsFor(filters), count: data.length })
-  } catch(err) { showToast('Error: ' + err.message, 'error') }
+  } catch(err) { showToast(t('rl_error_prefix') + err.message, 'error') }
   finally {
     btn.disabled = false
     btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
         d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-      Generate Report`
+      ${t('rp_generate_report')}`
   }
 }
 
@@ -986,8 +986,8 @@ async function exportReport(fmt) {
     if (fmt==='pdf')  doPDF(fname)
     if (fmt==='docx') doWord(fname)
     await logAudit('REPORT_EXPORT','report',null,currentReport.title,null,{ format:fmt, count:currentReport.data.length })
-    showToast('Exported as ' + fmt.toUpperCase(), 'success')
-  } catch(err) { showToast('Export failed: ' + err.message, 'error') }
+    showToast(t('rp_exported_as') + fmt.toUpperCase(), 'success')
+  } catch(err) { showToast(t('rp_export_failed_prefix') + err.message, 'error') }
 }
 
 function doCSV(fname) {
@@ -1117,7 +1117,7 @@ function saveConfig() {
   closeSaveModal()
   document.getElementById('config-name').value = ''
   renderSavedConfigs()
-  showToast('Configuration saved', 'success')
+  showToast(t('rp_configuration_saved'), 'success')
 }
 
 function getConfigs() {
@@ -1129,7 +1129,7 @@ function renderSavedConfigs() {
   document.getElementById('saved-count').textContent = all.length
   const list = document.getElementById('saved-list')
   if (!all.length) {
-    list.innerHTML = '<p class="text-sm text-gray-400">No saved configurations yet.</p>'
+    list.innerHTML = `<p class="text-sm text-gray-400">${t('rp_no_saved_configs')}</p>`
     return
   }
   list.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">${
@@ -1140,8 +1140,8 @@ function renderSavedConfigs() {
         <p class="text-xs text-gray-400 mt-0.5 capitalize">${ec(c.type)} &middot; ${new Date(c.createdAt).toLocaleDateString('en-GB')}</p>
       </div>
       <div class="flex gap-1 flex-shrink-0">
-        <button onclick="loadConfig('${ec(c.id)}')" class="text-xs text-blue-600 hover:text-blue-900 px-2 py-1 rounded hover:bg-blue-50">Load</button>
-        <button onclick="delConfig('${ec(c.id)}')"  class="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50">Delete</button>
+        <button onclick="loadConfig('${ec(c.id)}')" class="text-xs text-blue-600 hover:text-blue-900 px-2 py-1 rounded hover:bg-blue-50">${t('rp_load')}</button>
+        <button onclick="delConfig('${ec(c.id)}')"  class="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50">${t('btn_delete')}</button>
       </div>
     </div>`).join('')
   }</div>`
@@ -1176,7 +1176,7 @@ function loadConfig(id) {
     sv('kbf-search',f.search); sv('kbf-category',f.category); sv('kbf-sector',f.sector)
     sv('kbf-date-from',f.dateFrom); sv('kbf-date-to',f.dateTo)
   }
-  showToast('Loaded: ' + c.name, 'success')
+  showToast(t('rp_loaded_prefix') + c.name, 'success')
 }
 
 function delConfig(id) {
@@ -1261,6 +1261,8 @@ function showToast(msg, type = 'info') {
   el.classList.remove('hidden')
   setTimeout(() => el.classList.add('hidden'), 3500)
 }
+
+document.addEventListener('acsd:langchange', () => { renderSavedConfigs() })
 
 init()
 </script>

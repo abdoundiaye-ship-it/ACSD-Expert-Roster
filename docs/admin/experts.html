@@ -49,11 +49,11 @@
 
       <div class="flex items-center justify-between gap-4">
         <div>
-          <h2 class="text-lg font-bold text-gray-900">Experts</h2>
-          <p class="text-sm text-gray-500 mt-0.5">Create, update, activate, and delete expert records.</p>
+          <h2 class="text-lg font-bold text-gray-900" data-i18n="nav_experts">Experts</h2>
+          <p class="text-sm text-gray-500 mt-0.5" data-i18n="exp_subtitle">Create, update, activate, and delete expert records.</p>
         </div>
         <button onclick="openExpertModal()"
-          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0">
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0" data-i18n="exp_add_btn">
           + Add Expert
         </button>
       </div>
@@ -66,23 +66,23 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
-          <input id="expert-search" type="search" placeholder="Search experts…"
+          <input id="expert-search" type="search" placeholder="Search experts…" data-i18n-placeholder="exp_search_ph"
             class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             oninput="filterExperts()">
         </div>
         <select id="expert-filter-active"
           class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           onchange="filterExperts()">
-          <option value="">All</option>
-          <option value="true">Active only</option>
-          <option value="false">Inactive only</option>
+          <option value="" data-i18n="opt_all">All</option>
+          <option value="true" data-i18n="exp_filter_active_only">Active only</option>
+          <option value="false" data-i18n="exp_filter_inactive_only">Inactive only</option>
         </select>
         <select id="expert-filter-affil"
           class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           onchange="filterExperts()">
-          <option value="">All affiliations</option>
-          <option value="internal">Core (Internal)</option>
-          <option value="partner">Partner</option>
+          <option value="" data-i18n="exp_filter_all_affil">All affiliations</option>
+          <option value="internal" data-i18n="exp_opt_core_internal">Core (Internal)</option>
+          <option value="partner" data-i18n="affil_partner">Partner</option>
         </select>
       </div>
 
@@ -92,16 +92,16 @@
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              <th class="text-left px-5 py-3">Name</th>
-              <th class="text-left px-5 py-3 hidden md:table-cell">Title</th>
-              <th class="text-left px-5 py-3">Affiliation</th>
-              <th class="text-left px-5 py-3 hidden lg:table-cell">Seniority</th>
-              <th class="text-left px-5 py-3">Status</th>
-              <th class="text-right px-5 py-3">Actions</th>
+              <th class="text-left px-5 py-3" data-i18n="exp_col_name">Name</th>
+              <th class="text-left px-5 py-3 hidden md:table-cell" data-i18n="exp_col_title">Title</th>
+              <th class="text-left px-5 py-3" data-i18n="label_affiliation">Affiliation</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell" data-i18n="label_seniority">Seniority</th>
+              <th class="text-left px-5 py-3" data-i18n="opp_col_status">Status</th>
+              <th class="text-right px-5 py-3" data-i18n="opp_col_actions">Actions</th>
             </tr>
           </thead>
           <tbody id="experts-tbody" class="divide-y divide-gray-100">
-            <tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+            <tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400" data-i18n="loading">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -122,7 +122,7 @@
           </svg>
         </button>
 
-        <h3 id="modal-title" class="font-bold text-gray-900 text-base mb-5">Add Expert</h3>
+        <h3 id="modal-title" class="font-bold text-gray-900 text-base mb-5" data-i18n="exp_add_title">Add Expert</h3>
 
         <!-- ── CV Import section (new experts only) ── -->
         <div id="cv-analysis-panel" class="mb-5">
@@ -130,7 +130,7 @@
           <!-- Step label -->
           <div class="flex items-center gap-2 mb-3">
             <span class="flex-shrink-0 w-5 h-5 rounded-full bg-blue-800 text-white text-xs font-bold flex items-center justify-center">1</span>
-            <span class="text-sm font-semibold text-gray-800">Upload a CV to auto-fill the form</span>
+            <span class="text-sm font-semibold text-gray-800" data-i18n="exp_step1_label">Upload a CV to auto-fill the form</span>
             <span class="text-xs font-medium bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">AI</span>
           </div>
 
@@ -144,8 +144,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
             </svg>
-            <p class="text-sm font-semibold text-blue-900">Drop a CV here, or click to browse</p>
-            <p class="text-xs text-blue-500 mt-1">PDF, DOCX, TXT &middot; max 10 MB</p>
+            <p class="text-sm font-semibold text-blue-900" data-i18n="exp_dropzone_text">Drop a CV here, or click to browse</p>
+            <p class="text-xs text-blue-500 mt-1" data-i18n="file_hint_pdf_docx_txt">PDF, DOCX, TXT &middot; max 10 MB</p>
           </div>
           <input type="file" id="cv-file-input" accept=".pdf,.docx,.doc,.txt"
             class="hidden" onchange="cvFileSelected(event)">
@@ -170,13 +170,13 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
             </svg>
-            Analyze CV with AI
+            <span data-i18n="exp_analyze_cv_btn">Analyze CV with AI</span>
           </button>
 
           <!-- Success banner -->
           <div id="cv-success" class="hidden mt-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-            <p class="text-sm font-semibold text-green-800">&#10003; CV analyzed — form fields pre-filled below</p>
-            <p class="text-xs text-green-600 mt-0.5">Review and edit any field before saving.</p>
+            <p class="text-sm font-semibold text-green-800" data-i18n="exp_cv_success_title">&#10003; CV analyzed — form fields pre-filled below</p>
+            <p class="text-xs text-green-600 mt-0.5" data-i18n="exp_cv_success_sub">Review and edit any field before saving.</p>
             <div id="cv-extras" class="mt-2 space-y-0.5 text-xs text-green-700"></div>
           </div>
 
@@ -186,7 +186,7 @@
             <div class="relative flex justify-center">
               <span class="bg-white px-3 text-xs text-gray-400 font-medium">
                 <span class="flex-shrink-0 w-5 h-5 rounded-full bg-gray-200 text-gray-600 text-xs font-bold inline-flex items-center justify-center mr-1">2</span>
-                Review or fill the form below
+                <span data-i18n="review_or_fill_form">Review or fill the form below</span>
               </span>
             </div>
           </div>
@@ -201,13 +201,13 @@
           <!-- Row 1: Names -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">First Name</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_firstname">First Name</label>
               <input id="ef-firstname" type="text"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 oninput="composeName()">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Last Name</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_lastname">Last Name</label>
               <input id="ef-lastname" type="text"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 oninput="composeName()">
@@ -218,13 +218,13 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-semibold text-gray-600 mb-1">
-                Full Name <span class="text-red-500">*</span>
+                <span data-i18n="exp_lbl_fullname">Full Name</span> <span class="text-red-500">*</span>
               </label>
               <input id="ef-fullname" type="text" required
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Job Title</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_jobtitle">Job Title</label>
               <input id="ef-title" type="text"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
@@ -234,17 +234,17 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-semibold text-gray-600 mb-1">
-                Affiliation <span class="text-red-500">*</span>
+                <span data-i18n="label_affiliation">Affiliation</span> <span class="text-red-500">*</span>
               </label>
               <select id="ef-affil" required
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onchange="togglePartnerOrg()">
-                <option value="internal">Core (Internal)</option>
-                <option value="partner">Partner</option>
+                <option value="internal" data-i18n="exp_opt_core_internal">Core (Internal)</option>
+                <option value="partner" data-i18n="affil_partner">Partner</option>
               </select>
             </div>
             <div id="partner-org-wrap">
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Organization</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_organization">Organization</label>
               <input id="ef-partnerorg" type="text"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
@@ -253,18 +253,18 @@
           <!-- Row 4: Seniority + years experience -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Seniority Tier</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_seniority_tier">Seniority Tier</label>
               <select id="ef-seniority"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">— not set —</option>
-                <option value="junior">Junior</option>
-                <option value="intermediary">Intermediary</option>
-                <option value="senior">Senior</option>
-                <option value="principal_expert">Principal Expert</option>
+                <option value="" data-i18n="exp_opt_not_set">— not set —</option>
+                <option value="junior" data-i18n="seniority_junior">Junior</option>
+                <option value="intermediary" data-i18n="seniority_intermediary">Intermediary</option>
+                <option value="senior" data-i18n="seniority_senior">Senior</option>
+                <option value="principal_expert" data-i18n="seniority_principal_expert">Principal Expert</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Years of Experience</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_years">Years of Experience</label>
               <input id="ef-years" type="number" min="0" max="50" step="0.5"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
@@ -273,12 +273,12 @@
           <!-- Row 5: Email + phone -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Email Address</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_email">Email Address</label>
               <input id="ef-email" type="email"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Phone</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_phone">Phone</label>
               <input id="ef-phone" type="tel"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
@@ -287,32 +287,32 @@
           <!-- Row 6: Availability + active -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Availability Status</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="label_availability">Availability Status</label>
               <select id="ef-avail"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="unknown">Not specified</option>
-                <option value="available">Available</option>
-                <option value="assigned">On Assignment</option>
-                <option value="unavailable">Unavailable</option>
+                <option value="unknown" data-i18n="avail_unknown">Not specified</option>
+                <option value="available" data-i18n="avail_available">Available</option>
+                <option value="assigned" data-i18n="avail_assigned">On Assignment</option>
+                <option value="unavailable" data-i18n="avail_unavailable">Unavailable</option>
               </select>
             </div>
             <div class="flex items-center gap-3 pb-2">
               <input id="ef-active" type="checkbox" checked
                 class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-              <label for="ef-active" class="text-sm font-medium text-gray-700">Active in roster</label>
+              <label for="ef-active" class="text-sm font-medium text-gray-700" data-i18n="exp_lbl_active_in_roster">Active in roster</label>
             </div>
           </div>
 
           <!-- Bio -->
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Biography / Profile</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="exp_lbl_bio">Biography / Profile</label>
             <textarea id="ef-bio" rows="3"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"></textarea>
           </div>
 
           <!-- CV Document upload -->
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-2">CV Document</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-2" data-i18n="exp_lbl_cv_document">CV Document</label>
 
             <!-- Existing CV indicator (edit mode) -->
             <div id="ef-cv-existing" class="hidden items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 mb-2">
@@ -320,12 +320,12 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                   d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
               </svg>
-              <span class="text-xs font-medium text-blue-800 flex-1">CV on file</span>
+              <span class="text-xs font-medium text-blue-800 flex-1" data-i18n="exp_cv_on_file">CV on file</span>
               <button type="button" id="ef-cv-view-btn" onclick="viewExistingCv()"
-                class="text-xs text-blue-700 hover:text-blue-900 font-medium">View</button>
+                class="text-xs text-blue-700 hover:text-blue-900 font-medium" data-i18n="exp_view_btn">View</button>
               <span class="text-gray-300">|</span>
               <button type="button" onclick="showCvUploadZone()"
-                class="text-xs text-gray-500 hover:text-gray-700">Replace</button>
+                class="text-xs text-gray-500 hover:text-gray-700" data-i18n="exp_replace_btn">Replace</button>
             </div>
 
             <!-- Upload zone -->
@@ -337,8 +337,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                 </svg>
-                <p class="text-xs font-medium text-gray-600">Click to upload PDF CV</p>
-                <p class="text-xs text-gray-400 mt-0.5">PDF only &middot; max 10 MB</p>
+                <p class="text-xs font-medium text-gray-600" data-i18n="exp_click_upload_pdf">Click to upload PDF CV</p>
+                <p class="text-xs text-gray-400 mt-0.5" data-i18n="exp_pdf_only_hint">PDF only &middot; max 10 MB</p>
               </div>
               <input type="file" id="ef-cv-file" accept=".pdf" class="hidden" onchange="cvFileChosen(event)">
               <div id="ef-cv-chosen" class="hidden mt-2 flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2">
@@ -354,16 +354,16 @@
 
           <!-- Areas of Expertise -->
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-2">Areas of Expertise</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-2" data-i18n="exp_lbl_expertise">Areas of Expertise</label>
             <div class="mb-2">
-              <p class="text-xs text-gray-500 mb-1.5">Primary sector</p>
+              <p class="text-xs text-gray-500 mb-1.5" data-i18n="exp_primary_sector">Primary sector</p>
               <select id="ef-primary-sector"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">— none —</option>
+                <option value="" data-i18n="opt_none_dash">— none —</option>
               </select>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1.5">Secondary sectors</p>
+              <p class="text-xs text-gray-500 mb-1.5" data-i18n="exp_secondary_sectors">Secondary sectors</p>
               <div id="ef-secondary-sectors"
                 class="flex flex-wrap gap-2 max-h-36 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
               </div>
@@ -374,11 +374,11 @@
 
         <div class="flex gap-3 mt-6 pt-5 border-t border-gray-100">
           <button onclick="saveExpert()"
-            class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+            class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors" data-i18n="exp_save_btn">
             Save Expert
           </button>
           <button onclick="closeAdminModal('expert-modal')"
-            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
+            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors" data-i18n="btn_cancel">
             Cancel
           </button>
         </div>
@@ -392,18 +392,18 @@
     <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('delete-modal')"></div>
     <div class="relative flex items-center justify-center min-h-full px-4 py-10">
       <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
-        <h3 class="font-bold text-gray-900 text-base mb-2">Delete Expert?</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-2" data-i18n="exp_delete_title">Delete Expert?</h3>
         <p id="delete-expert-name" class="text-sm text-gray-600 mb-5"></p>
         <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 mb-5">
-          This will permanently delete the expert record and all associated data. This action cannot be undone.
+          <span data-i18n="exp_delete_warning">This will permanently delete the expert record and all associated data.</span> <span data-i18n="cannot_be_undone">This action cannot be undone.</span>
         </p>
         <div class="flex gap-3">
           <button onclick="confirmDelete()"
-            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg text-sm transition-colors" data-i18n="btn_delete_permanently">
             Delete Permanently
           </button>
           <button onclick="closeAdminModal('delete-modal')"
-            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
+            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors" data-i18n="btn_cancel">
             Cancel
           </button>
         </div>
@@ -421,11 +421,11 @@
     let allSectors   = []
     let deleteTarget = null
 
-    const AFFIL_LABEL    = { internal: 'Core', partner: 'Partner' }
     const AFFIL_COLOR    = { internal: 'bg-blue-900 text-white', partner: 'bg-emerald-700 text-white' }
-    const SENIORITY_LABEL = { principal_expert: 'Principal Expert', senior: 'Senior', intermediary: 'Intermediary', junior: 'Junior' }
-    const AVAIL_LABEL    = { available: 'Available', assigned: 'On Assignment', unavailable: 'Unavailable', unknown: 'Not specified' }
     const AVAIL_DOT      = { available: 'bg-green-500', assigned: 'bg-amber-500', unavailable: 'bg-red-500', unknown: 'bg-gray-300' }
+    function affilLabel(a) { return { internal: t('affil_internal'), partner: t('affil_partner') }[a] ?? a }
+    function seniorityLabel(s) { return { principal_expert: t('seniority_principal_expert'), senior: t('seniority_senior'), intermediary: t('seniority_intermediary'), junior: t('seniority_junior') }[s] ?? s }
+    function availLabel(a) { return { available: t('avail_available'), assigned: t('avail_assigned'), unavailable: t('avail_unavailable'), unknown: t('avail_unknown') }[a] ?? a }
 
     async function loadExperts() {
       const session = await initAdmin('experts')
@@ -487,12 +487,12 @@
 
       document.getElementById('expert-count').textContent =
         filtered.length === allExperts.length
-          ? `${allExperts.length} expert${allExperts.length !== 1 ? 's' : ''}`
-          : `${filtered.length} of ${allExperts.length} experts`
+          ? t('exp_count_all', allExperts.length)
+          : t('exp_count_filtered', filtered.length, allExperts.length)
 
       const tbody = document.getElementById('experts-tbody')
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">No experts match your filters.</td></tr>'
+        tbody.innerHTML = `<tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">${t('exp_no_match')}</td></tr>`
         return
       }
 
@@ -507,27 +507,27 @@
           <td class="px-5 py-3 text-gray-500 hidden md:table-cell">${aesc(e.title ?? '—')}</td>
           <td class="px-5 py-3">
             <span class="text-xs font-medium px-2 py-0.5 rounded-full ${AFFIL_COLOR[e.affiliation_type]}">
-              ${AFFIL_LABEL[e.affiliation_type]}
+              ${affilLabel(e.affiliation_type)}
             </span>
           </td>
-          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell">${aesc(SENIORITY_LABEL[e.seniority_tier] ?? '—')}</td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell">${e.seniority_tier ? aesc(seniorityLabel(e.seniority_tier)) : '—'}</td>
           <td class="px-5 py-3">
             <div class="flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full flex-shrink-0 ${dot}"></span>
-              <span class="text-xs text-gray-600">${aesc(AVAIL_LABEL[e.availability_status] ?? '—')}</span>
+              <span class="text-xs text-gray-600">${aesc(availLabel(e.availability_status))}</span>
             </div>
-            ${!e.is_active ? '<span class="block text-xs text-gray-400 mt-0.5">Inactive</span>' : ''}
+            ${!e.is_active ? `<span class="block text-xs text-gray-400 mt-0.5">${t('exp_inactive_badge')}</span>` : ''}
           </td>
           <td class="px-5 py-3 text-right">
             <div class="flex items-center justify-end gap-3">
               <button onclick="openExpertModal(allExperts.find(x=>x.id==='${aesc(e.id)}'))"
-                class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</button>
+                class="text-xs text-blue-600 hover:text-blue-800 font-medium">${t('btn_edit')}</button>
               <button onclick="toggleExpertActive('${aesc(e.id)}', ${e.is_active})"
                 class="text-xs font-medium ${e.is_active ? 'text-amber-600 hover:text-amber-800' : 'text-green-600 hover:text-green-800'}">
-                ${e.is_active ? 'Deactivate' : 'Activate'}
+                ${e.is_active ? t('exp_deactivate_btn') : t('exp_activate_btn')}
               </button>
               <button onclick="openDeleteModal('${aesc(e.id)}', '${aesc(e.full_name)}')"
-                class="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+                class="text-xs text-red-500 hover:text-red-700 font-medium">${t('btn_delete')}</button>
             </div>
           </td>
         </tr>`
@@ -546,7 +546,7 @@
     }
 
     function openExpertModal(expert = null) {
-      document.getElementById('modal-title').textContent = expert ? 'Edit Expert' : 'Add Expert'
+      document.getElementById('modal-title').textContent = expert ? t('edit_expert') : t('exp_add_title')
       document.getElementById('modal-error').classList.add('hidden')
       document.getElementById('ef-id').value = expert?.id ?? ''
 
@@ -612,7 +612,7 @@
       errDiv.classList.add('hidden')
 
       if (!fullName) {
-        errDiv.textContent = 'Full Name is required.'
+        errDiv.textContent = t('exp_fullname_required')
         errDiv.classList.remove('hidden')
         return
       }
@@ -667,7 +667,7 @@
           .from('expert-cvs')
           .upload(storagePath, cvFile, { upsert: true, contentType: 'application/pdf' })
         if (upErr) {
-          errDiv.textContent = 'Expert saved but CV upload failed: ' + upErr.message
+          errDiv.textContent = t('exp_cv_upload_failed_prefix') + upErr.message
           errDiv.classList.remove('hidden')
         } else {
           await sb.from('experts').update({ cv_storage_path: storagePath }).eq('id', savedId)
@@ -678,7 +678,7 @@
         prevVals, { full_name: fullName, is_active: body.is_active })
 
       closeAdminModal('expert-modal')
-      showToast(id ? 'Expert updated.' : 'Expert created.')
+      showToast(id ? t('exp_updated_toast') : t('exp_created_toast'))
       await loadExperts()
     }
 
@@ -686,17 +686,16 @@
       const newState = !currentlyActive
       const e = allExperts.find(x => x.id === expertId)
       const { error } = await sb.from('experts').update({ is_active: newState }).eq('id', expertId)
-      if (error) { showToast('Failed: ' + error.message, 'error'); return }
+      if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
       await logAudit(newState ? 'ACTIVATE' : 'DEACTIVATE', 'expert', expertId, e?.full_name,
         { is_active: currentlyActive }, { is_active: newState })
-      showToast(newState ? 'Expert activated.' : 'Expert deactivated.')
+      showToast(newState ? t('exp_activated_toast') : t('exp_deactivated_toast'))
       await loadExperts()
     }
 
     function openDeleteModal(expertId, expertName) {
       deleteTarget = expertId
-      document.getElementById('delete-expert-name').textContent =
-        `"${expertName}" and all associated sector, language, geography, donor, education, and role data will be removed.`
+      document.getElementById('delete-expert-name').textContent = t('exp_delete_confirm_detail', expertName)
       openAdminModal('delete-modal')
     }
 
@@ -711,12 +710,12 @@
         await sb.from(tbl).delete().eq('expert_id', deleteTarget)
       }
       const { error } = await sb.from('experts').delete().eq('id', deleteTarget)
-      if (error) { showToast('Delete failed: ' + error.message, 'error'); closeAdminModal('delete-modal'); return }
+      if (error) { showToast(t('delete_failed_prefix') + error.message, 'error'); closeAdminModal('delete-modal'); return }
 
       await logAudit('DELETE', 'expert', deleteTarget, e?.full_name, { full_name: e?.full_name }, null)
       deleteTarget = null
       closeAdminModal('delete-modal')
-      showToast('Expert deleted.')
+      showToast(t('exp_deleted_toast'))
       await loadExperts()
     }
 
@@ -725,7 +724,7 @@
     function cvFileChosen(e) {
       const f = e.target.files?.[0]
       if (!f) return
-      if (f.size > 10 * 1024 * 1024) { showToast('File too large — max 10 MB', 'error'); clearCvUpload(); return }
+      if (f.size > 10 * 1024 * 1024) { showToast(t('exp_file_too_large_short'), 'error'); clearCvUpload(); return }
       document.getElementById('ef-cv-filename').textContent = f.name
       document.getElementById('ef-cv-chosen').classList.remove('hidden')
     }
@@ -746,7 +745,7 @@
       const path = document.getElementById('ef-cv-existing').dataset.path
       if (!path) return
       const { data, error } = await sb.storage.from('expert-cvs').createSignedUrl(path, 120)
-      if (error) { showToast('Could not open CV: ' + error.message, 'error'); return }
+      if (error) { showToast(t('exp_could_not_open_cv') + error.message, 'error'); return }
       window.open(data.signedUrl, '_blank')
     }
 
@@ -792,11 +791,11 @@
       const allowed = ['pdf', 'docx', 'doc', 'txt']
       const ext = f.name.split('.').pop().toLowerCase()
       if (!allowed.includes(ext)) {
-        showCvError('Unsupported file type. Please upload a PDF, DOCX, DOC, or TXT file.')
+        showCvError(t('opp_file_unsupported'))
         return
       }
       if (f.size > 10 * 1024 * 1024) {
-        showCvError('File is too large. Maximum size is 10 MB.')
+        showCvError(t('opp_file_too_large'))
         return
       }
 
@@ -830,13 +829,13 @@
       btn.innerHTML = `<svg class="animate-spin w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-      </svg>Analyzing…`
+      </svg>${aesc(t('analyzing_ellipsis'))}`
       document.getElementById('cv-error').classList.add('hidden')
       document.getElementById('cv-success').classList.add('hidden')
 
       try {
         const { data: { session } } = await sb.auth.getSession()
-        if (!session) throw new Error('Not authenticated')
+        if (!session) throw new Error(t('not_authenticated'))
 
         const fd = new FormData()
         fd.append('cv', cvFile)
@@ -853,7 +852,7 @@
         prefillFromCv(json.data)
 
       } catch (err) {
-        showCvError(err.message || 'Analysis failed. Please try again or fill the form manually.')
+        showCvError(err.message || t('analysis_failed_generic'))
       } finally {
         btn.disabled = false
         btn.innerHTML = origHTML
@@ -914,16 +913,18 @@
       // Build extras panel: languages + geographies + confidence note
       const extras = []
       if (Array.isArray(d.languages) && d.languages.length)
-        extras.push(`<strong>Languages detected:</strong> ${d.languages.join(', ')}`)
+        extras.push(`<strong>${aesc(t('exp_languages_detected'))}</strong> ${d.languages.join(', ')}`)
       if (Array.isArray(d.geographies) && d.geographies.length)
-        extras.push(`<strong>Countries/regions:</strong> ${d.geographies.join(', ')}`)
+        extras.push(`<strong>${aesc(t('exp_countries_regions'))}</strong> ${d.geographies.join(', ')}`)
       if (d.confidence_notes && d.confidence_notes !== 'High confidence')
-        extras.push(`<em>Note: ${d.confidence_notes}</em>`)
+        extras.push(`<em>${aesc(t('exp_note_prefix'))} ${d.confidence_notes}</em>`)
 
       document.getElementById('cv-extras').innerHTML = extras.join('<br>')
       document.getElementById('cv-success').classList.remove('hidden')
       document.getElementById('cv-analyze-btn').classList.add('hidden')
     }
+
+    document.addEventListener('acsd:langchange', () => { if (allExperts.length || document.getElementById('expert-count').textContent) filterExperts() })
 
     loadExperts()
   </script>

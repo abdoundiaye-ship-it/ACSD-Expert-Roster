@@ -44,11 +44,11 @@
     <main class="flex-1 min-w-0 space-y-5">
 
       <div>
-        <h2 class="text-lg font-bold text-gray-900">Roles & Permissions</h2>
-        <p class="text-sm text-gray-500 mt-0.5">Configure which permissions are assigned to each role.</p>
+        <h2 class="text-lg font-bold text-gray-900" data-i18n="rl_title">Roles & Permissions</h2>
+        <p class="text-sm text-gray-500 mt-0.5" data-i18n="rl_subtitle">Configure which permissions are assigned to each role.</p>
       </div>
 
-      <div class="bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl px-4 py-3">
+      <div class="bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl px-4 py-3" data-i18n="rl_notice">
         Changes take effect immediately for all users in that role. The Admin role always retains full access even if all checkboxes are cleared.
       </div>
 
@@ -85,6 +85,10 @@
         rolePermMap[role].add(permission_id)
       })
 
+      renderRoles()
+    }
+
+    function renderRoles() {
       const roles = ['admin', 'viewer']
       document.getElementById('roles-container').innerHTML = roles.map(role => {
         const isAdmin = role === 'admin'
@@ -92,13 +96,13 @@
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-              <h3 class="font-bold text-gray-900 text-sm capitalize">${aesc(role)}</h3>
-              ${isAdmin ? '<span class="text-xs bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">Full Access</span>' : ''}
+              <h3 class="font-bold text-gray-900 text-sm">${aesc(isAdmin ? t('us_role_admin') : t('us_role_viewer'))}</h3>
+              ${isAdmin ? `<span class="text-xs bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">${t('rl_full_access')}</span>` : ''}
             </div>
             ${!isAdmin ? `
             <button onclick="saveRolePermissions('${role}')"
               class="text-xs bg-blue-900 hover:bg-blue-800 text-white font-medium px-3 py-1.5 rounded-lg transition-colors">
-              Save Changes
+              ${t('rl_save_changes')}
             </button>` : ''}
           </div>
           <div class="space-y-2">
@@ -132,7 +136,7 @@
       const toRemove = oldPermIds.filter(id => !newPermIds.includes(id))
 
       const statusEl = document.getElementById(`rp-status-${role}`)
-      if (statusEl) statusEl.textContent = 'Saving…'
+      if (statusEl) statusEl.textContent = t('saving_ellipsis')
 
       try {
         if (toRemove.length) {
@@ -148,14 +152,16 @@
 
         // Refresh cache
         rolePermMap[role] = new Set(newPermIds)
-        if (statusEl) statusEl.textContent = 'Saved ✓'
+        if (statusEl) statusEl.textContent = t('rl_saved_check')
         setTimeout(() => { if (statusEl) statusEl.textContent = '' }, 2000)
-        showToast(`${role} permissions saved.`)
+        showToast(t('rl_permissions_saved', role === 'admin' ? t('us_role_admin') : t('us_role_viewer')))
       } catch (err) {
-        if (statusEl) statusEl.textContent = 'Error: ' + err.message
-        showToast('Save failed: ' + err.message, 'error')
+        if (statusEl) statusEl.textContent = t('rl_error_prefix') + err.message
+        showToast(t('save_failed_prefix') + err.message, 'error')
       }
     }
+
+    document.addEventListener('acsd:langchange', () => { if (allPermissions.length) renderRoles() })
 
     loadRoles()
   </script>

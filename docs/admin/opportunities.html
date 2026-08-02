@@ -50,16 +50,16 @@
 
       <div class="flex items-center justify-between gap-4">
         <div>
-          <h2 class="text-lg font-bold text-gray-900">Opportunities</h2>
-          <p class="text-sm text-gray-500 mt-0.5">Import TORs, qualify opportunities, and prepare proposals. API-automatable sources are also scanned automatically every day at 06:00 UTC — see <a href="sources.html" class="text-blue-600 hover:underline">Scan History</a>.</p>
+          <h2 class="text-lg font-bold text-gray-900" data-i18n="nav_opportunities">Opportunities</h2>
+          <p class="text-sm text-gray-500 mt-0.5"><span data-i18n="opp_subtitle_pre">Import TORs, qualify opportunities, and prepare proposals. API-automatable sources are also scanned automatically every day at 06:00 UTC — see</span> <a href="sources.html" class="text-blue-600 hover:underline" data-i18n="opp_scan_history_link">Scan History</a>.</p>
         </div>
         <div class="flex gap-2 flex-shrink-0">
           <button id="scan-sources-btn" onclick="openScanModal()"
-            class="border border-blue-300 text-blue-700 hover:bg-blue-50 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+            class="border border-blue-300 text-blue-700 hover:bg-blue-50 text-sm font-medium px-4 py-2 rounded-lg transition-colors" data-i18n="opp_scan_sources_btn">
             Scan Sources
           </button>
           <button onclick="openOpportunityModal()"
-            class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+            class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors" data-i18n="opp_new_btn">
             + New Opportunity
           </button>
         </div>
@@ -73,25 +73,25 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
-          <input id="opp-search" type="search" placeholder="Search opportunities…"
+          <input id="opp-search" type="search" placeholder="Search opportunities…" data-i18n-placeholder="opp_search_ph"
             class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             oninput="filterOpportunities()">
         </div>
         <select id="opp-filter-status"
           class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           onchange="filterOpportunities()">
-          <option value="">All statuses</option>
-          <option value="open" selected>Open</option>
-          <option value="in_progress">In Progress</option>
-          <option value="submitted">Submitted</option>
-          <option value="won">Won</option>
-          <option value="lost">Lost</option>
-          <option value="archived">Archived</option>
+          <option value="" data-i18n="opp_filter_all_statuses">All statuses</option>
+          <option value="open" selected data-i18n="opp_status_open">Open</option>
+          <option value="in_progress" data-i18n="opp_status_in_progress">In Progress</option>
+          <option value="submitted" data-i18n="opp_status_submitted">Submitted</option>
+          <option value="won" data-i18n="opp_status_won">Won</option>
+          <option value="lost" data-i18n="opp_status_lost">Lost</option>
+          <option value="archived" data-i18n="opp_status_archived">Archived</option>
         </select>
         <select id="opp-filter-type"
           class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           onchange="filterOpportunities()">
-          <option value="">All types</option>
+          <option value="" data-i18n="opp_filter_all_types">All types</option>
           <option value="RFP">RFP</option>
           <option value="EOI">EOI</option>
           <option value="RFQ">RFQ</option>
@@ -105,18 +105,18 @@
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              <th class="text-left px-5 py-3">Title</th>
-              <th class="text-left px-5 py-3 hidden md:table-cell">Organization</th>
-              <th class="text-left px-5 py-3">Type</th>
-              <th class="text-left px-5 py-3 hidden lg:table-cell">Deadline</th>
-              <th class="text-left px-5 py-3">Status</th>
-              <th class="text-left px-5 py-3">Score</th>
-              <th class="text-left px-5 py-3 hidden lg:table-cell">Source</th>
-              <th class="text-right px-5 py-3">Actions</th>
+              <th class="text-left px-5 py-3" data-i18n="opp_col_title">Title</th>
+              <th class="text-left px-5 py-3 hidden md:table-cell" data-i18n="opp_col_org">Organization</th>
+              <th class="text-left px-5 py-3" data-i18n="opp_col_type">Type</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell" data-i18n="opp_col_deadline">Deadline</th>
+              <th class="text-left px-5 py-3" data-i18n="opp_col_status">Status</th>
+              <th class="text-left px-5 py-3" data-i18n="opp_col_score">Score</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell" data-i18n="opp_col_source">Source</th>
+              <th class="text-right px-5 py-3" data-i18n="opp_col_actions">Actions</th>
             </tr>
           </thead>
           <tbody id="opps-tbody" class="divide-y divide-gray-100">
-            <tr><td colspan="8" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+            <tr><td colspan="8" class="px-5 py-6 text-center text-xs text-gray-400" data-i18n="loading">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -137,13 +137,13 @@
           </svg>
         </button>
 
-        <h3 class="font-bold text-gray-900 text-base mb-5">New Opportunity</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-5" data-i18n="opp_modal_new_title">New Opportunity</h3>
 
         <!-- ── TOR Import section ── -->
         <div class="mb-5">
           <div class="flex items-center gap-2 mb-3">
             <span class="flex-shrink-0 w-5 h-5 rounded-full bg-blue-800 text-white text-xs font-bold flex items-center justify-center">1</span>
-            <span class="text-sm font-semibold text-gray-800">Upload a TOR / RFP to auto-fill the form</span>
+            <span class="text-sm font-semibold text-gray-800" data-i18n="opp_step1_label">Upload a TOR / RFP to auto-fill the form</span>
             <span class="text-xs font-medium bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">AI</span>
           </div>
 
@@ -156,8 +156,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
             </svg>
-            <p class="text-sm font-semibold text-blue-900">Drop a TOR/RFP here, or click to browse</p>
-            <p class="text-xs text-blue-500 mt-1">PDF, DOCX, TXT &middot; max 10 MB</p>
+            <p class="text-sm font-semibold text-blue-900" data-i18n="opp_dropzone_text">Drop a TOR/RFP here, or click to browse</p>
+            <p class="text-xs text-blue-500 mt-1" data-i18n="file_hint_pdf_docx_txt">PDF, DOCX, TXT &middot; max 10 MB</p>
           </div>
           <input type="file" id="tor-file-input" accept=".pdf,.docx,.doc,.txt"
             class="hidden" onchange="torFileSelected(event)">
@@ -179,26 +179,26 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
             </svg>
-            Analyze TOR with AI
+            <span data-i18n="opp_analyze_tor_btn">Analyze TOR with AI</span>
           </button>
 
           <div id="tor-success" class="hidden mt-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-            <p class="text-sm font-semibold text-green-800">&#10003; TOR analyzed — form fields pre-filled below</p>
-            <p class="text-xs text-green-600 mt-0.5">Review every extracted field before saving — this is an AI draft.</p>
+            <p class="text-sm font-semibold text-green-800" data-i18n="opp_tor_success_title">&#10003; TOR analyzed — form fields pre-filled below</p>
+            <p class="text-xs text-green-600 mt-0.5" data-i18n="opp_tor_success_sub">Review every extracted field before saving — this is an AI draft.</p>
           </div>
 
-          <button type="button" onclick="togglePasteMode()" id="paste-toggle-link" class="mt-3 text-xs text-blue-600 hover:text-blue-800 font-medium">
+          <button type="button" onclick="togglePasteMode()" id="paste-toggle-link" class="mt-3 text-xs text-blue-600 hover:text-blue-800 font-medium" data-i18n="opp_paste_toggle_show">
             Or paste a tender notice / link instead →
           </button>
 
           <div id="paste-panel" class="hidden mt-3 space-y-2">
-            <textarea id="paste-text" rows="4" placeholder="Paste the tender notice text here…"
+            <textarea id="paste-text" rows="4" placeholder="Paste the tender notice text here…" data-i18n-placeholder="opp_paste_text_ph"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"></textarea>
-            <div class="text-center text-xs text-gray-400">— or —</div>
-            <input id="paste-url" type="url" placeholder="https://… link to the notice"
+            <div class="text-center text-xs text-gray-400" data-i18n="or_divider">— or —</div>
+            <input id="paste-url" type="url" placeholder="https://… link to the notice" data-i18n-placeholder="opp_paste_url_ph"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
             <button type="button" id="paste-analyze-btn" onclick="analyzePasted()"
-              class="w-full bg-blue-800 hover:bg-blue-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">
+              class="w-full bg-blue-800 hover:bg-blue-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors" data-i18n="opp_analyze_paste_btn">
               Analyze Pasted Text/Link with AI
             </button>
           </div>
@@ -208,7 +208,7 @@
             <div class="relative flex justify-center">
               <span class="bg-white px-3 text-xs text-gray-400 font-medium">
                 <span class="flex-shrink-0 w-5 h-5 rounded-full bg-gray-200 text-gray-600 text-xs font-bold inline-flex items-center justify-center mr-1">2</span>
-                Review or fill the form below
+                <span data-i18n="review_or_fill_form">Review or fill the form below</span>
               </span>
             </div>
           </div>
@@ -222,35 +222,35 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="col-span-2">
               <label class="block text-xs font-semibold text-gray-600 mb-1">
-                Title <span class="text-red-500">*</span>
+                <span data-i18n="opp_lbl_title">Title</span> <span class="text-red-500">*</span>
               </label>
               <input id="of-title" type="text" required
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Reference / Solicitation Number</label>
-              <input id="of-reference" type="text" placeholder="e.g. RFP DDP-SEN-DKR-2026-05"
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_reference">Reference / Solicitation Number</label>
+              <input id="of-reference" type="text" placeholder="e.g. RFP DDP-SEN-DKR-2026-05" data-i18n-placeholder="opp_reference_ph"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
               <label class="block text-xs font-semibold text-gray-600 mb-1">
-                Organization / Funder <span class="text-red-500">*</span>
+                <span data-i18n="opp_lbl_org_funder">Organization / Funder</span> <span class="text-red-500">*</span>
               </label>
               <input id="of-organization" type="text" required
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Donor (matched)</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_donor_matched">Donor (matched)</label>
               <select id="of-donor"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">— none / not in list —</option>
+                <option value="" data-i18n="opp_opt_donor_none">— none / not in list —</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Client (CRM, optional)</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_client_crm">Client (CRM, optional)</label>
               <select id="of-client"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">— none —</option>
+                <option value="" data-i18n="opt_none_dash">— none —</option>
               </select>
             </div>
           </div>
@@ -258,7 +258,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label class="block text-xs font-semibold text-gray-600 mb-1">
-                Type <span class="text-red-500">*</span>
+                <span data-i18n="opp_lbl_type">Type</span> <span class="text-red-500">*</span>
               </label>
               <select id="of-type" required
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -269,21 +269,21 @@
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Primary Country</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_country">Primary Country</label>
               <select id="of-country"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">— none —</option>
+                <option value="" data-i18n="opt_none_dash">— none —</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Deadline</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_deadline">Deadline</label>
               <input id="of-deadline" type="date"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Summary</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_summary">Summary</label>
             <textarea id="of-summary" rows="2"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"></textarea>
           </div>
@@ -291,7 +291,7 @@
           <!-- Strategic score -->
           <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
             <div class="flex items-center justify-between mb-2">
-              <label class="text-xs font-semibold text-gray-600">Strategic Score (0–100)</label>
+              <label class="text-xs font-semibold text-gray-600" data-i18n="opp_lbl_score">Strategic Score (0–100)</label>
               <div class="flex items-center gap-2">
                 <span id="of-score-confidence" class="hidden text-xs font-medium bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">À CONFIRMER</span>
                 <input id="of-score" type="number" min="0" max="100"
@@ -299,31 +299,31 @@
               </div>
             </div>
             <div id="of-score-breakdown" class="hidden text-xs text-gray-500 mb-2"></div>
-            <textarea id="of-score-rationale" rows="2" placeholder="Rationale / justification…"
+            <textarea id="of-score-rationale" rows="2" placeholder="Rationale / justification…" data-i18n-placeholder="opp_rationale_ph"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"></textarea>
           </div>
 
           <!-- Sectors -->
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-2">Sectors</label>
-            <p class="text-xs text-gray-500 mb-1.5">Required</p>
+            <label class="block text-xs font-semibold text-gray-600 mb-2" data-i18n="opp_lbl_sectors">Sectors</label>
+            <p class="text-xs text-gray-500 mb-1.5" data-i18n="lbl_required">Required</p>
             <div id="of-sectors-required" class="flex flex-wrap gap-2 max-h-28 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50 mb-2"></div>
-            <p class="text-xs text-gray-500 mb-1.5">Preferred</p>
+            <p class="text-xs text-gray-500 mb-1.5" data-i18n="lbl_preferred">Preferred</p>
             <div id="of-sectors-preferred" class="flex flex-wrap gap-2 max-h-28 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50"></div>
           </div>
 
           <!-- Languages / Geographies / Activity types -->
           <div class="grid grid-cols-1 gap-4">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-2">Languages required</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-2" data-i18n="opp_lbl_languages_req">Languages required</label>
               <div id="of-languages" class="flex flex-wrap gap-2 max-h-28 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50"></div>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-2">Geographic coverage required</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-2" data-i18n="opp_lbl_geo_req">Geographic coverage required</label>
               <div id="of-geographies" class="flex flex-wrap gap-2 max-h-28 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50"></div>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-2">Deliverable / activity types</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-2" data-i18n="opp_lbl_activity_types">Deliverable / activity types</label>
               <div id="of-activity-types" class="flex flex-wrap gap-2 max-h-28 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50"></div>
             </div>
           </div>
@@ -331,8 +331,8 @@
           <!-- Positions -->
           <div>
             <div class="flex items-center justify-between mb-2">
-              <label class="text-xs font-semibold text-gray-600">Positions requested</label>
-              <button type="button" onclick="addPositionRow()" class="text-xs text-blue-600 hover:text-blue-800 font-medium">+ Add Position</button>
+              <label class="text-xs font-semibold text-gray-600" data-i18n="opp_lbl_positions">Positions requested</label>
+              <button type="button" onclick="addPositionRow()" class="text-xs text-blue-600 hover:text-blue-800 font-medium" data-i18n="opp_add_position_btn">+ Add Position</button>
             </div>
             <div id="of-positions-list" class="space-y-2"></div>
           </div>
@@ -340,8 +340,8 @@
           <!-- Evaluation criteria -->
           <div>
             <div class="flex items-center justify-between mb-2">
-              <label class="text-xs font-semibold text-gray-600">Evaluation criteria</label>
-              <button type="button" onclick="addCriterionRow()" class="text-xs text-blue-600 hover:text-blue-800 font-medium">+ Add Criterion</button>
+              <label class="text-xs font-semibold text-gray-600" data-i18n="opp_lbl_eval_criteria">Evaluation criteria</label>
+              <button type="button" onclick="addCriterionRow()" class="text-xs text-blue-600 hover:text-blue-800 font-medium" data-i18n="opp_add_criterion_btn">+ Add Criterion</button>
             </div>
             <div id="of-criteria-list" class="space-y-2"></div>
           </div>
@@ -350,11 +350,11 @@
 
         <div class="flex gap-3 mt-6 pt-5 border-t border-gray-100">
           <button onclick="saveOpportunity()"
-            class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+            class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors" data-i18n="opp_save_btn">
             Save Opportunity
           </button>
           <button onclick="closeAdminModal('opportunity-modal')"
-            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
+            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors" data-i18n="btn_cancel">
             Cancel
           </button>
         </div>
@@ -368,18 +368,18 @@
     <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('delete-modal')"></div>
     <div class="relative flex items-center justify-center min-h-full px-4 py-10">
       <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
-        <h3 class="font-bold text-gray-900 text-base mb-2">Delete Opportunity?</h3>
+        <h3 class="font-bold text-gray-900 text-base mb-2" data-i18n="opp_delete_title">Delete Opportunity?</h3>
         <p id="delete-opp-name" class="text-sm text-gray-600 mb-5"></p>
         <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 mb-5">
-          This will permanently delete the opportunity, its requirements, matches, selected team, and generated documents. This action cannot be undone.
+          <span data-i18n="opp_delete_warning">This will permanently delete the opportunity, its requirements, matches, selected team, and generated documents.</span> <span data-i18n="cannot_be_undone">This action cannot be undone.</span>
         </p>
         <div class="flex gap-3">
           <button onclick="confirmDelete()"
-            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg text-sm transition-colors" data-i18n="btn_delete_permanently">
             Delete Permanently
           </button>
           <button onclick="closeAdminModal('delete-modal')"
-            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
+            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors" data-i18n="btn_cancel">
             Cancel
           </button>
         </div>
@@ -392,28 +392,28 @@
     <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('scan-modal')"></div>
     <div class="relative flex items-center justify-center min-h-full px-4 py-10">
       <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
-        <h3 class="font-bold text-gray-900 text-base mb-1">Scan Sources</h3>
-        <p class="text-xs text-gray-500 mb-4">Only sources tagged "API" support automated scanning. Select one, several, or all — everything else uses the paste-intake flow instead.</p>
+        <h3 class="font-bold text-gray-900 text-base mb-1" data-i18n="opp_scan_sources_btn">Scan Sources</h3>
+        <p class="text-xs text-gray-500 mb-4" data-i18n="opp_scan_modal_desc">Only sources tagged "API" support automated scanning. Select one, several, or all — everything else uses the paste-intake flow instead.</p>
 
         <div class="flex items-center gap-2 mb-2 pb-2 border-b border-gray-100">
           <input id="scan-select-all" type="checkbox" checked onchange="toggleScanSelectAll(this.checked)"
             class="w-4 h-4 text-blue-600 border-gray-300 rounded">
-          <label for="scan-select-all" class="text-sm font-medium text-gray-700">Select all</label>
+          <label for="scan-select-all" class="text-sm font-medium text-gray-700" data-i18n="select_all">Select all</label>
         </div>
 
         <div id="scan-sources-list" class="space-y-2 max-h-64 overflow-y-auto">
-          <p class="text-xs text-gray-400 px-1 py-2">Loading…</p>
+          <p class="text-xs text-gray-400 px-1 py-2" data-i18n="loading">Loading…</p>
         </div>
 
         <div id="scan-results" class="mt-4 space-y-1.5 hidden"></div>
 
         <div class="flex gap-3 mt-5">
           <button id="scan-run-btn" onclick="runScan()"
-            class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+            class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors" data-i18n="opp_scan_selected_btn">
             Scan Selected
           </button>
           <button onclick="closeAdminModal('scan-modal')"
-            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors">
+            class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm transition-colors" data-i18n="btn_close">
             Close
           </button>
         </div>
@@ -438,10 +438,14 @@
     let deleteTarget      = null
 
     const TYPE_COLOR   = { RFP: 'bg-blue-900 text-white', EOI: 'bg-purple-700 text-white', RFQ: 'bg-teal-700 text-white', REOI: 'bg-indigo-700 text-white' }
-    const STATUS_LABEL = { open: 'Open', in_progress: 'In Progress', submitted: 'Submitted', won: 'Won', lost: 'Lost', archived: 'Archived' }
     const STATUS_COLOR = { open: 'bg-blue-100 text-blue-800', in_progress: 'bg-amber-100 text-amber-800', submitted: 'bg-indigo-100 text-indigo-800', won: 'bg-green-100 text-green-800', lost: 'bg-red-100 text-red-800', archived: 'bg-gray-100 text-gray-600' }
-    const SOURCE_LABEL = { manual: 'Manual', tor_upload: 'TOR Upload', quick_intake: 'Quick Intake', api_scan: 'API Scan' }
     const SOURCE_COLOR = { manual: 'bg-gray-100 text-gray-600', tor_upload: 'bg-blue-100 text-blue-800', quick_intake: 'bg-purple-100 text-purple-800', api_scan: 'bg-teal-100 text-teal-800' }
+    // Looked up live (not a static const) so table rows re-render in the
+    // current language on every filter pass, including after a language switch.
+    function statusLabel(s) { return t('opp_status_' + s) }
+    function sourceLabel(s) {
+      return { manual: t('opp_source_manual'), tor_upload: t('opp_source_tor_upload'), quick_intake: t('opp_source_quick_intake'), api_scan: t('opp_source_api_scan') }[s] ?? s
+    }
 
     async function loadOpportunities() {
       const session = await initAdmin('opportunities')
@@ -483,7 +487,7 @@
 
       const { data, error } = await sb.from('intelligence_sources')
         .select('id, name, access_method, active').eq('access_method', 'api').order('name')
-      if (error) { document.getElementById('scan-sources-list').innerHTML = `<p class="text-xs text-red-500 px-1 py-2">Failed to load sources: ${aesc(error.message)}</p>`; return }
+      if (error) { document.getElementById('scan-sources-list').innerHTML = `<p class="text-xs text-red-500 px-1 py-2">${t('save_failed_prefix')}${aesc(error.message)}</p>`; return }
 
       scanSources = data ?? []
       renderScanSourcesList()
@@ -492,7 +496,7 @@
     function renderScanSourcesList() {
       const list = document.getElementById('scan-sources-list')
       if (scanSources.length === 0) {
-        list.innerHTML = '<p class="text-xs text-gray-400 px-1 py-2">No API-automatable sources found. Add one in Intelligence Sources.</p>'
+        list.innerHTML = `<p class="text-xs text-gray-400 px-1 py-2">${t('opp_scan_no_sources')}</p>`
         return
       }
       document.getElementById('scan-select-all').checked = true
@@ -510,12 +514,12 @@
 
     async function runScan() {
       const ids = [...document.querySelectorAll('.scan-src-cb:checked')].map(cb => cb.value)
-      if (ids.length === 0) { showToast('Select at least one source.', 'error'); return }
+      if (ids.length === 0) { showToast(t('opp_scan_select_one'), 'error'); return }
 
       const btn = document.getElementById('scan-run-btn')
       const origText = btn.textContent
       btn.disabled = true
-      btn.textContent = 'Scanning…'
+      btn.textContent = t('scanning_ellipsis')
       const resultsEl = document.getElementById('scan-results')
       resultsEl.classList.add('hidden')
       resultsEl.innerHTML = ''
@@ -542,10 +546,10 @@
           </div>`).join('')
         resultsEl.classList.remove('hidden')
 
-        showToast(`${json.new_count} new — ${json.go} GO, ${json.a_etudier} À ÉTUDIER, ${json.veille} VEILLE, ${json.rejet} REJET (archived)`)
+        showToast(t('opp_scan_result_summary', json.new_count, json.go, json.a_etudier, json.veille, json.rejet))
         await loadOpportunities()
       } catch (err) {
-        showToast('Scan failed: ' + err.message, 'error')
+        showToast(t('opp_scan_failed_prefix') + err.message, 'error')
       } finally {
         btn.disabled = false
         btn.textContent = origText
@@ -605,12 +609,12 @@
 
       document.getElementById('opp-count').textContent =
         filtered.length === allOpportunities.length
-          ? `${allOpportunities.length} opportunit${allOpportunities.length !== 1 ? 'ies' : 'y'}`
-          : `${filtered.length} of ${allOpportunities.length} opportunities`
+          ? t('opp_count_all', allOpportunities.length)
+          : t('opp_count_filtered', filtered.length, allOpportunities.length)
 
       const tbody = document.getElementById('opps-tbody')
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="px-5 py-6 text-center text-xs text-gray-400">No opportunities match your filters.</td></tr>'
+        tbody.innerHTML = `<tr><td colspan="8" class="px-5 py-6 text-center text-xs text-gray-400">${t('opp_no_match')}</td></tr>`
         return
       }
 
@@ -628,7 +632,7 @@
           </td>
           <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell">${o.deadline ? aesc(o.deadline) : '—'}</td>
           <td class="px-5 py-3">
-            <span class="text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLOR[o.status] ?? 'bg-gray-100 text-gray-600'}">${STATUS_LABEL[o.status] ?? o.status}</span>
+            <span class="text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLOR[o.status] ?? 'bg-gray-100 text-gray-600'}">${statusLabel(o.status)}</span>
           </td>
           <td class="px-5 py-3">
             <div class="flex items-center gap-1.5" ${tooltip ? `title="${aesc(tooltip)}"` : ''}>
@@ -639,11 +643,11 @@
             </div>
           </td>
           <td class="px-5 py-3 hidden lg:table-cell">
-            <span class="text-xs font-medium px-2 py-0.5 rounded-full ${SOURCE_COLOR[o.source] ?? 'bg-gray-100 text-gray-600'}">${SOURCE_LABEL[o.source] ?? o.source}</span>
+            <span class="text-xs font-medium px-2 py-0.5 rounded-full ${SOURCE_COLOR[o.source] ?? 'bg-gray-100 text-gray-600'}">${sourceLabel(o.source)}</span>
           </td>
           <td class="px-5 py-3 text-right" onclick="event.stopPropagation()">
             <button onclick="openDeleteModal('${aesc(o.id)}', '${aesc(o.title)}')"
-              class="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+              class="text-xs text-red-500 hover:text-red-700 font-medium">${t('btn_delete')}</button>
           </td>
         </tr>`}).join('')
     }
@@ -654,16 +658,16 @@
       const wrap = document.createElement('div')
       wrap.className = 'position-row grid grid-cols-12 gap-2 items-center bg-gray-50 border border-gray-200 rounded-lg p-2'
       wrap.innerHTML = `
-        <input class="pr-title col-span-4 border border-gray-300 rounded px-2 py-1 text-xs" placeholder="Role title" value="${aesc(prefill?.role_title ?? '')}">
+        <input class="pr-title col-span-4 border border-gray-300 rounded px-2 py-1 text-xs" placeholder="${aesc(t('opp_pos_role_ph'))}" value="${aesc(prefill?.role_title ?? '')}">
         <select class="pr-seniority col-span-2 border border-gray-300 rounded px-2 py-1 text-xs">
-          <option value="">Seniority</option>
-          <option value="junior">Junior</option>
-          <option value="intermediary">Intermediary</option>
-          <option value="senior">Senior</option>
-          <option value="principal_expert">Principal</option>
+          <option value="">${aesc(t('opp_pos_seniority_ph'))}</option>
+          <option value="junior">${aesc(t('seniority_junior'))}</option>
+          <option value="intermediary">${aesc(t('seniority_intermediary'))}</option>
+          <option value="senior">${aesc(t('seniority_senior'))}</option>
+          <option value="principal_expert">${aesc(t('seniority_principal_expert'))}</option>
         </select>
         <select class="pr-sector col-span-3 border border-gray-300 rounded px-2 py-1 text-xs">
-          <option value="">Sector</option>
+          <option value="">${aesc(t('opp_pos_sector_ph'))}</option>
           ${allSectors.map(s => `<option value="${s.id}">${aesc(s.name)}</option>`).join('')}
         </select>
         <input class="pr-qty col-span-2 border border-gray-300 rounded px-2 py-1 text-xs" type="number" min="1" value="${prefill?.quantity ?? 1}">
@@ -677,8 +681,8 @@
       const wrap = document.createElement('div')
       wrap.className = 'criterion-row grid grid-cols-12 gap-2 items-center bg-gray-50 border border-gray-200 rounded-lg p-2'
       wrap.innerHTML = `
-        <input class="cr-text col-span-9 border border-gray-300 rounded px-2 py-1 text-xs" placeholder="Criterion" value="${aesc(prefill?.criterion ?? '')}">
-        <input class="cr-weight col-span-2 border border-gray-300 rounded px-2 py-1 text-xs" placeholder="Weight" value="${aesc(prefill?.weight ?? '')}">
+        <input class="cr-text col-span-9 border border-gray-300 rounded px-2 py-1 text-xs" placeholder="${aesc(t('opp_crit_text_ph'))}" value="${aesc(prefill?.criterion ?? '')}">
+        <input class="cr-weight col-span-2 border border-gray-300 rounded px-2 py-1 text-xs" placeholder="${aesc(t('opp_crit_weight_ph'))}" value="${aesc(prefill?.weight ?? '')}">
         <button type="button" onclick="this.closest('.criterion-row').remove()" class="col-span-1 text-red-400 hover:text-red-600 text-xs">&times;</button>`
       document.getElementById('of-criteria-list').appendChild(wrap)
     }
@@ -719,7 +723,7 @@
       const title = document.getElementById('of-title').value.trim()
       const organization = document.getElementById('of-organization').value.trim()
       if (!title || !organization) {
-        errDiv.textContent = 'Title and Organization are required.'
+        errDiv.textContent = t('opp_title_org_required')
         errDiv.classList.remove('hidden')
         return
       }
@@ -789,7 +793,7 @@
       await logAudit('CREATE', 'opportunity', oppId, title, null, { title, organization })
 
       closeAdminModal('opportunity-modal')
-      showToast('Opportunity created.')
+      showToast(t('opp_created_toast'))
       window.location.href = `opportunity-detail.html?id=${oppId}`
     }
 
@@ -803,11 +807,11 @@
       if (!deleteTarget) return
       const o = allOpportunities.find(x => x.id === deleteTarget)
       const { error } = await sb.from('opportunities').delete().eq('id', deleteTarget)
-      if (error) { showToast('Delete failed: ' + error.message, 'error'); closeAdminModal('delete-modal'); return }
+      if (error) { showToast(t('delete_failed_prefix') + error.message, 'error'); closeAdminModal('delete-modal'); return }
       await logAudit('DELETE', 'opportunity', deleteTarget, o?.title, { title: o?.title }, null)
       deleteTarget = null
       closeAdminModal('delete-modal')
-      showToast('Opportunity deleted.')
+      showToast(t('opp_deleted_toast'))
       await loadOpportunities()
     }
 
@@ -873,8 +877,8 @@
       document.getElementById('tor-success').classList.add('hidden')
       const allowed = ['pdf', 'docx', 'doc', 'txt']
       const ext = f.name.split('.').pop().toLowerCase()
-      if (!allowed.includes(ext)) { showTorError('Unsupported file type. Please upload a PDF, DOCX, DOC, or TXT file.'); return }
-      if (f.size > 10 * 1024 * 1024) { showTorError('File is too large. Maximum size is 10 MB.'); return }
+      if (!allowed.includes(ext)) { showTorError(t('opp_file_unsupported')); return }
+      if (f.size > 10 * 1024 * 1024) { showTorError(t('opp_file_too_large')); return }
       torFile = f
       document.getElementById('tor-file-name').textContent = f.name
       document.getElementById('tor-file-display').classList.remove('hidden')
@@ -902,12 +906,12 @@
       btn.innerHTML = `<svg class="animate-spin w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-      </svg>Analyzing…`
+      </svg>${aesc(t('analyzing_ellipsis'))}`
       document.getElementById('tor-error').classList.add('hidden')
 
       try {
         const { data: { session } } = await sb.auth.getSession()
-        if (!session) throw new Error('Not authenticated')
+        if (!session) throw new Error(t('not_authenticated'))
 
         const fd = new FormData()
         fd.append('tor', torFile)
@@ -927,7 +931,7 @@
         document.getElementById('tor-success').classList.remove('hidden')
 
       } catch (err) {
-        showTorError(err.message || 'Analysis failed. Please try again or fill the form manually.')
+        showTorError(err.message || t('analysis_failed_generic'))
       } finally {
         btn.disabled = false
         btn.innerHTML = origHTML
@@ -940,23 +944,23 @@
       const panel = document.getElementById('paste-panel')
       panel.classList.toggle('hidden')
       document.getElementById('paste-toggle-link').textContent =
-        panel.classList.contains('hidden') ? 'Or paste a tender notice / link instead →' : 'Hide paste panel'
+        panel.classList.contains('hidden') ? t('opp_paste_toggle_show') : t('opp_paste_toggle_hide')
     }
 
     async function analyzePasted() {
       const text = document.getElementById('paste-text').value.trim()
       const url  = document.getElementById('paste-url').value.trim()
-      if (!text && !url) { showTorError('Paste some text or enter a URL first.'); return }
+      if (!text && !url) { showTorError(t('opp_paste_empty')); return }
 
       const btn = document.getElementById('paste-analyze-btn')
       const origText = btn.textContent
       btn.disabled = true
-      btn.textContent = 'Analyzing…'
+      btn.textContent = t('analyzing_ellipsis')
       document.getElementById('tor-error').classList.add('hidden')
 
       try {
         const { data: { session } } = await sb.auth.getSession()
-        if (!session) throw new Error('Not authenticated')
+        if (!session) throw new Error(t('not_authenticated'))
 
         const fd = new FormData()
         if (text) fd.append('text', text)
@@ -977,7 +981,7 @@
         document.getElementById('tor-success').classList.remove('hidden')
 
       } catch (err) {
-        showTorError(err.message || 'Analysis failed. Please try again or fill the form manually.')
+        showTorError(err.message || t('analysis_failed_generic'))
       } finally {
         btn.disabled = false
         btn.textContent = origText
@@ -1050,6 +1054,14 @@
       document.getElementById('of-criteria-list').innerHTML = ''
       ;(Array.isArray(d.evaluation_criteria) ? d.evaluation_criteria : []).forEach(c => addCriterionRow(c))
     }
+
+    // Re-render JS-generated content (table rows, dynamic labels) on language
+    // switch — applyI18n() already handles every data-i18n-tagged static
+    // element on its own, this only covers what JS renders directly.
+    document.addEventListener('acsd:langchange', () => {
+      filterOpportunities()
+      if (!document.getElementById('scan-modal').classList.contains('hidden')) renderScanSourcesList()
+    })
 
     loadOpportunities()
   </script>

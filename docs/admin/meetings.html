@@ -45,11 +45,11 @@
 
       <div class="flex items-center justify-between gap-4">
         <div>
-          <h2 class="text-lg font-bold text-gray-900">Meetings</h2>
-          <p class="text-sm text-gray-500 mt-0.5">Scheduling and AI-assisted minutes, optionally linked to an opportunity or contract.</p>
+          <h2 class="text-lg font-bold text-gray-900" data-i18n="nav_meetings">Meetings</h2>
+          <p class="text-sm text-gray-500 mt-0.5" data-i18n="mt_subtitle">Scheduling and AI-assisted minutes, optionally linked to an opportunity or contract.</p>
         </div>
         <button onclick="openMeetingModal()"
-          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0">
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0" data-i18n="mt_add_btn">
           + Add Meeting
         </button>
       </div>
@@ -57,34 +57,34 @@
       <!-- Summary strip -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div class="bg-white rounded-xl border border-gray-200 p-4">
-          <p class="text-xs text-gray-400 uppercase font-semibold">Upcoming (7 days)</p>
+          <p class="text-xs text-gray-400 uppercase font-semibold" data-i18n="mt_stat_upcoming">Upcoming (7 days)</p>
           <p id="stat-upcoming" class="text-2xl font-bold text-indigo-700 mt-1">—</p>
         </div>
         <div class="bg-white rounded-xl border border-gray-200 p-4">
-          <p class="text-xs text-gray-400 uppercase font-semibold">Scheduled</p>
+          <p class="text-xs text-gray-400 uppercase font-semibold" data-i18n="mt_status_scheduled">Scheduled</p>
           <p id="stat-scheduled" class="text-2xl font-bold text-gray-900 mt-1">—</p>
         </div>
         <div class="bg-white rounded-xl border border-gray-200 p-4">
-          <p class="text-xs text-gray-400 uppercase font-semibold">Completed</p>
+          <p class="text-xs text-gray-400 uppercase font-semibold" data-i18n="ct_status_completed">Completed</p>
           <p id="stat-completed" class="text-2xl font-bold text-green-700 mt-1">—</p>
         </div>
         <div class="bg-white rounded-xl border border-gray-200 p-4">
-          <p class="text-xs text-gray-400 uppercase font-semibold">Cancelled</p>
+          <p class="text-xs text-gray-400 uppercase font-semibold" data-i18n="mt_status_cancelled">Cancelled</p>
           <p id="stat-cancelled" class="text-2xl font-bold text-gray-400 mt-1">—</p>
         </div>
       </div>
 
       <div class="flex gap-3 items-center flex-wrap">
         <div class="relative flex-1 max-w-sm">
-          <input id="mt-search" type="search" placeholder="Search title, description…"
+          <input id="mt-search" type="search" placeholder="Search title, description…" data-i18n-placeholder="tk_search_ph"
             class="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             oninput="filterMeetings()">
         </div>
         <select id="mt-filter-status" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterMeetings()">
-          <option value="">All statuses</option>
-          <option value="scheduled">Scheduled</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
+          <option value="" data-i18n="ct_filter_all_statuses">All statuses</option>
+          <option value="scheduled" data-i18n="mt_status_scheduled">Scheduled</option>
+          <option value="completed" data-i18n="ct_status_completed">Completed</option>
+          <option value="cancelled" data-i18n="mt_status_cancelled">Cancelled</option>
         </select>
       </div>
 
@@ -94,16 +94,16 @@
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              <th class="text-left px-5 py-3">Title</th>
-              <th class="text-left px-5 py-3 hidden lg:table-cell">Related</th>
-              <th class="text-left px-5 py-3">When</th>
-              <th class="text-left px-5 py-3 hidden md:table-cell">Attendees</th>
-              <th class="text-left px-5 py-3">Status</th>
-              <th class="text-right px-5 py-3">Actions</th>
+              <th class="text-left px-5 py-3" data-i18n="opp_col_title">Title</th>
+              <th class="text-left px-5 py-3 hidden lg:table-cell" data-i18n="tk_col_related">Related</th>
+              <th class="text-left px-5 py-3" data-i18n="mt_col_when">When</th>
+              <th class="text-left px-5 py-3 hidden md:table-cell" data-i18n="mt_col_attendees">Attendees</th>
+              <th class="text-left px-5 py-3" data-i18n="opp_col_status">Status</th>
+              <th class="text-right px-5 py-3" data-i18n="opp_col_actions">Actions</th>
             </tr>
           </thead>
           <tbody id="mt-tbody" class="divide-y divide-gray-100">
-            <tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">Loading…</td></tr>
+            <tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400" data-i18n="loading">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -117,74 +117,74 @@
     <div class="relative flex items-start justify-center min-h-full px-4 py-10">
       <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
 
-        <h3 id="mm-title-heading" class="font-bold text-gray-900 text-base mb-4">Add Meeting</h3>
+        <h3 id="mm-title-heading" class="font-bold text-gray-900 text-base mb-4" data-i18n="mt_add_title">Add Meeting</h3>
         <input type="hidden" id="mm-id">
 
         <div class="space-y-3">
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Title</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_title">Title</label>
             <input id="mm-title" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Description (optional)</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_description_optional">Description (optional)</label>
             <textarea id="mm-description" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Related Opportunity (optional)</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="ct_lbl_related_opportunity">Related Opportunity (optional)</label>
               <select id="mm-opportunity" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                <option value="">— none —</option>
+                <option value="" data-i18n="opt_none_dash">— none —</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Related Contract (optional)</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="tk_lbl_related_contract">Related Contract (optional)</label>
               <select id="mm-contract" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                <option value="">— none —</option>
+                <option value="" data-i18n="opt_none_dash">— none —</option>
               </select>
             </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Start</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="mt_lbl_start">Start</label>
               <input id="mm-start" type="datetime-local" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">End (optional)</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="mt_lbl_end">End (optional)</label>
               <input id="mm-end" type="datetime-local" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
             </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Location / Link (optional)</label>
-              <input id="mm-location" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="Office, or a video-call link">
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="mt_lbl_location">Location / Link (optional)</label>
+              <input id="mm-location" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="Office, or a video-call link" data-i18n-placeholder="mt_location_ph">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_col_status">Status</label>
               <select id="mm-status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                <option value="scheduled">Scheduled</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="scheduled" data-i18n="mt_status_scheduled">Scheduled</option>
+                <option value="completed" data-i18n="ct_status_completed">Completed</option>
+                <option value="cancelled" data-i18n="mt_status_cancelled">Cancelled</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Internal Attendees</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="mt_lbl_internal_attendees">Internal Attendees</label>
             <div id="mm-attendees" class="border border-gray-300 rounded-lg p-2 max-h-32 overflow-y-auto space-y-1 text-sm"></div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">External Attendees (optional)</label>
-            <textarea id="mm-external" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y" placeholder="e.g. Jane Doe (World Bank), John Smith (Client)"></textarea>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="mt_lbl_external_attendees">External Attendees (optional)</label>
+            <textarea id="mm-external" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y" placeholder="e.g. Jane Doe (World Bank), John Smith (Client)" data-i18n-placeholder="mt_external_ph"></textarea>
           </div>
         </div>
 
         <div class="flex gap-3 mt-5">
-          <button onclick="saveMeeting()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">Save</button>
-          <button onclick="closeAdminModal('meeting-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Cancel</button>
+          <button onclick="saveMeeting()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm" data-i18n="btn_save">Save</button>
+          <button onclick="closeAdminModal('meeting-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm" data-i18n="btn_cancel">Cancel</button>
         </div>
       </div>
     </div>
@@ -196,50 +196,50 @@
     <div class="relative flex items-start justify-center min-h-full px-4 py-10">
       <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-6">
 
-        <h3 class="font-bold text-gray-900 text-base">Minutes — AI Secretary</h3>
+        <h3 class="font-bold text-gray-900 text-base" data-i18n="mt_minutes_title">Minutes — AI Secretary</h3>
         <p id="mn-meeting-title" class="text-sm text-gray-500 mb-4"></p>
         <input type="hidden" id="mn-meeting-id">
 
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Raw Notes / Transcript</label>
-            <p class="text-xs text-gray-400 mb-1.5">Paste your own notes taken during or after the meeting. The AI Secretary structures them below — it does not listen to or invent anything not written here.</p>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="mt_lbl_raw_notes">Raw Notes / Transcript</label>
+            <p class="text-xs text-gray-400 mb-1.5" data-i18n="mt_raw_notes_desc">Paste your own notes taken during or after the meeting. The AI Secretary structures them below — it does not listen to or invent anything not written here.</p>
             <textarea id="mn-raw-notes" rows="6" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y font-mono"></textarea>
-            <button id="mn-analyze-btn" onclick="analyzeNotes()" class="mt-2 text-xs font-medium bg-indigo-700 hover:bg-indigo-800 text-white px-3 py-2 rounded-lg">
+            <button id="mn-analyze-btn" onclick="analyzeNotes()" class="mt-2 text-xs font-medium bg-indigo-700 hover:bg-indigo-800 text-white px-3 py-2 rounded-lg" data-i18n="mt_analyze_btn">
               Analyze with AI Secretary
             </button>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Summary</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_summary">Summary</label>
             <textarea id="mn-summary" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
           </div>
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-xs font-semibold text-gray-600">Decisions</label>
-              <button onclick="addDecision()" class="text-xs text-blue-600 hover:text-blue-800 font-medium">+ Add</button>
+              <label class="block text-xs font-semibold text-gray-600" data-i18n="mt_lbl_decisions">Decisions</label>
+              <button onclick="addDecision()" class="text-xs text-blue-600 hover:text-blue-800 font-medium" data-i18n="mt_add_short_btn">+ Add</button>
             </div>
             <div id="mn-decisions-list" class="space-y-1.5"></div>
           </div>
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-xs font-semibold text-gray-600">Action Items</label>
-              <button onclick="addActionItem()" class="text-xs text-blue-600 hover:text-blue-800 font-medium">+ Add</button>
+              <label class="block text-xs font-semibold text-gray-600" data-i18n="mt_lbl_action_items">Action Items</label>
+              <button onclick="addActionItem()" class="text-xs text-blue-600 hover:text-blue-800 font-medium" data-i18n="mt_add_short_btn">+ Add</button>
             </div>
             <div id="mn-action-items-list" class="space-y-2"></div>
           </div>
 
           <div id="mn-linked-section" class="hidden">
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Created Tasks</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="mt_lbl_created_tasks">Created Tasks</label>
             <div id="mn-linked-items-list" class="space-y-1.5"></div>
           </div>
         </div>
 
         <div class="flex gap-3 mt-5">
-          <button onclick="saveMinutes()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">Save Notes</button>
-          <button onclick="closeAdminModal('minutes-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm">Close</button>
+          <button onclick="saveMinutes()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm" data-i18n="mt_save_notes_btn">Save Notes</button>
+          <button onclick="closeAdminModal('minutes-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm" data-i18n="btn_close">Close</button>
         </div>
       </div>
     </div>
@@ -262,11 +262,11 @@
     let currentActionItems = []   // unlinked (task_id === null) — editable draft, some may already be persisted
     let currentLinkedItems = []   // task_id set — read-only display
 
-    const MT_STATUS_LABEL = { scheduled: 'Scheduled', completed: 'Completed', cancelled: 'Cancelled' }
     const MT_STATUS_COLOR = {
       scheduled: 'bg-indigo-100 text-indigo-800', completed: 'bg-green-100 text-green-800',
       cancelled: 'bg-gray-100 text-gray-500',
     }
+    function mtStatusLabel(s) { return { scheduled: t('mt_status_scheduled'), completed: t('ct_status_completed'), cancelled: t('mt_status_cancelled') }[s] ?? s }
 
     function isUpcoming(m) {
       if (m.status !== 'scheduled') return false
@@ -331,29 +331,29 @@
       })
 
       document.getElementById('mt-count').textContent =
-        filtered.length === allMeetings.length ? `${allMeetings.length} meeting${allMeetings.length !== 1 ? 's' : ''}` : `${filtered.length} of ${allMeetings.length} meetings`
+        filtered.length === allMeetings.length ? t('mt_count_all', allMeetings.length) : t('mt_count_filtered', filtered.length, allMeetings.length)
 
       const tbody = document.getElementById('mt-tbody')
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">No meetings match your filters.</td></tr>'
+        tbody.innerHTML = `<tr><td colspan="6" class="px-5 py-6 text-center text-xs text-gray-400">${t('mt_no_match')}</td></tr>`
         return
       }
       tbody.innerHTML = filtered.map(m => {
-        const related = m.opportunities?.title ? `Opp: ${m.opportunities.title}` : (m.contracts?.title ? `Contract: ${m.contracts.title}` : '—')
+        const related = m.opportunities?.title ? `${t('tk_related_opp_prefix')} ${m.opportunities.title}` : (m.contracts?.title ? `${t('tk_related_contract_prefix')} ${m.contracts.title}` : '—')
         const internalCount = (m.meeting_attendees ?? []).length
         const externalCount = m.external_attendees ? m.external_attendees.split(',').filter(s => s.trim()).length : 0
         return `
         <tr class="hover:bg-gray-50 transition-colors">
           <td class="px-5 py-3 font-medium text-gray-900">${aesc(m.title)}</td>
           <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell max-w-xs truncate">${aesc(related)}</td>
-          <td class="px-5 py-3 text-xs text-gray-500">${fmtDate(m.start_time)}${isUpcoming(m) ? ' <span class="text-indigo-600 font-semibold">(upcoming)</span>' : ''}</td>
-          <td class="px-5 py-3 text-xs text-gray-500 hidden md:table-cell">${internalCount} internal${externalCount ? `, ${externalCount} external` : ''}</td>
-          <td class="px-5 py-3"><span class="text-xs font-medium px-2 py-0.5 rounded-full ${MT_STATUS_COLOR[m.status] ?? 'bg-gray-100 text-gray-600'}">${MT_STATUS_LABEL[m.status] ?? m.status}</span></td>
+          <td class="px-5 py-3 text-xs text-gray-500">${fmtDate(m.start_time)}${isUpcoming(m) ? ` <span class="text-indigo-600 font-semibold">(${t('mt_upcoming_badge')})</span>` : ''}</td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden md:table-cell">${internalCount} ${t('mt_internal_label')}${externalCount ? `, ${externalCount} ${t('mt_external_label')}` : ''}</td>
+          <td class="px-5 py-3"><span class="text-xs font-medium px-2 py-0.5 rounded-full ${MT_STATUS_COLOR[m.status] ?? 'bg-gray-100 text-gray-600'}">${mtStatusLabel(m.status)}</span></td>
           <td class="px-5 py-3 text-right">
             <div class="flex items-center justify-end gap-3">
-              <button onclick="openMinutesModal(allMeetings.find(x=>x.id==='${aesc(m.id)}'))" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Minutes</button>
-              <button onclick="openMeetingModal(allMeetings.find(x=>x.id==='${aesc(m.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</button>
-              <button onclick="deleteMeeting('${aesc(m.id)}', '${aesc(m.title)}')" class="text-xs text-red-500 hover:text-red-700 font-medium">Delete</button>
+              <button onclick="openMinutesModal(allMeetings.find(x=>x.id==='${aesc(m.id)}'))" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">${t('mt_minutes_btn')}</button>
+              <button onclick="openMeetingModal(allMeetings.find(x=>x.id==='${aesc(m.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium">${t('btn_edit')}</button>
+              <button onclick="deleteMeeting('${aesc(m.id)}', '${aesc(m.title)}')" class="text-xs text-red-500 hover:text-red-700 font-medium">${t('btn_delete')}</button>
             </div>
           </td>
         </tr>`
@@ -363,7 +363,7 @@
     // ── Add/Edit Meeting ─────────────────────────────────────────────────────
 
     function openMeetingModal(meeting = null) {
-      document.getElementById('mm-title-heading').textContent = meeting ? 'Edit Meeting' : 'Add Meeting'
+      document.getElementById('mm-title-heading').textContent = meeting ? t('mt_edit_title') : t('mt_add_title')
       document.getElementById('mm-id').value = meeting?.id ?? ''
       document.getElementById('mm-title').value = meeting?.title ?? ''
       document.getElementById('mm-description').value = meeting?.description ?? ''
@@ -380,7 +380,7 @@
         <label class="flex items-center gap-2 px-1 py-0.5">
           <input type="checkbox" value="${aesc(p.id)}" ${selectedIds.has(p.id) ? 'checked' : ''} class="mm-attendee-cb">
           <span>${aesc(p.full_name || p.email)}</span>
-        </label>`).join('') || '<p class="text-xs text-gray-400">No active users found.</p>'
+        </label>`).join('') || `<p class="text-xs text-gray-400">${t('mt_no_active_users')}</p>`
 
       openAdminModal('meeting-modal')
     }
@@ -389,8 +389,8 @@
       const id = document.getElementById('mm-id').value
       const title = document.getElementById('mm-title').value.trim()
       const start = document.getElementById('mm-start').value
-      if (!title) { showToast('Title is required.', 'error'); return }
-      if (!start) { showToast('Start time is required.', 'error'); return }
+      if (!title) { showToast(t('ct_title_required'), 'error'); return }
+      if (!start) { showToast(t('mt_start_required'), 'error'); return }
 
       const body = {
         title,
@@ -407,7 +407,7 @@
       const { data, error } = id
         ? await sb.from('meetings').update(body).eq('id', id).select('id').single()
         : await sb.from('meetings').insert(body).select('id').single()
-      if (error) { showToast('Save failed: ' + error.message, 'error'); return }
+      if (error) { showToast(t('save_failed_prefix') + error.message, 'error'); return }
 
       const meetingId = id || data.id
       const attendeeIds = [...document.querySelectorAll('.mm-attendee-cb:checked')].map(cb => cb.value)
@@ -418,16 +418,16 @@
 
       await logAudit(id ? 'UPDATE' : 'CREATE', 'meeting', meetingId, title, null, body)
       closeAdminModal('meeting-modal')
-      showToast('Meeting saved.')
+      showToast(t('mt_saved_toast'))
       await loadMeetings()
     }
 
     async function deleteMeeting(id, title) {
-      if (!confirm(`Delete "${title}"? This also deletes its minutes and action items and cannot be undone.`)) return
+      if (!confirm(t('mt_delete_confirm', title))) return
       const { error } = await sb.from('meetings').delete().eq('id', id)
-      if (error) { showToast('Delete failed: ' + error.message, 'error'); return }
+      if (error) { showToast(t('delete_failed_prefix') + error.message, 'error'); return }
       await logAudit('DELETE', 'meeting', id, title, { title }, null)
-      showToast('Meeting deleted.')
+      showToast(t('mt_deleted_toast'))
       await loadMeetings()
     }
 
@@ -448,7 +448,7 @@
 
     async function loadActionItems(meetingId) {
       const { data, error } = await sb.from('meeting_action_items').select('*').eq('meeting_id', meetingId).order('created_at')
-      if (error) { showToast('Failed to load action items: ' + error.message, 'error'); return }
+      if (error) { showToast(t('mt_load_action_items_failed') + error.message, 'error'); return }
       const rows = data ?? []
       currentActionItems = rows.filter(a => !a.task_id)
       currentLinkedItems = rows.filter(a => a.task_id)
@@ -458,7 +458,7 @@
     function renderDecisions() {
       const el = document.getElementById('mn-decisions-list')
       if (currentDecisions.length === 0) {
-        el.innerHTML = '<p class="text-xs text-gray-400">No decisions recorded yet.</p>'
+        el.innerHTML = `<p class="text-xs text-gray-400">${t('mt_no_decisions')}</p>`
         return
       }
       el.innerHTML = currentDecisions.map((d, i) => `
@@ -476,21 +476,21 @@
     function renderActionItems() {
       const el = document.getElementById('mn-action-items-list')
       if (currentActionItems.length === 0) {
-        el.innerHTML = '<p class="text-xs text-gray-400">No action items yet.</p>'
+        el.innerHTML = `<p class="text-xs text-gray-400">${t('mt_no_action_items')}</p>`
       } else {
         el.innerHTML = currentActionItems.map((a, i) => `
           <div class="border border-gray-200 rounded-lg p-2 space-y-1.5">
             <div class="flex items-center gap-2">
-              <input value="${aesc(a.description)}" onchange="currentActionItems[${i}].description = this.value" placeholder="Action item"
+              <input value="${aesc(a.description)}" onchange="currentActionItems[${i}].description = this.value" placeholder="${aesc(t('mt_action_item_ph'))}"
                 class="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-xs">
               <button onclick="currentActionItems.splice(${i},1); renderActionItems()" class="text-red-500 hover:text-red-700 text-xs flex-shrink-0">✕</button>
             </div>
             <div class="flex items-center gap-2">
-              <input value="${aesc(a.suggested_assignee || '')}" onchange="currentActionItems[${i}].suggested_assignee = this.value || null" placeholder="Suggested assignee (optional)"
+              <input value="${aesc(a.suggested_assignee || '')}" onchange="currentActionItems[${i}].suggested_assignee = this.value || null" placeholder="${aesc(t('mt_suggested_assignee_ph'))}"
                 class="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-xs text-gray-500">
               ${a.id
-                ? `<button onclick="createTaskFromActionItem(${i})" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex-shrink-0">Create Task</button>`
-                : `<span class="text-[10px] text-gray-400 flex-shrink-0">Save to enable "Create Task"</span>`}
+                ? `<button onclick="createTaskFromActionItem(${i})" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex-shrink-0">${t('mt_create_task_btn')}</button>`
+                : `<span class="text-[10px] text-gray-400 flex-shrink-0">${t('mt_save_to_enable')}</span>`}
             </div>
           </div>`).join('')
       }
@@ -504,7 +504,7 @@
         linkedEl.innerHTML = currentLinkedItems.map(a => `
           <div class="flex items-center justify-between gap-2 text-xs text-gray-600 border border-gray-100 rounded-lg px-2.5 py-1.5 bg-gray-50">
             <span class="flex-1">${aesc(a.description)}</span>
-            <span class="text-green-700 font-medium flex-shrink-0">✓ Task created</span>
+            <span class="text-green-700 font-medium flex-shrink-0">${t('mt_task_created_badge')}</span>
           </div>`).join('')
       }
     }
@@ -516,12 +516,12 @@
 
     async function analyzeNotes() {
       const notes = document.getElementById('mn-raw-notes').value.trim()
-      if (!notes) { showToast('Paste some notes first.', 'error'); return }
+      if (!notes) { showToast(t('mt_paste_notes_first'), 'error'); return }
 
       const btn = document.getElementById('mn-analyze-btn')
       const orig = btn.textContent
       btn.disabled = true
-      btn.textContent = 'Analyzing…'
+      btn.textContent = t('analyzing_ellipsis')
 
       try {
         const { data: { session } } = await sb.auth.getSession()
@@ -544,9 +544,9 @@
           ...(json.action_items || []).map(a => ({ id: null, description: a.description, suggested_assignee: a.suggested_assignee })),
         ]
         renderActionItems()
-        showToast('Notes analyzed — review, then Save Notes.')
+        showToast(t('mt_analyzed_toast'))
       } catch (err) {
-        showToast(err.message || 'Analysis failed.', 'error')
+        showToast(err.message || t('mt_analysis_failed'), 'error')
       } finally {
         btn.disabled = false
         btn.textContent = orig
@@ -562,7 +562,7 @@
         ai_summary: currentSummary || null,
         ai_decisions: currentDecisions.filter(d => d.trim()),
       }).eq('id', meetingId)
-      if (updErr) { showToast('Save failed: ' + updErr.message, 'error'); return }
+      if (updErr) { showToast(t('save_failed_prefix') + updErr.message, 'error'); return }
 
       // Unlinked action items are fully replaced on each save — simplest
       // correct sync for a short editable list; linked ones (task_id set)
@@ -573,10 +573,10 @@
         .map(a => ({ meeting_id: meetingId, description: a.description.trim(), suggested_assignee: a.suggested_assignee || null }))
       if (rows.length) {
         const { error: insErr } = await sb.from('meeting_action_items').insert(rows)
-        if (insErr) { showToast('Notes saved, but action items failed to save: ' + insErr.message, 'error'); return }
+        if (insErr) { showToast(t('mt_notes_saved_items_failed') + insErr.message, 'error'); return }
       }
 
-      showToast('Minutes saved.')
+      showToast(t('mt_minutes_saved_toast'))
       await loadActionItems(meetingId)
       await loadMeetings()
     }
@@ -592,14 +592,19 @@
         status: 'open',
         priority: 'medium',
       }).select('id').single()
-      if (error) { showToast('Failed to create task: ' + error.message, 'error'); return }
+      if (error) { showToast(t('mt_create_task_failed') + error.message, 'error'); return }
 
       const { error: linkErr } = await sb.from('meeting_action_items').update({ task_id: data.id }).eq('id', item.id)
-      if (linkErr) { showToast('Task created, but linking it back to this action item failed: ' + linkErr.message, 'error'); return }
+      if (linkErr) { showToast(t('mt_link_task_failed') + linkErr.message, 'error'); return }
 
-      showToast('Task created.')
+      showToast(t('mt_task_created_toast'))
       await loadActionItems(currentMinutesMeeting.id)
     }
+
+    document.addEventListener('acsd:langchange', () => {
+      renderStats(); filterMeetings()
+      if (!document.getElementById('minutes-modal').classList.contains('hidden')) renderActionItems()
+    })
 
     loadMeetings()
   </script>
