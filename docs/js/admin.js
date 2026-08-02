@@ -49,56 +49,115 @@ document.addEventListener('acsd:langchange', () => {
 
 // ── Navigation ─────────────────────────────────────────────────────────────────
 
+// Simple 2-3 stroke shapes, not a copied icon library — kept deliberately
+// minimal so every path is something we can verify by eye rather than
+// trusting from memory.
+const NAV_ICONS = {
+  index:              '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  tasks:              '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 12l3 3 5-6"/>',
+  meetings:           '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/>',
+  reports:            '<path d="M4 20V10M10 20V4M16 20v-7M4 20h16"/>',
+  experts:            '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/>',
+  ask:                '<path d="M4 4h16v12H8l-4 4V4z"/>',
+  opportunities:      '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/>',
+  sources:            '<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>',
+  'knowledge-base':   '<path d="M4 5a2 2 0 012-2h6v18H6a2 2 0 01-2-2V5z"/><path d="M12 3h6a2 2 0 012 2v14a2 2 0 01-2 2h-6"/>',
+  'lessons-learned':  '<path d="M9 18h6M10 21h4M12 3a6 6 0 00-3 11.2c.6.4 1 1.1 1 1.8h4c0-.7.4-1.4 1-1.8A6 6 0 0012 3z"/>',
+  clients:            '<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h2M14 7h2M8 11h2M14 11h2M8 15h2M14 15h2"/>',
+  contracts:          '<path d="M6 3h9l5 5v13a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M14 3v5h5M8 13h8M8 17h5"/>',
+  users:              '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 19a6 6 0 0111 0"/>',
+  roles:              '<path d="M12 3l7 3v6c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6l7-3z"/><path d="M9.5 12l2 2 3.5-4"/>',
+  webhooks:           '<path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/>',
+  audit:              '<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5L20 20"/>',
+}
+
+function _navIcon(id) {
+  return `<svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">${NAV_ICONS[id] || ''}</svg>`
+}
+
+function _navLink(it, active) {
+  return `
+    <a href="${it.href}" onclick="closeMobileNav()"
+       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors border-l-2
+              ${it.id === active
+                ? 'bg-blue-50 text-blue-900 font-semibold border-blue-700'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border-transparent'}">
+      ${_navIcon(it.id)}<span>${aesc(it.label)}</span>
+    </a>`
+}
+
+function toggleNavGroup(key) {
+  const collapsed = localStorage.getItem('acsd_nav_collapsed_' + key) === 'true'
+  localStorage.setItem('acsd_nav_collapsed_' + key, String(!collapsed))
+  if (_adminActivePage) renderAdminNav(_adminActivePage)
+}
+
 function renderAdminNav(active) {
-  // Groups mirror the platform's functional areas: talent (Roster), business
-  // development (Opportunities, bid-side), delivery (post-award), and system
-  // administration — with Dashboard, Tasks, Meetings, and Reports left
-  // ungrouped since they're cross-cutting entry/exit points (a task or
-  // meeting can belong to a bid OR a contract OR neither, so it doesn't fit
-  // either side cleanly).
+  // Dashboard, Tasks, Meetings, and Reports are cross-cutting entry/exit
+  // points (a task or meeting can belong to a bid OR a contract OR neither,
+  // and Reports pulls from every entity), so they stay ungrouped at the
+  // top. The remaining groups mirror the platform's functional areas:
+  // talent (Roster), business development (Opportunities, bid-side),
+  // delivery (post-award), and system administration — the last of which
+  // is config/setup work rather than daily workflow, so it collapses by
+  // default to keep the common case short.
+  const primary = [
+    { id: 'index',    href: 'index.html',      label: t('nav_dashboard') },
+    { id: 'tasks',    href: 'tasks.html',      label: t('nav_tasks') },
+    { id: 'meetings', href: 'meetings.html',   label: t('nav_meetings') },
+    { id: 'reports',  href: '../reports.html', label: t('nav_reports') },
+  ]
   const groups = [
-    { label: null, items: [
-      { id: 'index',    href: 'index.html',    label: t('nav_dashboard') },
-      { id: 'tasks',    href: 'tasks.html',    label: t('nav_tasks') },
-      { id: 'meetings', href: 'meetings.html', label: t('nav_meetings') },
-    ] },
-    { label: t('nav_group_roster'), items: [
+    { key: 'roster', label: t('nav_group_roster'), items: [
       { id: 'experts', href: 'experts.html', label: t('nav_experts') },
       { id: 'ask',     href: 'ask.html',     label: t('nav_ask') },
     ] },
-    { label: t('nav_group_opportunities'), items: [
+    { key: 'opportunities', label: t('nav_group_opportunities'), items: [
       { id: 'opportunities',      href: 'opportunities.html',     label: t('nav_opportunities') },
       { id: 'sources',            href: 'sources.html',           label: t('nav_sources') },
       { id: 'knowledge-base',     href: 'knowledge-base.html',    label: t('nav_knowledge_base') },
       { id: 'lessons-learned',    href: 'lessons-learned.html',   label: t('nav_lessons_learned') },
     ] },
-    { label: t('nav_group_delivery'), items: [
+    { key: 'delivery', label: t('nav_group_delivery'), items: [
       { id: 'clients',   href: 'clients.html',   label: t('nav_clients') },
       { id: 'contracts', href: 'contracts.html', label: t('nav_contracts') },
     ] },
-    { label: t('nav_group_admin'), items: [
+    { key: 'admin', label: t('nav_group_admin'), collapsible: true, items: [
       { id: 'users',    href: 'users.html',    label: t('nav_users') },
       { id: 'roles',    href: 'roles.html',    label: t('nav_roles') },
       { id: 'webhooks', href: 'webhooks.html', label: t('nav_webhooks') },
       { id: 'audit',    href: 'audit.html',    label: t('nav_audit') },
     ] },
-    { label: null, items: [
-      { id: 'reports', href: '../reports.html', label: t('nav_reports') },
-    ] },
   ]
   const nav = document.getElementById('admin-nav')
   if (!nav) return
-  nav.innerHTML = groups.map(g => `
-    ${g.label ? `<p class="px-3 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider first:pt-0">${aesc(g.label)}</p>` : ''}
-    ${g.items.map(it => `
-      <a href="${it.href}" onclick="closeMobileNav()"
-         class="block px-3 py-2 rounded-lg text-sm transition-colors
-                ${it.id === active
-                  ? 'bg-blue-50 text-blue-900 font-semibold'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}">
-        ${aesc(it.label)}
-      </a>`).join('')}
-  `).join('')
+
+  const quickAdd = `
+    <div class="flex gap-1.5 mb-2 px-1">
+      <a href="experts.html?new=1" onclick="closeMobileNav()" class="flex-1 text-center text-xs font-semibold bg-blue-900 hover:bg-blue-800 text-white px-2 py-1.5 rounded-lg transition-colors">+ ${aesc(t('nav_quick_add_expert'))}</a>
+      <a href="opportunities.html?new=1" onclick="closeMobileNav()" class="flex-1 text-center text-xs font-semibold bg-blue-900 hover:bg-blue-800 text-white px-2 py-1.5 rounded-lg transition-colors">+ ${aesc(t('nav_quick_add_opportunity'))}</a>
+    </div>`
+
+  const primaryHtml = primary.map(it => _navLink(it, active)).join('')
+
+  const groupsHtml = groups.map(g => {
+    const isActiveInGroup = g.items.some(it => it.id === active)
+    const raw = localStorage.getItem('acsd_nav_collapsed_' + g.key)
+    const storedCollapsed = raw === null ? true : raw === 'true'   // collapsible groups start collapsed until the admin opts in
+    const collapsed = !!g.collapsible && storedCollapsed && !isActiveInGroup
+
+    const header = g.collapsible
+      ? `<button type="button" onclick="toggleNavGroup('${g.key}')"
+           class="w-full flex items-center justify-between px-3 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider first:pt-0 hover:text-gray-600">
+           <span>${aesc(g.label)}</span>
+           <svg class="w-3.5 h-3.5 transition-transform ${collapsed ? '' : 'rotate-180'}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+         </button>`
+      : `<p class="px-3 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider first:pt-0">${aesc(g.label)}</p>`
+
+    return header + (collapsed ? '' : g.items.map(it => _navLink(it, active)).join(''))
+  }).join('')
+
+  nav.innerHTML = quickAdd + primaryHtml + groupsHtml
 }
 
 // ── Notifications (bell dropdown) ───────────────────────────────────────────────

@@ -122,6 +122,10 @@ const I18N_STRINGS = {
     nav_group_opportunities: 'Opportunities',
     nav_group_delivery:      'Delivery',
     nav_group_admin:         'Administration',
+    nav_quick_add_expert:      'Expert',
+    nav_quick_add_opportunity: 'Opportunity',
+    nav_breadcrumb_opportunities: 'Opportunities',
+    nav_breadcrumb_clients:       'Clients',
 
     // ── Shared admin UI vocabulary — reused across every admin page ──
     btn_edit:               'Edit',
@@ -1110,6 +1114,10 @@ const I18N_STRINGS = {
     nav_group_opportunities: 'Opportunités',
     nav_group_delivery:      'Exécution',
     nav_group_admin:         'Administration',
+    nav_quick_add_expert:      'Expert',
+    nav_quick_add_opportunity: 'Opportunité',
+    nav_breadcrumb_opportunities: 'Opportunités',
+    nav_breadcrumb_clients:       'Clients',
 
     // ── Shared admin UI vocabulary — reused across every admin page ──
     btn_edit:               'Modifier',

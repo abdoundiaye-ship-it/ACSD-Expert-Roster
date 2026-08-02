@@ -54,7 +54,11 @@
 
     <main class="flex-1 min-w-0 space-y-5">
 
-      <a href="opportunities.html" class="text-xs text-gray-500 hover:text-blue-600">← <span data-i18n="nav_opportunities">Opportunities</span></a>
+      <nav aria-label="Breadcrumb" class="text-xs text-gray-500">
+        <a href="opportunities.html" class="hover:text-blue-600 hover:underline" data-i18n="nav_breadcrumb_opportunities">Opportunities</a>
+        <span class="mx-1.5 text-gray-300">/</span>
+        <span id="breadcrumb-title" class="text-gray-700 font-medium"></span>
+      </nav>
 
       <div id="detail-loading" class="text-center text-xs text-gray-400 py-10" data-i18n="loading">Loading…</div>
 
@@ -513,6 +517,7 @@
 
     function renderHeader() {
       document.getElementById('dh-title').textContent = opportunity.title
+      document.getElementById('breadcrumb-title').textContent = opportunity.title
       document.getElementById('dh-org').textContent = opportunity.organization
       const typeEl = document.getElementById('dh-type')
       typeEl.textContent = opportunity.opportunity_type

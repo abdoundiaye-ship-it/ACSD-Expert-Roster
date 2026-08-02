@@ -446,12 +446,15 @@
       populateSectorSelects()
       filterExperts()
 
-      // If opened from roster with ?edit=ID, open the edit form
+      // If opened from roster with ?edit=ID, open the edit form; ?new=1
+      // (from the sidebar quick-add shortcut) opens a blank one.
       const params = new URLSearchParams(window.location.search)
       const editId = params.get('edit')
       if (editId) {
         const e = allExperts.find(x => x.id === editId)
         if (e) openExpertModal(e)
+      } else if (params.get('new') === '1') {
+        openExpertModal()
       }
     }
 

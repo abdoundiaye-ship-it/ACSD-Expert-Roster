@@ -477,6 +477,11 @@
 
       populateLookupSelects()
       filterOpportunities()
+
+      // ?new=1 (from the sidebar quick-add shortcut) opens the create modal.
+      if (new URLSearchParams(window.location.search).get('new') === '1') {
+        openOpportunityModal()
+      }
     }
 
     let scanSources = []
