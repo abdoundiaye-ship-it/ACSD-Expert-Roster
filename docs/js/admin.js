@@ -192,10 +192,14 @@ async function openNotification(id) {
   const n = _notifications.find(x => x.id === id)
   if (!n) return
   if (!n.read) {
-    await sb.from('notifications').update({ read: true }).eq('id', id)
-    n.read = true
-    renderNotificationBadge()
-    renderNotificationList()
+    const { error } = await sb.from('notifications').update({ read: true }).eq('id', id)
+    if (error) {
+      showToast(t('failed_prefix') + error.message, 'error')
+    } else {
+      n.read = true
+      renderNotificationBadge()
+      renderNotificationList()
+    }
   }
   if (n.link_url) window.location.href = n.link_url
 }
@@ -203,7 +207,8 @@ async function openNotification(id) {
 async function markAllNotificationsRead() {
   const unreadIds = _notifications.filter(n => !n.read).map(n => n.id)
   if (unreadIds.length === 0) return
-  await sb.from('notifications').update({ read: true }).in('id', unreadIds)
+  const { error } = await sb.from('notifications').update({ read: true }).in('id', unreadIds)
+  if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
   _notifications.forEach(n => { n.read = true })
   renderNotificationBadge()
   renderNotificationList()
@@ -223,6 +228,10 @@ function aesc(s) {
 function fmtDate(iso) {
   if (!iso) return '—'
   return new Date(iso).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' })
+}
+
+function debounce(fn, ms) {
+  let timer; return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms) }
 }
 
 function showToast(msg, type = 'success') {

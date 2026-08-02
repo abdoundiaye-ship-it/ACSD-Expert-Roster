@@ -58,7 +58,7 @@
         <div class="relative flex-1 max-w-sm">
           <input id="kb-search" type="search" data-i18n-placeholder="kb_search_placeholder" placeholder="Search title/description…"
             class="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            oninput="filterDocs()">
+            oninput="debouncedFilterDocs()">
         </div>
         <select id="kb-filter-category"
           class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -223,6 +223,7 @@
       filterDocs()
     }
 
+    const debouncedFilterDocs = debounce(() => filterDocs(), 250)
     function filterDocs() {
       const q = document.getElementById('kb-search').value.toLowerCase()
       const cat = document.getElementById('kb-filter-category').value

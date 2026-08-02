@@ -75,7 +75,7 @@
           </svg>
           <input id="opp-search" type="search" placeholder="Search opportunities…" data-i18n-placeholder="opp_search_ph"
             class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            oninput="filterOpportunities()">
+            oninput="debouncedFilterOpportunities()">
         </div>
         <select id="opp-filter-status"
           class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -595,6 +595,7 @@
         </div>`).join('')
     }
 
+    const debouncedFilterOpportunities = debounce(() => filterOpportunities(), 250)
     function filterOpportunities() {
       const q      = document.getElementById('opp-search').value.toLowerCase()
       const status = document.getElementById('opp-filter-status').value
@@ -716,7 +717,11 @@
       openAdminModal('opportunity-modal')
     }
 
+    let saveOpportunityInFlight = false
     async function saveOpportunity() {
+      if (saveOpportunityInFlight) return
+      saveOpportunityInFlight = true
+      try {
       const errDiv = document.getElementById('opp-modal-error')
       errDiv.classList.add('hidden')
 
@@ -757,22 +762,35 @@
         ...reqIds.map(id => ({ opportunity_id: oppId, sector_id: id, importance: 'required' })),
         ...prefIds.map(id => ({ opportunity_id: oppId, sector_id: id, importance: 'preferred' })),
       ]
-      if (sectorRows.length) await sb.from('opportunity_sectors').insert(sectorRows)
+      if (sectorRows.length) {
+        const { error: secErr } = await sb.from('opportunity_sectors').insert(sectorRows)
+        if (secErr) showToast(t('save_failed_prefix') + secErr.message, 'error')
+      }
 
       // Languages / geographies / activity types
       const langIds = [...document.querySelectorAll('#of-languages input:checked')].map(c => c.value)
-      if (langIds.length) await sb.from('opportunity_languages').insert(langIds.map(id => ({ opportunity_id: oppId, language_id: id })))
+      if (langIds.length) {
+        const { error: langErr } = await sb.from('opportunity_languages').insert(langIds.map(id => ({ opportunity_id: oppId, language_id: id })))
+        if (langErr) showToast(t('save_failed_prefix') + langErr.message, 'error')
+      }
 
       const geoIds = [...document.querySelectorAll('#of-geographies input:checked')].map(c => c.value)
-      if (geoIds.length) await sb.from('opportunity_geographies').insert(geoIds.map(id => ({ opportunity_id: oppId, geography_id: id })))
+      if (geoIds.length) {
+        const { error: geoErr } = await sb.from('opportunity_geographies').insert(geoIds.map(id => ({ opportunity_id: oppId, geography_id: id })))
+        if (geoErr) showToast(t('save_failed_prefix') + geoErr.message, 'error')
+      }
 
       const actIds = [...document.querySelectorAll('#of-activity-types input:checked')].map(c => c.value)
-      if (actIds.length) await sb.from('opportunity_activity_types').insert(actIds.map(id => ({ opportunity_id: oppId, activity_type_id: id })))
+      if (actIds.length) {
+        const { error: actErr } = await sb.from('opportunity_activity_types').insert(actIds.map(id => ({ opportunity_id: oppId, activity_type_id: id })))
+        if (actErr) showToast(t('save_failed_prefix') + actErr.message, 'error')
+      }
 
       // Positions
       const positions = readPositionRows()
       if (positions.length) {
-        await sb.from('opportunity_positions').insert(positions.map(p => ({ opportunity_id: oppId, ...p })))
+        const { error: posErr } = await sb.from('opportunity_positions').insert(positions.map(p => ({ opportunity_id: oppId, ...p })))
+        if (posErr) showToast(t('save_failed_prefix') + posErr.message, 'error')
       }
 
       // TOR source file upload
@@ -781,12 +799,15 @@
         const storagePath = `${oppId}/tor.${ext}`
         const { error: upErr } = await sb.storage.from('opportunity-tors')
           .upload(storagePath, torFile, { upsert: true })
-        if (!upErr) {
-          await sb.from('opportunities').update({
+        if (upErr) {
+          showToast(t('failed_prefix') + upErr.message, 'error')
+        } else {
+          const { error: torMetaErr } = await sb.from('opportunities').update({
             source_file_storage_path: storagePath,
             source_file_name: torFile.name,
             raw_extracted_json: lastTorExtraction,
           }).eq('id', oppId)
+          if (torMetaErr) showToast(t('save_failed_prefix') + torMetaErr.message, 'error')
         }
       }
 
@@ -795,6 +816,9 @@
       closeAdminModal('opportunity-modal')
       showToast(t('opp_created_toast'))
       window.location.href = `opportunity-detail.html?id=${oppId}`
+      } finally {
+        saveOpportunityInFlight = false
+      }
     }
 
     function openDeleteModal(oppId, oppTitle) {
@@ -803,16 +827,23 @@
       openAdminModal('delete-modal')
     }
 
+    let confirmDeleteInFlight = false
     async function confirmDelete() {
+      if (confirmDeleteInFlight) return
       if (!deleteTarget) return
-      const o = allOpportunities.find(x => x.id === deleteTarget)
-      const { error } = await sb.from('opportunities').delete().eq('id', deleteTarget)
-      if (error) { showToast(t('delete_failed_prefix') + error.message, 'error'); closeAdminModal('delete-modal'); return }
-      await logAudit('DELETE', 'opportunity', deleteTarget, o?.title, { title: o?.title }, null)
-      deleteTarget = null
-      closeAdminModal('delete-modal')
-      showToast(t('opp_deleted_toast'))
-      await loadOpportunities()
+      confirmDeleteInFlight = true
+      try {
+        const o = allOpportunities.find(x => x.id === deleteTarget)
+        const { error } = await sb.from('opportunities').delete().eq('id', deleteTarget)
+        if (error) { showToast(t('delete_failed_prefix') + error.message, 'error'); closeAdminModal('delete-modal'); return }
+        await logAudit('DELETE', 'opportunity', deleteTarget, o?.title, { title: o?.title }, null)
+        deleteTarget = null
+        closeAdminModal('delete-modal')
+        showToast(t('opp_deleted_toast'))
+        await loadOpportunities()
+      } finally {
+        confirmDeleteInFlight = false
+      }
     }
 
     // ── TOR file + AI analysis ─────────────────────────────────────────────────

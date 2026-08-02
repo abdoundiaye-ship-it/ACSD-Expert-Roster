@@ -78,7 +78,7 @@
         <div class="relative flex-1 max-w-sm">
           <input id="mt-search" type="search" placeholder="Search title, description…" data-i18n-placeholder="tk_search_ph"
             class="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            oninput="filterMeetings()">
+            oninput="debouncedFilterMeetings()">
         </div>
         <select id="mt-filter-status" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterMeetings()">
           <option value="" data-i18n="ct_filter_all_statuses">All statuses</option>
@@ -321,6 +321,7 @@
       document.getElementById('stat-cancelled').textContent = counts.cancelled
     }
 
+    const debouncedFilterMeetings = debounce(() => filterMeetings(), 250)
     function filterMeetings() {
       const q = document.getElementById('mt-search').value.toLowerCase()
       const status = document.getElementById('mt-filter-status').value

@@ -61,7 +61,7 @@
         <div class="relative flex-1 max-w-sm">
           <input id="ct-search" type="search" placeholder="Search title, client, contract number…" data-i18n-placeholder="ct_search_ph"
             class="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            oninput="filterContracts()">
+            oninput="debouncedFilterContracts()">
         </div>
         <select id="ct-filter-status"
           class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -364,6 +364,7 @@
       el.innerHTML = cards.join('')
     }
 
+    const debouncedFilterContracts = debounce(() => filterContracts(), 250)
     function filterContracts() {
       const q = document.getElementById('ct-search').value.toLowerCase()
       const status = document.getElementById('ct-filter-status').value

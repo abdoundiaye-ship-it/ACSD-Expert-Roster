@@ -88,7 +88,7 @@
         <div class="relative flex-1 max-w-sm">
           <input id="tk-search" type="search" placeholder="Search title, description…" data-i18n-placeholder="tk_search_ph"
             class="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            oninput="filterTasks()">
+            oninput="debouncedFilterTasks()">
         </div>
         <select id="tk-filter-status" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterTasks()">
           <option value="" data-i18n="ct_filter_all_statuses">All statuses</option>
@@ -283,6 +283,7 @@
       )
     }
 
+    const debouncedFilterTasks = debounce(() => filterTasks(), 250)
     function filterTasks() {
       const q = document.getElementById('tk-search').value.toLowerCase()
       const status = document.getElementById('tk-filter-status').value

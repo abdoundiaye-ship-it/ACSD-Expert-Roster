@@ -68,7 +68,7 @@
           </svg>
           <input id="expert-search" type="search" placeholder="Search experts…" data-i18n-placeholder="exp_search_ph"
             class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            oninput="filterExperts()">
+            oninput="debouncedFilterExperts()">
         </div>
         <select id="expert-filter-active"
           class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -473,6 +473,7 @@
         </div>`).join('')
     }
 
+    const debouncedFilterExperts = debounce(() => filterExperts(), 250)
     function filterExperts() {
       const q      = document.getElementById('expert-search').value.toLowerCase()
       const active = document.getElementById('expert-filter-active').value
@@ -605,7 +606,11 @@
       openAdminModal('expert-modal')
     }
 
+    let saveExpertInFlight = false
     async function saveExpert() {
+      if (saveExpertInFlight) return
+      saveExpertInFlight = true
+      try {
       const id       = document.getElementById('ef-id').value
       const fullName = document.getElementById('ef-fullname').value.trim()
       const errDiv   = document.getElementById('modal-error')
@@ -651,13 +656,17 @@
       const primaryId      = document.getElementById('ef-primary-sector').value
       const secondaryIds   = [...document.querySelectorAll('#ef-secondary-sectors input:checked')].map(c => c.value)
 
-      await sb.from('expert_sectors').delete().eq('expert_id', savedId)
+      const { error: secDelErr } = await sb.from('expert_sectors').delete().eq('expert_id', savedId)
+      if (secDelErr) { errDiv.textContent = secDelErr.message; errDiv.classList.remove('hidden'); return }
 
       const sectorRows = []
       if (primaryId) sectorRows.push({ expert_id: savedId, sector_id: primaryId, priority: 'primary' })
       secondaryIds.filter(sid => sid !== primaryId).forEach(sid =>
         sectorRows.push({ expert_id: savedId, sector_id: sid, priority: 'secondary' }))
-      if (sectorRows.length) await sb.from('expert_sectors').insert(sectorRows)
+      if (sectorRows.length) {
+        const { error: secInsErr } = await sb.from('expert_sectors').insert(sectorRows)
+        if (secInsErr) { errDiv.textContent = secInsErr.message; errDiv.classList.remove('hidden'); return }
+      }
 
       // Upload CV if a file was chosen
       const cvFile = document.getElementById('ef-cv-file').files?.[0]
@@ -670,7 +679,8 @@
           errDiv.textContent = t('exp_cv_upload_failed_prefix') + upErr.message
           errDiv.classList.remove('hidden')
         } else {
-          await sb.from('experts').update({ cv_storage_path: storagePath }).eq('id', savedId)
+          const { error: cvPathErr } = await sb.from('experts').update({ cv_storage_path: storagePath }).eq('id', savedId)
+          if (cvPathErr) { errDiv.textContent = cvPathErr.message; errDiv.classList.remove('hidden'); return }
         }
       }
 
@@ -680,6 +690,9 @@
       closeAdminModal('expert-modal')
       showToast(id ? t('exp_updated_toast') : t('exp_created_toast'))
       await loadExperts()
+      } finally {
+        saveExpertInFlight = false
+      }
     }
 
     async function toggleExpertActive(expertId, currentlyActive) {
@@ -699,15 +712,20 @@
       openAdminModal('delete-modal')
     }
 
+    let confirmDeleteInFlight = false
     async function confirmDelete() {
+      if (confirmDeleteInFlight) return
       if (!deleteTarget) return
+      confirmDeleteInFlight = true
+      try {
       const e = allExperts.find(x => x.id === deleteTarget)
 
       // Delete junction tables first (most have ON DELETE CASCADE, but be explicit)
       const junction = ['expert_sectors','expert_languages','expert_geographies',
         'expert_donor_experience','education_certifications','expert_activity_experience','expert_role_fit']
       for (const tbl of junction) {
-        await sb.from(tbl).delete().eq('expert_id', deleteTarget)
+        const { error: junctionErr } = await sb.from(tbl).delete().eq('expert_id', deleteTarget)
+        if (junctionErr) { showToast(t('delete_failed_prefix') + junctionErr.message, 'error'); closeAdminModal('delete-modal'); return }
       }
       const { error } = await sb.from('experts').delete().eq('id', deleteTarget)
       if (error) { showToast(t('delete_failed_prefix') + error.message, 'error'); closeAdminModal('delete-modal'); return }
@@ -717,6 +735,9 @@
       closeAdminModal('delete-modal')
       showToast(t('exp_deleted_toast'))
       await loadExperts()
+      } finally {
+        confirmDeleteInFlight = false
+      }
     }
 
     // ── CV file upload helpers ─────────────────────────────────────────────────

@@ -708,7 +708,11 @@
       })).filter(c => c.criterion)
     }
 
+    let saveOverviewInFlight = false
     async function saveOverview() {
+      if (saveOverviewInFlight) return
+      saveOverviewInFlight = true
+      try {
       const errDiv = document.getElementById('ov-error')
       errDiv.classList.add('hidden')
       const title = document.getElementById('ov-title').value.trim()
@@ -733,28 +737,42 @@
 
       const reqIds  = [...document.querySelectorAll('#ov-sectors-required input:checked')].map(c => c.value)
       const prefIds = [...document.querySelectorAll('#ov-sectors-preferred input:checked')].map(c => c.value).filter(id => !reqIds.includes(id))
-      await sb.from('opportunity_sectors').delete().eq('opportunity_id', oppId)
+      const { error: secErr } = await sb.from('opportunity_sectors').delete().eq('opportunity_id', oppId)
       const sectorRows = [
         ...reqIds.map(id => ({ opportunity_id: oppId, sector_id: id, importance: 'required' })),
         ...prefIds.map(id => ({ opportunity_id: oppId, sector_id: id, importance: 'preferred' })),
       ]
-      if (sectorRows.length) await sb.from('opportunity_sectors').insert(sectorRows)
+      const { error: secInsErr } = sectorRows.length ? await sb.from('opportunity_sectors').insert(sectorRows) : { error: null }
 
       const langIds = [...document.querySelectorAll('#ov-languages input:checked')].map(c => c.value)
-      await sb.from('opportunity_languages').delete().eq('opportunity_id', oppId)
-      if (langIds.length) await sb.from('opportunity_languages').insert(langIds.map(id => ({ opportunity_id: oppId, language_id: id })))
+      const { error: langErr } = await sb.from('opportunity_languages').delete().eq('opportunity_id', oppId)
+      const { error: langInsErr } = langIds.length ? await sb.from('opportunity_languages').insert(langIds.map(id => ({ opportunity_id: oppId, language_id: id }))) : { error: null }
 
       const geoIds = [...document.querySelectorAll('#ov-geographies input:checked')].map(c => c.value)
-      await sb.from('opportunity_geographies').delete().eq('opportunity_id', oppId)
-      if (geoIds.length) await sb.from('opportunity_geographies').insert(geoIds.map(id => ({ opportunity_id: oppId, geography_id: id })))
+      const { error: geoErr } = await sb.from('opportunity_geographies').delete().eq('opportunity_id', oppId)
+      const { error: geoInsErr } = geoIds.length ? await sb.from('opportunity_geographies').insert(geoIds.map(id => ({ opportunity_id: oppId, geography_id: id }))) : { error: null }
 
       const actIds = [...document.querySelectorAll('#ov-activity-types input:checked')].map(c => c.value)
-      await sb.from('opportunity_activity_types').delete().eq('opportunity_id', oppId)
-      if (actIds.length) await sb.from('opportunity_activity_types').insert(actIds.map(id => ({ opportunity_id: oppId, activity_type_id: id })))
+      const { error: actErr } = await sb.from('opportunity_activity_types').delete().eq('opportunity_id', oppId)
+      const { error: actInsErr } = actIds.length ? await sb.from('opportunity_activity_types').insert(actIds.map(id => ({ opportunity_id: oppId, activity_type_id: id }))) : { error: null }
+
+      const junctionError = secErr || secInsErr || langErr || langInsErr || geoErr || geoInsErr || actErr || actInsErr
+      if (junctionError) { showToast(t('save_failed_prefix') + junctionError.message, 'error'); return }
 
       await logAudit('UPDATE', 'opportunity', oppId, title, null, { title })
+
+      Object.assign(opportunity, body)
+      opportunity.opportunity_sectors = sectorRows.map(r => ({ sector_id: r.sector_id, importance: r.importance }))
+      opportunity.opportunity_languages = langIds.map(id => ({ language_id: id }))
+      opportunity.opportunity_geographies = geoIds.map(id => ({ geography_id: id }))
+      opportunity.opportunity_activity_types = actIds.map(id => ({ activity_type_id: id }))
+
       showToast(t('oppdetail_overview_saved_toast'))
-      await loadDetail()
+      renderHeader()
+      renderOverview()
+      } finally {
+        saveOverviewInFlight = false
+      }
     }
 
     async function downloadTor() {
@@ -809,33 +827,47 @@
       openAdminModal('position-modal')
     }
 
+    let savePositionInFlight = false
     async function savePosition() {
-      const id = document.getElementById('pm-id').value
-      const roleTitle = document.getElementById('pm-role').value.trim()
-      if (!roleTitle) { showToast(t('oppdetail_role_title_required'), 'error'); return }
-      const body = {
-        opportunity_id: oppId,
-        role_title: roleTitle,
-        required_seniority_tier: document.getElementById('pm-seniority').value || null,
-        quantity: parseInt(document.getElementById('pm-qty').value) || 1,
-        required_sector_id: document.getElementById('pm-sector').value || null,
-        work_order_role_id: document.getElementById('pm-worole').value || null,
+      if (savePositionInFlight) return
+      savePositionInFlight = true
+      try {
+        const id = document.getElementById('pm-id').value
+        const roleTitle = document.getElementById('pm-role').value.trim()
+        if (!roleTitle) { showToast(t('oppdetail_role_title_required'), 'error'); return }
+        const body = {
+          opportunity_id: oppId,
+          role_title: roleTitle,
+          required_seniority_tier: document.getElementById('pm-seniority').value || null,
+          quantity: parseInt(document.getElementById('pm-qty').value) || 1,
+          required_sector_id: document.getElementById('pm-sector').value || null,
+          work_order_role_id: document.getElementById('pm-worole').value || null,
+        }
+        if (id) {
+          const { error } = await sb.from('opportunity_positions').update(body).eq('id', id)
+          if (error) { showToast(t('save_failed_prefix') + error.message, 'error'); return }
+          const pos = positions.find(p => p.id === id)
+          if (pos) Object.assign(pos, body)
+        } else {
+          const { data, error } = await sb.from('opportunity_positions').insert(body).select().single()
+          if (error) { showToast(t('save_failed_prefix') + error.message, 'error'); return }
+          positions.push(data)
+        }
+        closeAdminModal('position-modal')
+        showToast(t('oppdetail_position_saved_toast'))
+        renderPositions()
+      } finally {
+        savePositionInFlight = false
       }
-      const { error } = id
-        ? await sb.from('opportunity_positions').update(body).eq('id', id)
-        : await sb.from('opportunity_positions').insert(body)
-      if (error) { showToast(t('save_failed_prefix') + error.message, 'error'); return }
-      closeAdminModal('position-modal')
-      showToast(t('oppdetail_position_saved_toast'))
-      await loadDetail()
-      switchDetailTab('matching')
     }
 
     async function deletePosition(id) {
-      await sb.from('opportunity_positions').delete().eq('id', id)
+      const { error } = await sb.from('opportunity_positions').delete().eq('id', id)
+      if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
+      positions = positions.filter(p => p.id !== id)
+      delete matchesByPosition[id]
       showToast(t('oppdetail_position_deleted_toast'))
-      await loadDetail()
-      switchDetailTab('matching')
+      renderPositions()
     }
 
     const matchesInFlight = new Set()
@@ -889,32 +921,43 @@
         </table>`
     }
 
+    let shortlistExpertInFlight = false
     async function shortlistExpert(match, positionId) {
-      const position = positionId ? positions.find(p => p.id === positionId) : null
-      const body = {
-        opportunity_id: oppId,
-        opportunity_position_id: positionId,
-        expert_id: match.expert_id,
-        assigned_role_title: position?.role_title ?? t('oppdetail_team_member_default'),
-        status: 'shortlisted',
-        daily_rate_usd: allExperts.find(e => e.id === match.expert_id)?.default_daily_rate_usd ?? null,
-      }
-      // Postgres UNIQUE constraints treat NULL as distinct, so a plain
-      // upsert().onConflict() can't detect duplicates when position_id is
-      // null — look up any existing row for this (opportunity, position,
-      // expert) triple ourselves instead.
-      let existingQuery = sb.from('opportunity_selected_experts').select('id')
-        .eq('opportunity_id', oppId).eq('expert_id', match.expert_id)
-      existingQuery = positionId ? existingQuery.eq('opportunity_position_id', positionId) : existingQuery.is('opportunity_position_id', null)
-      const { data: existing } = await existingQuery.maybeSingle()
+      if (shortlistExpertInFlight) return
+      shortlistExpertInFlight = true
+      try {
+        const position = positionId ? positions.find(p => p.id === positionId) : null
+        const body = {
+          opportunity_id: oppId,
+          opportunity_position_id: positionId,
+          expert_id: match.expert_id,
+          assigned_role_title: position?.role_title ?? t('oppdetail_team_member_default'),
+          status: 'shortlisted',
+          daily_rate_usd: allExperts.find(e => e.id === match.expert_id)?.default_daily_rate_usd ?? null,
+        }
+        // Postgres UNIQUE constraints treat NULL as distinct, so a plain
+        // upsert().onConflict() can't detect duplicates when position_id is
+        // null — look up any existing row for this (opportunity, position,
+        // expert) triple ourselves instead.
+        let existingQuery = sb.from('opportunity_selected_experts').select('id')
+          .eq('opportunity_id', oppId).eq('expert_id', match.expert_id)
+        existingQuery = positionId ? existingQuery.eq('opportunity_position_id', positionId) : existingQuery.is('opportunity_position_id', null)
+        const { data: existing } = await existingQuery.maybeSingle()
 
-      const { error } = existing
-        ? await sb.from('opportunity_selected_experts').update(body).eq('id', existing.id)
-        : await sb.from('opportunity_selected_experts').insert(body)
-      if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
-      await logAudit('CREATE', 'opportunity_selected_expert', match.expert_id, match.full_name, null, body)
-      showToast(t('oppdetail_shortlisted_toast', match.full_name))
-      await loadDetail()
+        const query = existing
+          ? sb.from('opportunity_selected_experts').update(body).eq('id', existing.id)
+          : sb.from('opportunity_selected_experts').insert(body)
+        const { data, error } = await query.select('*, experts(id, full_name, title, seniority_tier, default_daily_rate_usd)').single()
+        if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
+        await logAudit('CREATE', 'opportunity_selected_expert', match.expert_id, match.full_name, null, body)
+        const idx = selectedExperts.findIndex(s => s.id === data.id)
+        if (idx >= 0) selectedExperts[idx] = data; else selectedExperts.push(data)
+        showToast(t('oppdetail_shortlisted_toast', match.full_name))
+        renderTeam()
+        renderHeader()
+      } finally {
+        shortlistExpertInFlight = false
+      }
     }
 
     // ══════════════════════════ Team ════════════════════════════════════════
@@ -943,36 +986,53 @@
       }).join('')
     }
 
+    let updateTeamFieldInFlight = false
     async function updateTeamField(id, field, value) {
-      const { error } = await sb.from('opportunity_selected_experts').update({ [field]: value }).eq('id', id)
-      if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
-      const row = selectedExperts.find(s => s.id === id)
-      if (row) row[field] = value
-      renderTeam()
+      if (updateTeamFieldInFlight) return
+      updateTeamFieldInFlight = true
+      try {
+        const { error } = await sb.from('opportunity_selected_experts').update({ [field]: value }).eq('id', id)
+        if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
+        const row = selectedExperts.find(s => s.id === id)
+        if (row) row[field] = value
+        renderTeam()
+      } finally {
+        updateTeamFieldInFlight = false
+      }
     }
 
     async function removeFromTeam(id) {
-      await sb.from('opportunity_selected_experts').delete().eq('id', id)
+      const { error } = await sb.from('opportunity_selected_experts').delete().eq('id', id)
+      if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
+      selectedExperts = selectedExperts.filter(s => s.id !== id)
       showToast(t('oppdetail_expert_removed_toast'))
-      await loadDetail()
-      switchDetailTab('team')
+      renderTeam()
+      renderHeader()
     }
 
     function openAddExpertModal() { openAdminModal('add-expert-modal') }
+    let saveManualTeamMemberInFlight = false
     async function saveManualTeamMember() {
-      const expertId = document.getElementById('ae-expert').value
-      const role = document.getElementById('ae-role').value.trim() || t('oppdetail_team_member_default')
-      if (!expertId) { showToast(t('oppdetail_select_expert'), 'error'); return }
-      const rate = allExperts.find(e => e.id === expertId)?.default_daily_rate_usd ?? null
-      const { error } = await sb.from('opportunity_selected_experts').insert({
-        opportunity_id: oppId, opportunity_position_id: null, expert_id: expertId,
-        assigned_role_title: role, status: 'shortlisted', daily_rate_usd: rate,
-      })
-      if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
-      closeAdminModal('add-expert-modal')
-      showToast(t('oppdetail_expert_added_toast'))
-      await loadDetail()
-      switchDetailTab('team')
+      if (saveManualTeamMemberInFlight) return
+      saveManualTeamMemberInFlight = true
+      try {
+        const expertId = document.getElementById('ae-expert').value
+        const role = document.getElementById('ae-role').value.trim() || t('oppdetail_team_member_default')
+        if (!expertId) { showToast(t('oppdetail_select_expert'), 'error'); return }
+        const rate = allExperts.find(e => e.id === expertId)?.default_daily_rate_usd ?? null
+        const { data, error } = await sb.from('opportunity_selected_experts').insert({
+          opportunity_id: oppId, opportunity_position_id: null, expert_id: expertId,
+          assigned_role_title: role, status: 'shortlisted', daily_rate_usd: rate,
+        }).select('*, experts(id, full_name, title, seniority_tier, default_daily_rate_usd)').single()
+        if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
+        selectedExperts.push(data)
+        closeAdminModal('add-expert-modal')
+        showToast(t('oppdetail_expert_added_toast'))
+        renderTeam()
+        renderHeader()
+      } finally {
+        saveManualTeamMemberInFlight = false
+      }
     }
 
     // ══════════════════════════ Documents ═══════════════════════════════════
@@ -1032,10 +1092,10 @@
         })
         const json = await res.json()
         if (!res.ok || !json.success) throw new Error(json.error || `Server error ${res.status}`)
-        await upsertDoc(docType, expertId, json.title, json.content_html, true, null)
+        const saved = await upsertDoc(docType, expertId, json.title, json.content_html, true, null)
+        if (!saved) return
         showToast(t('oppdetail_doc_generated_toast'))
-        await loadDetail()
-        switchDetailTab('documents')
+        renderDocuments()
       } catch (err) {
         showToast(t('oppdetail_doc_generation_failed') + err.message, 'error')
       }
@@ -1051,11 +1111,14 @@
       // trusts a value that's already safe, with one point of truth
       // rather than re-sanitizing at every render site.
       const body = { opportunity_id: oppId, doc_type: docType, expert_id: expertId, title, content_html: DOMPurify.sanitize(contentHtml), generated_by_ai: generatedByAi, ai_prompt_snapshot: promptSnapshot, status: 'draft' }
-      if (existing) {
-        await sb.from('proposal_documents').update(body).eq('id', existing.id)
-      } else {
-        await sb.from('proposal_documents').insert(body)
-      }
+      const query = existing
+        ? sb.from('proposal_documents').update(body).eq('id', existing.id)
+        : sb.from('proposal_documents').insert(body)
+      const { data, error } = await query.select().single()
+      if (error) { showToast(t('failed_prefix') + error.message, 'error'); return null }
+      const idx = documents.findIndex(d => d.id === data.id)
+      if (idx >= 0) documents[idx] = data; else documents.push(data)
+      return data
     }
 
     async function saveDocEdit(docType, expertId) {
@@ -1066,9 +1129,10 @@
       const newStatus = doc.status === 'draft' ? 'reviewed' : doc.status
       const { error } = await sb.from('proposal_documents').update({ content_html: html, status: newStatus }).eq('id', doc.id)
       if (error) { showToast(t('save_failed_prefix') + error.message, 'error'); return }
+      doc.content_html = html
+      doc.status = newStatus
       showToast(t('oppdetail_doc_saved_toast'))
-      await loadDetail()
-      switchDetailTab('documents')
+      renderDocuments()
     }
 
     async function markDocReviewed(docType, expertId) {
@@ -1076,9 +1140,9 @@
       if (!doc) return
       const { error } = await sb.from('proposal_documents').update({ status: 'reviewed' }).eq('id', doc.id)
       if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
+      doc.status = 'reviewed'
       showToast(t('oppdetail_doc_reviewed_toast'))
-      await loadDetail()
-      switchDetailTab('documents')
+      renderDocuments()
     }
 
     function openDocComments(docId, docLabel) {
@@ -1111,18 +1175,20 @@
       const quantity = parseFloat(prompt(t('oppdetail_col_qty') + ':', '1')) || 1
       const unitCost = parseFloat(prompt(t('oppdetail_prompt_unit_cost'), '0')) || 0
       sb.from('opportunity_expense_items').insert({ opportunity_id: oppId, category, description, quantity, unit_cost_usd: unitCost })
-        .then(async ({ error }) => {
+        .select().single()
+        .then(({ data, error }) => {
           if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
-          await loadDetail()
-          switchDetailTab('documents')
+          expenseItems.push(data)
+          renderExpenseItems()
           showToast(t('oppdetail_expense_added_toast'))
         })
     }
 
     async function deleteExpenseItem(id) {
-      await sb.from('opportunity_expense_items').delete().eq('id', id)
-      await loadDetail()
-      switchDetailTab('documents')
+      const { error } = await sb.from('opportunity_expense_items').delete().eq('id', id)
+      if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
+      expenseItems = expenseItems.filter(e => e.id !== id)
+      renderExpenseItems()
     }
 
     function renderBudgetCard() {
@@ -1149,9 +1215,9 @@
       if (!doc) return
       const { error } = await sb.from('proposal_documents').update({ status: 'reviewed' }).eq('id', doc.id)
       if (error) { showToast(t('failed_prefix') + error.message, 'error'); return }
+      doc.status = 'reviewed'
       showToast(t('oppdetail_budget_reviewed_toast'))
-      await loadDetail()
-      switchDetailTab('documents')
+      renderBudgetCard()
     }
 
     async function generateBudgetDoc() {
@@ -1179,10 +1245,10 @@
         <p><strong>Subtotal Expenses: ${expenseTotal.toLocaleString()} USD</strong></p>
         <h3>GRAND TOTAL: ${grandTotal.toLocaleString()} USD</h3>`
 
-      await upsertDoc('budget', null, `Financial Proposal — ${opportunity.title}`, html, false, null)
+      const saved = await upsertDoc('budget', null, `Financial Proposal — ${opportunity.title}`, html, false, null)
+      if (!saved) return
       showToast(t('oppdetail_budget_generated_toast'))
-      await loadDetail()
-      switchDetailTab('documents')
+      renderBudgetCard()
     }
 
     // ── Export (Word / PDF) ─────────────────────────────────────────────────
