@@ -1,11 +1,9 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const CORS = {
-  'Access-Control-Allow-Origin':  '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Authorization, Content-Type',
-}
+import { respond } from '../_shared/respond.ts'
+import { requireAdminOrServiceRole } from '../_shared/auth.ts'
+import { callClaude, extractText, extractJsonObject } from '../_shared/claude.ts'
+import { fetchWithTimeout } from '../_shared/http.ts'
+import { CORS } from '../_shared/cors.ts'
 
 // ACSD's priority countries (ISO2), from the roster's own top-geographies —
 // the World Bank procnotices API doesn't document a reliable multi-country
@@ -20,30 +18,15 @@ serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS })
   if (req.method !== 'POST')    return respond({ error: 'Method Not Allowed' }, 405)
 
-  const token = (req.headers.get('Authorization') ?? '').replace('Bearer ', '').trim()
-  if (!token) return respond({ error: 'Missing Authorization header' }, 401)
-
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  const adminClient = createClient(Deno.env.get('SUPABASE_URL')!, serviceRoleKey)
+  const auth = await requireAdminOrServiceRole(req)
+  if (!auth.ok) return auth.response
+  const { adminClient } = auth
 
   // A scheduled pg_cron run (see migration 0011) authenticates as the
-  // project's own service-role key rather than a user session — trust it
-  // directly as a system caller instead of running it through
-  // getUser()/admin-role lookup, which only makes sense for a real user.
-  let triggeredBy: 'manual' | 'scheduled' = 'manual'
-  let triggeredByUserId: string | null = null
-
-  if (token === serviceRoleKey) {
-    triggeredBy = 'scheduled'
-  } else {
-    const anonClient = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!)
-    const { data: { user }, error: userErr } = await anonClient.auth.getUser(token)
-    if (userErr || !user) return respond({ error: 'Unauthorized' }, 401)
-
-    const { data: roleRow } = await adminClient.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
-    if (roleRow?.role !== 'admin') return respond({ error: 'Forbidden — admin role required' }, 403)
-    triggeredByUserId = user.id
-  }
+  // project's own service-role key rather than a user session — trusted
+  // directly as a system caller by requireAdminOrServiceRole above.
+  const triggeredBy: 'manual' | 'scheduled' = auth.isServiceRole ? 'scheduled' : 'manual'
+  const triggeredByUserId: string | null = auth.isServiceRole ? null : auth.user.id
 
   let body: { source_id?: string; source_ids?: string[]; all?: boolean }
   try { body = await req.json() }
@@ -204,7 +187,7 @@ async function scanWorldBank(adminClient: any, apiKey: string) {
   for (const code of Object.keys(TARGET_COUNTRIES)) {
     const url = `https://search.worldbank.org/api/procnotices?format=json&rows=25&countrycode_exact=${code}`
     try {
-      const res = await fetch(url)
+      const res = await fetchWithTimeout(url, { timeoutMs: 15_000 })
       if (!res.ok) continue
       const json = await res.json()
       const notices: WbNotice[] = json.procnotices ?? []
@@ -323,7 +306,7 @@ async function scanTed(adminClient: any, apiKey: string) {
 
   let candidates: TedNotice[] = []
   try {
-    const res = await fetch('https://api.ted.europa.eu/v3/notices/search', {
+    const res = await fetchWithTimeout('https://api.ted.europa.eu/v3/notices/search', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -334,6 +317,7 @@ async function scanTed(adminClient: any, apiKey: string) {
         limit: 50,
         page: 1,
       }),
+      timeoutMs: 20_000,
     })
     if (res.ok) {
       const json = await res.json()
@@ -453,14 +437,16 @@ ${noticeText.slice(0, 8000)}
 
 Return ONLY the JSON object.`
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: 1200, messages: [{ role: 'user', content: prompt }] }),
+  // Shorter timeout/fewer retries than the default — this runs up to ~40
+  // times in one scan (up to 20 notices × 2 source adapters), and a single
+  // slow/failed notice should be skipped (see the per-notice try/catch at
+  // each call site) rather than let one call eat the default 60s budget
+  // and stall the whole scan.
+  const data = await callClaude({
+    apiKey, model: 'claude-sonnet-5', maxTokens: 1200,
+    messages: [{ role: 'user', content: prompt }],
+    timeoutMs: 25_000, retries: 1,
   })
-  if (!res.ok) throw new Error(`Claude API error (${res.status})`)
-
-  const data = await res.json()
   const rawText = extractText(data.content)
   const jsonStr = extractJsonObject(rawText)
   if (!jsonStr) {
@@ -514,43 +500,3 @@ Bailleurs déjà servis : ${topDonors.join(', ') || 'non disponible'}.
 Zones prioritaires : ${topGeographies.join(', ') || 'non disponible'} — UEMOA/CEDEAO en priorité.`
 }
 
-function extractText(content: unknown): string {
-  if (!Array.isArray(content)) return ''
-  const block = content.find((b: any) => b?.type === 'text')
-  return block?.text ?? ''
-}
-
-// A naive greedy regex (first "{" to last "}") breaks the moment Claude adds
-// any trailing commentary containing a brace, and a non-greedy one breaks on
-// nested objects (this schema has a nested strategic_score_breakdown). Scan
-// from the first "{" and track brace depth (ignoring braces inside strings)
-// to find the exact matching close brace instead.
-function extractJsonObject(text: string): string | null {
-  const start = text.indexOf('{')
-  if (start === -1) return null
-
-  let depth = 0
-  let inString = false
-  let escapeNext = false
-
-  for (let i = start; i < text.length; i++) {
-    const ch = text[i]
-    if (escapeNext) { escapeNext = false; continue }
-    if (ch === '\\') { escapeNext = true; continue }
-    if (ch === '"') { inString = !inString; continue }
-    if (inString) continue
-    if (ch === '{') depth++
-    else if (ch === '}') {
-      depth--
-      if (depth === 0) return text.slice(start, i + 1)
-    }
-  }
-  return null // unbalanced — response was likely truncated
-}
-
-function respond(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
-  })
-}

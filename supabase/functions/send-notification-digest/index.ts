@@ -1,11 +1,8 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const CORS = {
-  'Access-Control-Allow-Origin':  '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Authorization, Content-Type',
-}
+import { respond } from '../_shared/respond.ts'
+import { requireAdminOrServiceRole } from '../_shared/auth.ts'
+import { fetchWithTimeout } from '../_shared/http.ts'
+import { CORS } from '../_shared/cors.ts'
 
 // GitHub Pages base the docs/ folder is deployed to. Every notification's
 // link_url is relative to docs/admin/ (where the bell UI that reads it
@@ -26,22 +23,9 @@ serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS })
   if (req.method !== 'POST')    return respond({ error: 'Method Not Allowed' }, 405)
 
-  const token = (req.headers.get('Authorization') ?? '').replace('Bearer ', '').trim()
-  if (!token) return respond({ error: 'Missing Authorization header' }, 401)
-
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  const adminClient = createClient(Deno.env.get('SUPABASE_URL')!, serviceRoleKey)
-
-  // Same trusted-caller pattern as scan-opportunities: the scheduled cron
-  // job authenticates with the service-role key directly; anyone else must
-  // be a real admin (so this can also be triggered manually for testing).
-  if (token !== serviceRoleKey) {
-    const anonClient = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!)
-    const { data: { user }, error: userErr } = await anonClient.auth.getUser(token)
-    if (userErr || !user) return respond({ error: 'Unauthorized' }, 401)
-    const { data: roleRow } = await adminClient.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
-    if (roleRow?.role !== 'admin') return respond({ error: 'Forbidden — admin role required' }, 403)
-  }
+  const auth = await requireAdminOrServiceRole(req)
+  if (!auth.ok) return auth.response
+  const { adminClient } = auth
 
   const insertedCount = await checkDeadlines(adminClient)
   const emailResult = await sendDigestEmails(adminClient)
@@ -143,12 +127,21 @@ async function checkDeadlines(adminClient: any): Promise<number> {
   return count ?? 0
 }
 
-let _adminIdsCache: string[] | null = null
+// Cached for a short TTL rather than the lifetime of the warm isolate —
+// an admin promoted/demoted between runs previously could keep getting
+// stale broadcast routing until the isolate cold-started, sometimes days
+// later on a low-traffic function.
+const ADMIN_IDS_CACHE_TTL_MS = 5 * 60 * 1000
+let _adminIdsCache: { ids: string[]; fetchedAt: number } | null = null
+
 async function getAdminIds(adminClient: any): Promise<string[]> {
-  if (_adminIdsCache) return _adminIdsCache
+  if (_adminIdsCache && Date.now() - _adminIdsCache.fetchedAt < ADMIN_IDS_CACHE_TTL_MS) {
+    return _adminIdsCache.ids
+  }
   const { data } = await adminClient.from('user_roles').select('user_id').eq('role', 'admin')
-  _adminIdsCache = (data ?? []).map((r: { user_id: string }) => r.user_id)
-  return _adminIdsCache!
+  const ids = (data ?? []).map((r: { user_id: string }) => r.user_id)
+  _adminIdsCache = { ids, fetchedAt: Date.now() }
+  return ids
 }
 
 // ── 2. Optional email digest ────────────────────────────────────────────────
@@ -191,21 +184,28 @@ async function sendDigestEmails(adminClient: any): Promise<{ emails_sent: number
         ${items.map(n => `<li><strong>${escapeHtml(n.title)}</strong>${n.body ? ' — ' + escapeHtml(n.body) : ''}${n.link_url ? ` — <a href="${APP_BASE_URL}admin/${n.link_url}">View</a>` : ''}</li>`).join('')}
       </ul>`
 
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'ACSD Platform <onboarding@resend.dev>',
-        to: [email],
-        subject: `ACSD Platform — ${items.length} update${items.length === 1 ? '' : 's'}`,
-        html,
-      }),
-    })
-    if (res.ok) {
-      emailsSent++
-      sentIds.push(...items.map(n => n.id))
-    } else {
-      console.error('[send-notification-digest] Resend API error', res.status, (await res.text()).slice(0, 300))
+    // Wrapped so one recipient's network failure doesn't throw and abort
+    // the whole digest loop for every other recipient after them.
+    try {
+      const res = await fetchWithTimeout('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'ACSD Platform <onboarding@resend.dev>',
+          to: [email],
+          subject: `ACSD Platform — ${items.length} update${items.length === 1 ? '' : 's'}`,
+          html,
+        }),
+        timeoutMs: 20_000,
+      })
+      if (res.ok) {
+        emailsSent++
+        sentIds.push(...items.map(n => n.id))
+      } else {
+        console.error('[send-notification-digest] Resend API error', res.status, (await res.text()).slice(0, 300))
+      }
+    } catch (err) {
+      console.error('[send-notification-digest] Resend request failed', err instanceof Error ? err.message : err)
     }
   }
 
@@ -219,11 +219,4 @@ async function sendDigestEmails(adminClient: any): Promise<{ emails_sent: number
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
-
-function respond(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
-  })
 }

@@ -1,11 +1,8 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const CORS = {
-  'Access-Control-Allow-Origin':  '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Authorization, Content-Type',
-}
+import { respond } from '../_shared/respond.ts'
+import { requireAdmin } from '../_shared/auth.ts'
+import { callClaude, extractText, extractJsonObject } from '../_shared/claude.ts'
+import { CORS } from '../_shared/cors.ts'
 
 const TIERS = ['junior', 'intermediary', 'senior', 'principal_expert']
 
@@ -13,16 +10,9 @@ serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS })
   if (req.method !== 'POST')    return respond({ error: 'Method Not Allowed' }, 405)
 
-  const token = (req.headers.get('Authorization') ?? '').replace('Bearer ', '').trim()
-  if (!token) return respond({ error: 'Missing Authorization header' }, 401)
-
-  const anonClient = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!)
-  const { data: { user }, error: userErr } = await anonClient.auth.getUser(token)
-  if (userErr || !user) return respond({ error: 'Unauthorized' }, 401)
-
-  const adminClient = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
-  const { data: roleRow } = await adminClient.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
-  if (roleRow?.role !== 'admin') return respond({ error: 'Forbidden — admin role required' }, 403)
+  const auth = await requireAdmin(req)
+  if (!auth.ok) return auth.response
+  const { adminClient } = auth
 
   let body: { query?: string }
   try { body = await req.json() }
@@ -127,14 +117,7 @@ Donors: ${donors.join(', ')}
 
 Return ONLY the JSON object.`
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] }),
-  })
-  if (!res.ok) throw new Error(`Claude API error (${res.status})`)
-
-  const data = await res.json()
+  const data = await callClaude({ apiKey, model: 'claude-sonnet-5', maxTokens: 1000, messages: [{ role: 'user', content: prompt }] })
   const rawText = extractText(data.content)
   const jsonStr = extractJsonObject(rawText)
   if (!jsonStr) {
@@ -202,36 +185,3 @@ async function filterSearch(adminClient: any, criteria: any, topN: number): Prom
   }))
 }
 
-function extractText(content: unknown): string {
-  if (!Array.isArray(content)) return ''
-  const block = content.find((b: any) => b?.type === 'text')
-  return block?.text ?? ''
-}
-
-function extractJsonObject(text: string): string | null {
-  const start = text.indexOf('{')
-  if (start === -1) return null
-  let depth = 0
-  let inString = false
-  let escapeNext = false
-  for (let i = start; i < text.length; i++) {
-    const ch = text[i]
-    if (escapeNext) { escapeNext = false; continue }
-    if (ch === '\\') { escapeNext = true; continue }
-    if (ch === '"') { inString = !inString; continue }
-    if (inString) continue
-    if (ch === '{') depth++
-    else if (ch === '}') {
-      depth--
-      if (depth === 0) return text.slice(start, i + 1)
-    }
-  }
-  return null
-}
-
-function respond(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
-  })
-}

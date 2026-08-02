@@ -1,11 +1,8 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const CORS = {
-  'Access-Control-Allow-Origin':  '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Authorization, Content-Type',
-}
+import { respond } from '../_shared/respond.ts'
+import { requireAdmin } from '../_shared/auth.ts'
+import { callClaude, extractText, extractJsonObject } from '../_shared/claude.ts'
+import { CORS } from '../_shared/cors.ts'
 
 const TIERS = ['junior', 'intermediary', 'senior', 'principal_expert']
 const LANG_PROF_WEIGHT: Record<string, number> = { native: 1.0, fluent: 1.0, professional: 0.8, working: 0.5 }
@@ -14,24 +11,9 @@ serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS })
   if (req.method !== 'POST')    return respond({ error: 'Method Not Allowed' }, 405)
 
-  // ── Verify authenticated admin ───────────────────────────────────────────
-  const token = (req.headers.get('Authorization') ?? '').replace('Bearer ', '').trim()
-  if (!token) return respond({ error: 'Missing Authorization header' }, 401)
-
-  const anonClient = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_ANON_KEY')!,
-  )
-  const { data: { user }, error: userErr } = await anonClient.auth.getUser(token)
-  if (userErr || !user) return respond({ error: 'Unauthorized' }, 401)
-
-  const adminClient = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-  )
-  const { data: roleRow } = await adminClient
-    .from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
-  if (roleRow?.role !== 'admin') return respond({ error: 'Forbidden — admin role required' }, 403)
+  const auth = await requireAdmin(req)
+  if (!auth.ok) return auth.response
+  const { user, adminClient } = auth
 
   // ── Parse request ─────────────────────────────────────────────────────────
   let body: { opportunity_id?: string; opportunity_position_id?: string | null; top_n?: number; skip_justification?: boolean }
@@ -324,51 +306,25 @@ ${JSON.stringify(profile, null, 2)}
 
 Return format: { "<expert_id>": "justification text", ... }`
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-5',
-      max_tokens: 2000,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  })
-  if (!res.ok) {
-    console.error('[getJustifications] Claude API error', res.status, (await res.text()).slice(0, 500))
+  let data: any
+  try {
+    data = await callClaude({ apiKey, model: 'claude-sonnet-5', maxTokens: 2000, messages: [{ role: 'user', content: prompt }] })
+  } catch (err) {
+    console.error('[getJustifications] Claude API call failed', err instanceof Error ? err.message : err)
     return {}
   }
 
-  const data = await res.json()
   const rawText: string = extractText(data.content)
-  const jsonMatch = rawText.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) {
+  const jsonStr = extractJsonObject(rawText)
+  if (!jsonStr) {
     console.error('[getJustifications] no JSON object found in Claude response', rawText.slice(0, 500))
     return {}
   }
   try {
-    return JSON.parse(jsonMatch[0])
+    return JSON.parse(jsonStr)
   } catch (err) {
-    console.error('[getJustifications] failed to parse JSON', err instanceof Error ? err.message : err, jsonMatch[0].slice(0, 500))
+    console.error('[getJustifications] failed to parse JSON', err instanceof Error ? err.message : err, jsonStr.slice(0, 500))
     return {}
   }
 }
 
-// Claude's content array isn't always [textBlock] — a leading non-text
-// block (e.g. extended thinking) would silently produce an empty string
-// if we blindly read content[0].text. Find the actual text block instead.
-function extractText(content: unknown): string {
-  if (!Array.isArray(content)) return ''
-  const block = content.find((b: any) => b?.type === 'text')
-  return block?.text ?? ''
-}
-
-function respond(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
-  })
-}
