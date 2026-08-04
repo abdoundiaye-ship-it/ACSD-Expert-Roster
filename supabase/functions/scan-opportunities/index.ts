@@ -5,10 +5,15 @@ import { callClaude, extractText, extractJsonObject } from '../_shared/claude.ts
 import { fetchWithTimeout } from '../_shared/http.ts'
 import { CORS } from '../_shared/cors.ts'
 
-// ACSD's priority countries (ISO2), from the roster's own top-geographies —
-// the World Bank procnotices API doesn't document a reliable multi-country
-// filter, so this adapter loops one request per country rather than guess
-// an unverified combined-filter syntax.
+// ACSD's priority countries (ISO2 kept only as loop keys), from the
+// roster's own top-geographies. The WB procnotices API's documented
+// `countrycode_exact` / `countryname_exact` params were confirmed against
+// live responses (2026-08) to silently return the entire unfiltered
+// ~400k-row global dataset regardless of value — `qterm` (free-text
+// search) is the parameter that actually narrows results by country, so
+// this adapter queries by country name via qterm and then re-checks
+// project_ctry_name on the results rather than trusting a broken filter
+// param or relevance ranking alone.
 const TARGET_COUNTRIES: Record<string, string> = {
   BF: 'Burkina Faso', NE: 'Niger', ML: 'Mali', SN: 'Senegal', TD: 'Chad',
   GH: 'Ghana', BJ: 'Benin', GN: 'Guinea', CM: 'Cameroon', CI: "Cote d'Ivoire",
@@ -38,17 +43,18 @@ serve(async (req: Request) => {
     return respond({ error: 'ANTHROPIC_API_KEY is not configured on this project' }, 500)
   }
 
-  // "all" scans every active API-automatable source (this is what the
-  // scheduled job always passes); otherwise scan the explicit id(s) given
-  // (source_id kept for backward compatibility with single-source callers).
+  // "all" scans every active automatable source — api (named adapters
+  // below) or rss (generic feed adapter) — this is what the scheduled job
+  // always passes; otherwise scan the explicit id(s) given (source_id kept
+  // for backward compatibility with single-source callers).
   let sources: any[]
   if (body.all) {
     const { data } = await adminClient.from('intelligence_sources')
-      .select('*').eq('access_method', 'api').eq('active', true)
+      .select('*').in('access_method', ['api', 'rss']).eq('active', true)
     sources = data ?? []
     if (sources.length === 0) {
-      await logScanRun(adminClient, triggeredBy, triggeredByUserId, null, 'No active API-automatable sources found')
-      return respond({ error: 'No active API-automatable sources found' }, 400)
+      await logScanRun(adminClient, triggeredBy, triggeredByUserId, null, 'No active automatable sources found')
+      return respond({ error: 'No active automatable sources found' }, 400)
     }
   } else {
     const ids = [...new Set([...(body.source_ids ?? []), ...(body.source_id ? [body.source_id] : [])])]
@@ -62,17 +68,24 @@ serve(async (req: Request) => {
   const results: Array<{ source_id: string; source_name: string; status: 'ok' | 'skipped' | 'error'; message?: string; new_count?: number }> = []
 
   for (const source of sources) {
-    if (source.access_method !== 'api') {
-      results.push({ source_id: source.id, source_name: source.name, status: 'skipped', message: `not API-automatable (access_method=${source.access_method}) — use the paste-intake flow` })
+    if (source.access_method !== 'api' && source.access_method !== 'rss') {
+      results.push({ source_id: source.id, source_name: source.name, status: 'skipped', message: `not automatable (access_method=${source.access_method}) — use the paste-intake flow` })
       continue
     }
     try {
-      const adapter = SOURCE_ADAPTERS[source.name]
-      if (!adapter) {
-        results.push({ source_id: source.id, source_name: source.name, status: 'skipped', message: 'no automated adapter implemented yet' })
-        continue
+      let summary: { new_count: number; go: number; a_etudier: number; veille: number; rejet: number }
+      if (source.access_method === 'rss') {
+        // Generic — works for any source tagged rss, unlike the api branch
+        // below which needs a hand-written adapter per named source.
+        summary = await scanRssSource(adminClient, apiKey, source)
+      } else {
+        const adapter = SOURCE_ADAPTERS[source.name]
+        if (!adapter) {
+          results.push({ source_id: source.id, source_name: source.name, status: 'skipped', message: 'no automated adapter implemented yet' })
+          continue
+        }
+        summary = await adapter(adminClient, apiKey)
       }
-      const summary = await adapter(adminClient, apiKey)
       totals.new_count += summary.new_count
       totals.go += summary.go
       totals.a_etudier += summary.a_etudier
@@ -155,9 +168,14 @@ async function logScanRun(
   if (insErr) console.error('[scan-opportunities] failed to log scan_runs row', insErr.message)
 }
 
-// Lookup by intelligence_sources.name — adding a new automated source is a
-// new entry here (plus its own scanX function below), not a new branch in
-// the dispatch loop above.
+// Lookup by intelligence_sources.name, used only for access_method='api'
+// sources — each one has a bespoke adapter because each API has its own
+// request shape and response fields (see World Bank vs. TED below).
+// access_method='rss' sources don't go through this table at all — they
+// all share the single generic scanRssSource adapter further down, since
+// RSS/Atom is a standard enough format that one parser covers any feed.
+// Adding a new *API* source is a new entry here (plus its own scanX
+// function), not a new branch in the dispatch loop above.
 const SOURCE_ADAPTERS: Record<string, (adminClient: any, apiKey: string) => Promise<{
   new_count: number; go: number; a_etudier: number; veille: number; rejet: number
 }>> = {
@@ -176,34 +194,43 @@ interface WbNotice {
   project_name?: string
   bid_reference_no?: string
   bid_description?: string
-  submission_date?: string
+  submission_deadline_date?: string
   notice_text?: string
 }
 
 async function scanWorldBank(adminClient: any, apiKey: string) {
-  // 1. Fetch candidate notices, one request per target country (see comment
-  //    on TARGET_COUNTRIES above).
+  // 1. Fetch candidate notices, one qterm (free-text) request per target
+  //    country name — see comment on TARGET_COUNTRIES above for why qterm
+  //    is used instead of the documented-but-broken exact-match params.
   const allNotices: WbNotice[] = []
-  for (const code of Object.keys(TARGET_COUNTRIES)) {
-    const url = `https://search.worldbank.org/api/procnotices?format=json&rows=25&countrycode_exact=${code}`
+  for (const countryName of Object.values(TARGET_COUNTRIES)) {
+    const url = `https://search.worldbank.org/api/procnotices?format=json&rows=25&qterm=${encodeURIComponent(countryName)}`
     try {
       const res = await fetchWithTimeout(url, { timeoutMs: 15_000 })
-      if (!res.ok) continue
+      if (!res.ok) { console.error(`[scan-opportunities] World Bank fetch failed for ${countryName}: HTTP ${res.status}`); continue }
       const json = await res.json()
-      const notices: WbNotice[] = json.procnotices ?? []
+      const notices: WbNotice[] = (json.procnotices ?? [])
+        // qterm is free-text search, not an exact filter — re-check the
+        // actual country field rather than trusting relevance ranking.
+        .filter((n: WbNotice) => n.project_ctry_name === countryName)
       allNotices.push(...notices)
-    } catch (_) { /* one country failing shouldn't abort the whole scan */ }
+    } catch (err) {
+      // one country failing shouldn't abort the whole scan — the other 9
+      // still run — but log it so a real, ongoing failure isn't invisible.
+      console.error(`[scan-opportunities] World Bank fetch errored for ${countryName}:`, err instanceof Error ? err.message : err)
+    }
   }
 
-  // 2. Keep only recent, non-cancelled notices with a usable reference number,
-  //    newest first (server-side sort params aren't reliably documented, so
-  //    sort/filter here instead of trusting an unverified query string).
-  const cutoff = new Date()
-  cutoff.setDate(cutoff.getDate() - 60)
+  // 2. Keep only Published notices that actually carry a submission
+  //    deadline and haven't already passed it — this naturally excludes
+  //    Contract Award / Draft / Cancelled notices, which structurally have
+  //    no submission deadline to give (they aren't open, biddable
+  //    opportunities). Soonest deadline first.
+  const today = new Date().toISOString().slice(0, 10)
   const candidates = allNotices
-    .filter(n => n.bid_reference_no && n.notice_status !== 'Cancelled')
-    .filter(n => !n.noticedate || new Date(n.noticedate) >= cutoff)
-    .sort((a, b) => new Date(b.noticedate ?? 0).getTime() - new Date(a.noticedate ?? 0).getTime())
+    .filter(n => n.bid_reference_no && n.notice_status === 'Published' && n.submission_deadline_date)
+    .filter(n => n.submission_deadline_date!.slice(0, 10) >= today)
+    .sort((a, b) => new Date(a.submission_deadline_date!).getTime() - new Date(b.submission_deadline_date!).getTime())
 
   // 3. Dedupe against opportunities already in the system.
   const refNumbers = [...new Set(candidates.map(n => n.bid_reference_no!))]
@@ -244,7 +271,7 @@ async function scanWorldBank(adminClient: any, apiKey: string) {
       donor_id: donorRow?.id ?? null,
       primary_country_id: countryMatch?.id ?? null,
       opportunity_type: opportunityType,
-      deadline: notice.submission_date ? notice.submission_date.slice(0, 10) : null,
+      deadline: notice.submission_deadline_date!.slice(0, 10),
       summary: scored.summary || notice.bid_description || null,
       source: 'api_scan',
       status,
@@ -304,27 +331,32 @@ async function scanTed(adminClient: any, apiKey: string) {
   const cutoffStr = cutoff.toISOString().slice(0, 10).replace(/-/g, '')
   const countryList = Object.keys(TED_TARGET_COUNTRIES).join(' ')
 
-  let candidates: TedNotice[] = []
-  try {
-    const res = await fetchWithTimeout('https://api.ted.europa.eu/v3/notices/search', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: `place-of-performance-country-proc IN (${countryList}) AND PD>=${cutoffStr}`,
-        fields: ['publication-number', 'notice-title', 'description-proc', 'publication-date',
-                 'deadline-receipt-tender-date-lot', 'place-of-performance-country-proc',
-                 'buyer-name', 'notice-type'],
-        limit: 50,
-        page: 1,
-      }),
-      timeoutMs: 20_000,
-    })
-    if (res.ok) {
-      const json = await res.json()
-      candidates = (json.notices ?? []).filter((n: TedNotice) =>
-        n['publication-number'] && !/^can-/.test(n['notice-type'] ?? '')) // skip already-awarded contract notices
-    }
-  } catch (_) { /* TED unreachable this run — treat as zero candidates, don't fail the whole scan */ }
+  // No try/catch swallow here on purpose — a failed fetch (timeout, network
+  // error, or a non-2xx response) throws and propagates up to this
+  // function's caller in the dispatch loop, which already isolates
+  // per-source failures (one source erroring doesn't abort the whole scan).
+  // Silently treating a failure as "zero candidates found" previously made
+  // a broken TED query indistinguishable from a genuinely quiet day.
+  const res = await fetchWithTimeout('https://api.ted.europa.eu/v3/notices/search', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      query: `place-of-performance-country-proc IN (${countryList}) AND PD>=${cutoffStr}`,
+      fields: ['publication-number', 'notice-title', 'description-proc', 'publication-date',
+               'deadline-receipt-tender-date-lot', 'place-of-performance-country-proc',
+               'buyer-name', 'notice-type'],
+      limit: 50,
+      page: 1,
+    }),
+    timeoutMs: 20_000,
+  })
+  if (!res.ok) {
+    const bodyText = await res.text().catch(() => '')
+    throw new Error(`TED API returned HTTP ${res.status}${bodyText ? `: ${bodyText.slice(0, 300)}` : ''}`)
+  }
+  const json = await res.json()
+  const candidates: TedNotice[] = (json.notices ?? []).filter((n: TedNotice) =>
+    n['publication-number'] && !/^can-/.test(n['notice-type'] ?? '')) // skip already-awarded contract notices
 
   // 2. Dedupe against opportunities already in the system.
   const refNumbers = [...new Set(candidates.map(n => n['publication-number']!))]
@@ -379,6 +411,156 @@ async function scanTed(adminClient: any, apiKey: string) {
       primary_country_id: countryMatch?.id ?? null,
       opportunity_type: 'RFP',
       deadline: deadlineRaw ? deadlineRaw.slice(0, 10) : null,
+      summary: scored.summary || description || null,
+      source: 'api_scan',
+      status,
+      strategic_score: scored.strategic_score,
+      strategic_score_breakdown: scored.strategic_score_breakdown,
+      strategic_score_confidence: scored.strategic_score_confidence,
+      strategic_score_rationale: scored.strategic_score_rationale,
+    })
+    if (insErr) continue
+
+    newCount++
+    if (scored.strategic_score >= 85) counts.go++
+    else if (scored.strategic_score >= 70) counts.a_etudier++
+    else if (scored.strategic_score >= 50) counts.veille++
+    else counts.rejet++
+  }
+
+  return { new_count: newCount, ...counts }
+}
+
+// ── Generic RSS/Atom adapter ─────────────────────────────────────────────────
+// Unlike World Bank/TED, this isn't per-source — it works for any source
+// tagged access_method='rss', using that source's own portal_url as the
+// feed URL (must be the actual .xml feed, not a portal homepage). A
+// hand-rolled regex parser rather than a library: RSS 2.0 <item> and Atom
+// <entry> cover the vast majority of real feeds, and this avoids pulling in
+// a full XML/DOM dependency for what's structurally a flat list of
+// title/link/description/date per entry.
+
+interface FeedItem {
+  title: string
+  link: string
+  description: string
+  guid: string
+}
+
+function scanRssFeedXml(xml: string): FeedItem[] {
+  const items: FeedItem[] = []
+
+  const rssBlocks = xml.match(/<item\b[\s\S]*?<\/item>/gi) ?? []
+  for (const block of rssBlocks) {
+    const link = extractTag(block, 'link')
+    items.push({
+      title: extractTag(block, 'title'),
+      link,
+      description: extractTag(block, 'content:encoded') || extractTag(block, 'description'),
+      guid: extractTag(block, 'guid') || link,
+    })
+  }
+
+  if (items.length === 0) {
+    // Not RSS 2.0 — try Atom.
+    const atomBlocks = xml.match(/<entry\b[\s\S]*?<\/entry>/gi) ?? []
+    for (const block of atomBlocks) {
+      const link = extractAtomLink(block)
+      items.push({
+        title: extractTag(block, 'title'),
+        link,
+        description: extractTag(block, 'summary') || extractTag(block, 'content'),
+        guid: extractTag(block, 'id') || link,
+      })
+    }
+  }
+
+  return items.filter(i => i.title && i.link)
+}
+
+function extractTag(block: string, tag: string): string {
+  const m = block.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i'))
+  if (!m) return ''
+  return decodeXmlEntities(stripCdata(m[1]).trim())
+}
+
+function extractAtomLink(block: string): string {
+  // Atom <link> is self-closing with an href attribute, not a text node —
+  // prefer rel="alternate" (the human-readable page) when more than one is present.
+  const links = [...block.matchAll(/<link\b[^>]*href=["']([^"']+)["'][^>]*\/?>/gi)]
+  const alt = links.find(m => /rel=["']alternate["']/i.test(m[0]))
+  return (alt ?? links[0])?.[1] ?? ''
+}
+
+function stripCdata(s: string): string {
+  const m = s.match(/^<!\[CDATA\[([\s\S]*)\]\]>$/)
+  return m ? m[1] : s
+}
+
+function decodeXmlEntities(s: string): string {
+  return s
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'").replace(/&amp;/g, '&')
+}
+
+function stripHtml(s: string): string {
+  return s.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+async function scanRssSource(
+  adminClient: any, apiKey: string, source: { id: string; name: string; portal_url: string | null },
+) {
+  if (!source.portal_url) {
+    throw new Error('No Portal URL configured for this source — set it to the feed\'s actual .xml/.rss URL in Intelligence Sources.')
+  }
+
+  const res = await fetchWithTimeout(source.portal_url, { timeoutMs: 15_000 })
+  if (!res.ok) throw new Error(`Feed returned HTTP ${res.status}`)
+  const xml = await res.text()
+  const items = scanRssFeedXml(xml).slice(0, 30)
+  if (items.length === 0) {
+    throw new Error('Fetched the URL but found no RSS <item> or Atom <entry> elements — confirm the Portal URL points at the feed XML, not the site homepage.')
+  }
+
+  // 1. Dedupe against opportunities already in the system. Generic feeds
+  //    don't carry a solicitation reference number the way WB/TED do, so
+  //    the item's own guid (falling back to its link) is used instead —
+  //    both are expected to be stable and unique per entry.
+  const refs = [...new Set(items.map(i => i.guid))]
+  const { data: existingRows } = refs.length
+    ? await adminClient.from('opportunities').select('reference_number').in('reference_number', refs)
+    : { data: [] }
+  const existingRefs = new Set((existingRows ?? []).map((r: any) => r.reference_number))
+  const newItems = items.filter(i => !existingRefs.has(i.guid)).slice(0, 20)
+
+  // 2. Score and insert each new item.
+  const acsdProfile = await computeAcsdProfile(adminClient)
+  const counts = { go: 0, a_etudier: 0, veille: 0, rejet: 0 }
+  let newCount = 0
+
+  for (const item of newItems) {
+    const description = stripHtml(item.description)
+    const noticeText = [item.title, description].filter(Boolean).join('\n\n')
+    if (!noticeText.trim()) continue
+
+    let scored: { strategic_score: number; strategic_score_breakdown: Record<string, number>; strategic_score_confidence: string; strategic_score_rationale: string; summary: string }
+    try {
+      scored = await scoreNoticeText(apiKey, acsdProfile, noticeText)
+    } catch (_) {
+      continue // skip items Claude fails to score rather than failing the whole scan
+    }
+
+    const status = scored.strategic_score < 50 ? 'archived' : 'open'
+
+    const { error: insErr } = await adminClient.from('opportunities').insert({
+      title: item.title.slice(0, 200),
+      reference_number: item.guid,
+      organization: source.name,
+      opportunity_type: 'RFP',
+      // Generic RSS/Atom has no standard deadline field the way WB/TED's
+      // structured APIs do — left null rather than guessed from freeform
+      // text. Review the item and set it manually on the Overview tab.
+      deadline: null,
       summary: scored.summary || description || null,
       source: 'api_scan',
       status,

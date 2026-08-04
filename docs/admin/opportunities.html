@@ -493,7 +493,7 @@
       openAdminModal('scan-modal')
 
       const { data, error } = await sb.from('intelligence_sources')
-        .select('id, name, access_method, active').eq('access_method', 'api').order('name')
+        .select('id, name, access_method, active').in('access_method', ['api', 'rss']).order('name')
       if (error) { document.getElementById('scan-sources-list').innerHTML = `<p class="text-xs text-red-500 px-1 py-2">${t('save_failed_prefix')}${aesc(error.message)}</p>`; return }
 
       scanSources = data ?? []
@@ -511,7 +511,10 @@
         <label class="flex items-center gap-2 px-1 py-1.5 rounded-lg hover:bg-gray-50 cursor-pointer ${!s.active ? 'opacity-50' : ''}">
           <input type="checkbox" class="scan-src-cb w-4 h-4 text-blue-600 border-gray-300 rounded" value="${aesc(s.id)}" checked>
           <span class="text-sm text-gray-800">${aesc(s.name)}</span>
-          ${!s.active ? '<span class="text-[10px] text-gray-400 ml-auto">inactive</span>' : ''}
+          <span class="ml-auto flex items-center gap-1.5">
+            ${s.access_method === 'rss' ? '<span class="text-[10px] font-medium text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded-full">RSS</span>' : ''}
+            ${!s.active ? '<span class="text-[10px] text-gray-400">inactive</span>' : ''}
+          </span>
         </label>`).join('')
     }
 
