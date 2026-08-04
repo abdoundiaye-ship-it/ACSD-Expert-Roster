@@ -181,6 +181,7 @@ const SOURCE_ADAPTERS: Record<string, (adminClient: any, apiKey: string) => Prom
 }>> = {
   'World Bank Procurement Notices': scanWorldBank,
   'Union européenne (TED / EuropeAid-FPI)': scanTed,
+  'UNDP Procurement': scanUndp,
 }
 
 // ── World Bank adapter ───────────────────────────────────────────────────────
@@ -412,6 +413,142 @@ async function scanTed(adminClient: any, apiKey: string) {
       opportunity_type: 'RFP',
       deadline: deadlineRaw ? deadlineRaw.slice(0, 10) : null,
       summary: scored.summary || description || null,
+      source: 'api_scan',
+      status,
+      strategic_score: scored.strategic_score,
+      strategic_score_breakdown: scored.strategic_score_breakdown,
+      strategic_score_confidence: scored.strategic_score_confidence,
+      strategic_score_rationale: scored.strategic_score_rationale,
+    })
+    if (insErr) continue
+
+    newCount++
+    if (scored.strategic_score >= 85) counts.go++
+    else if (scored.strategic_score >= 70) counts.a_etudier++
+    else if (scored.strategic_score >= 50) counts.veille++
+    else counts.rejet++
+  }
+
+  return { new_count: newCount, ...counts }
+}
+
+// ── UNDP adapter (HTML scrape — no feed/API exists, but the listing page
+//    itself is server-rendered with a clean, consistent structure) ───────────
+// procurement-notices.undp.org has no RSS/API of its own (confirmed live,
+// 2026-08-04 source pilot — see migration 0024), but its notice list is
+// plain server-rendered HTML: each notice is an <a href="view_negotiation
+// .cfm?nego_id=NNNNN" class="vacanciesTableLink ..."> wrapping a fixed set
+// of labeled cells (Title, Ref No, UNDP Office/Country, Process, Deadline,
+// Posted). Deadline is a real structured date ("13-Aug-26"), unlike a
+// generic RSS description — good enough to trust the same way WB/TED's own
+// structured deadline fields are trusted.
+
+interface UndpNotice {
+  negoId: string
+  title?: string
+  refNo?: string
+  officeCountry?: string
+  process?: string
+  deadline?: string
+}
+
+const UNDP_MONTHS: Record<string, string> = {
+  Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+  Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12',
+}
+
+function parseUndpDate(s: string): string | null {
+  const m = s.match(/(\d{1,2})-([A-Za-z]{3})-(\d{2})/)
+  if (!m) return null
+  const mon = UNDP_MONTHS[m[2]]
+  if (!mon) return null
+  return `20${m[3]}-${mon}-${m[1].padStart(2, '0')}`
+}
+
+function parseUndpNotices(html: string): UndpNotice[] {
+  const notices: UndpNotice[] = []
+  const blocks = html.matchAll(/<a\s+href="view_negotiation\.cfm\?nego_id=(\d+)"[^>]*class="vacanciesTableLink[^"]*"[^>]*>([\s\S]*?)<\/a>/gi)
+  for (const block of blocks) {
+    const negoId = block[1]
+    const body = block[2]
+    const cells: Record<string, string> = {}
+    for (const cell of body.matchAll(/<div class="vacanciesTable__cell__label">\s*([^<]+?)\s*<\/div>\s*<span>([\s\S]*?)<\/span>/gi)) {
+      const label = cell[1].trim().toLowerCase()
+      const value = cell[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+      cells[label] = value
+    }
+    notices.push({
+      negoId,
+      title: cells['title'],
+      refNo: cells['ref no'],
+      officeCountry: cells['undp office/country'],
+      process: cells['process'],
+      deadline: cells['deadline'],
+    })
+  }
+  return notices
+}
+
+async function scanUndp(adminClient: any, apiKey: string) {
+  const res = await fetchWithTimeout('https://procurement-notices.undp.org/', { timeoutMs: 20_000 })
+  if (!res.ok) throw new Error(`UNDP procurement page returned HTTP ${res.status}`)
+  const html = await res.text()
+  const parsed = parseUndpNotices(html)
+  if (parsed.length === 0) {
+    throw new Error('Fetched the page but found no vacanciesTableLink notices — the site\'s markup may have changed.')
+  }
+
+  // Only genuinely open notices: real ref number, title, and a future,
+  // parseable deadline.
+  const today = new Date().toISOString().slice(0, 10)
+  const candidates = parsed
+    .map(n => ({ ...n, deadlineIso: n.deadline ? parseUndpDate(n.deadline) : null }))
+    .filter(n => n.refNo && n.title && n.deadlineIso && n.deadlineIso >= today)
+    .sort((a, b) => a.deadlineIso!.localeCompare(b.deadlineIso!))
+
+  // Dedupe against opportunities already in the system.
+  const refNumbers = [...new Set(candidates.map(n => n.refNo!))]
+  const { data: existingRows } = refNumbers.length
+    ? await adminClient.from('opportunities').select('reference_number').in('reference_number', refNumbers)
+    : { data: [] }
+  const existingRefs = new Set((existingRows ?? []).map((r: any) => r.reference_number))
+  const newNotices = candidates.filter(n => !existingRefs.has(n.refNo)).slice(0, 20)
+
+  const acsdProfile = await computeAcsdProfile(adminClient)
+  const { data: geoRows } = await adminClient.from('geographies').select('id, country_name')
+  const counts = { go: 0, a_etudier: 0, veille: 0, rejet: 0 }
+  let newCount = 0
+
+  for (const notice of newNotices) {
+    const noticeText = [notice.title, notice.process, notice.officeCountry].filter(Boolean).join('\n')
+    if (!noticeText.trim()) continue
+
+    let scored: { strategic_score: number; strategic_score_breakdown: Record<string, number>; strategic_score_confidence: string; strategic_score_rationale: string; summary: string }
+    try {
+      scored = await scoreNoticeText(apiKey, acsdProfile, noticeText)
+    } catch (_) {
+      continue // skip notices Claude fails to score rather than failing the whole scan
+    }
+
+    const status = scored.strategic_score < 50 ? 'archived' : 'open'
+    const opportunityType = /RFP|request for proposal/i.test(notice.process ?? '') ? 'RFP'
+      : /EOI|expression of interest/i.test(notice.process ?? '') ? 'EOI'
+      : /RFQ|request for quotation/i.test(notice.process ?? '') ? 'RFQ'
+      : 'RFP'
+    // "UNDP-ALB/ALBANIA" -> "ALBANIA"
+    const countryName = notice.officeCountry?.split('/').pop()?.trim()
+    const countryMatch = countryName
+      ? (geoRows ?? []).find((g: any) => g.country_name.toLowerCase() === countryName.toLowerCase())
+      : null
+
+    const { error: insErr } = await adminClient.from('opportunities').insert({
+      title: notice.title!.slice(0, 200),
+      reference_number: notice.refNo,
+      organization: 'UNDP',
+      primary_country_id: countryMatch?.id ?? null,
+      opportunity_type: opportunityType,
+      deadline: notice.deadlineIso,
+      summary: scored.summary || noticeText || null,
       source: 'api_scan',
       status,
       strategic_score: scored.strategic_score,
