@@ -498,12 +498,23 @@ async function scanUndp(adminClient: any, apiKey: string) {
     throw new Error('Fetched the page but found no vacanciesTableLink notices — the site\'s markup may have changed.')
   }
 
-  // Only genuinely open notices: real ref number, title, and a future,
-  // parseable deadline.
+  // This is UNDP's single global notice board (~500+ notices across ~150
+  // country offices at any time, confirmed live 2026-08) — its own country
+  // "filter" on the live site is client-side JS over this same full list,
+  // not a server-side query param (every param name tried returned the
+  // identical unfiltered count), so target-country filtering has to happen
+  // here, the same way scanWorldBank/scanTed filter their own results.
+  // Only genuinely open, in-target-country notices: real ref number,
+  // title, a future parseable deadline, and an office in a target country.
+  const targetCountryNames = new Set(Object.values(TARGET_COUNTRIES).map(c => c.toLowerCase()))
   const today = new Date().toISOString().slice(0, 10)
   const candidates = parsed
     .map(n => ({ ...n, deadlineIso: n.deadline ? parseUndpDate(n.deadline) : null }))
     .filter(n => n.refNo && n.title && n.deadlineIso && n.deadlineIso >= today)
+    .filter(n => {
+      const countryName = n.officeCountry?.split('/').pop()?.trim().toLowerCase()
+      return !!countryName && targetCountryNames.has(countryName)
+    })
     .sort((a, b) => a.deadlineIso!.localeCompare(b.deadlineIso!))
 
   // Dedupe against opportunities already in the system.
