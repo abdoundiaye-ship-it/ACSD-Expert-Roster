@@ -489,6 +489,23 @@ function parseUndpNotices(html: string): UndpNotice[] {
   return notices
 }
 
+// The notice detail page's real description lives in a single container
+// (confirmed live, 2026-08): <div class="cell ... postContent"> holding an
+// <h2>Introduction</h2> plus the actual body text. Grab a generous window
+// from that point rather than trying to match a precise closing tag
+// (fragile with nested divs) — scoreNoticeText already truncates its
+// input to 8000 characters regardless, so over-grabbing costs nothing.
+function extractUndpDescription(html: string): string {
+  const contentIdx = html.indexOf('postContent')
+  if (contentIdx === -1) return ''
+  const block = html.slice(contentIdx, contentIdx + 8000)
+  // Skip past the generic "how to submit a bid via Quantum" boilerplate
+  // present on every notice — start at the actual Introduction heading
+  // when present, so the character budget below goes to real content.
+  const introIdx = block.search(/<h2>\s*Introduction\s*<\/h2>/i)
+  return stripHtml(introIdx !== -1 ? block.slice(introIdx) : block).slice(0, 3000)
+}
+
 async function scanUndp(adminClient: any, apiKey: string) {
   const res = await fetchWithTimeout('https://procurement-notices.undp.org/', { timeoutMs: 20_000 })
   if (!res.ok) throw new Error(`UNDP procurement page returned HTTP ${res.status}`)
@@ -531,7 +548,20 @@ async function scanUndp(adminClient: any, apiKey: string) {
   let newCount = 0
 
   for (const notice of newNotices) {
-    const noticeText = [notice.title, notice.process, notice.officeCountry].filter(Boolean).join('\n')
+    // The listing page only gives a title + a generic process label (e.g.
+    // "IC - Individual contractor") — too thin on its own to judge genuine
+    // thematic fit, and confirmed live to under-represent notices that read
+    // as real management/governance consulting work by title alone. Fetch
+    // the notice's own detail page for its actual description before
+    // scoring, the same substance level WB/TED's own APIs already provide.
+    let description = ''
+    try {
+      const detailRes = await fetchWithTimeout(
+        `https://procurement-notices.undp.org/view_negotiation.cfm?nego_id=${notice.negoId}`, { timeoutMs: 10_000 })
+      if (detailRes.ok) description = extractUndpDescription(await detailRes.text())
+    } catch (_) { /* fall back to the thinner listing-page text below */ }
+
+    const noticeText = [notice.title, notice.process, notice.officeCountry, description].filter(Boolean).join('\n\n')
     if (!noticeText.trim()) continue
 
     let scored: { strategic_score: number; strategic_score_breakdown: Record<string, number>; strategic_score_confidence: string; strategic_score_rationale: string; summary: string }
