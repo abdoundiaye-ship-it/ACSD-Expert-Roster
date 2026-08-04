@@ -2,3 +2,9 @@ node_modules/
 .env
 .env.local
 .DS_Store
+
+# Supabase CLI local state — regenerated per-machine by `supabase` commands;
+# a nested copy also appears wherever the CLI is accidentally run from a
+# subdirectory instead of the project root, so ignore it everywhere.
+.temp/
+**/.temp/
