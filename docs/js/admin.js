@@ -32,14 +32,11 @@ async function initAdmin(activePage) {
 }
 
 // Re-translates the bits of admin chrome that renderAdminNav doesn't own —
-// the "Sign out" button and the "← Back to Roster" link, which every admin
-// page repeats identically but doesn't tag with an id.
+// just the "Sign out" button. (The "← Back to Roster" link now lives inside
+// #admin-nav itself, so renderAdminNav's own t() calls keep it translated.)
 function translateAdminChrome() {
   const logoutBtn = document.getElementById('admin-logout-btn')
   if (logoutBtn) logoutBtn.textContent = t('logout_btn')
-  document.querySelectorAll('aside a[href="../index.html"]').forEach(a => {
-    a.textContent = t('back_to_roster')
-  })
 }
 
 document.addEventListener('acsd:langchange', () => {
@@ -69,6 +66,7 @@ const NAV_ICONS = {
   roles:              '<path d="M12 3l7 3v6c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6l7-3z"/><path d="M9.5 12l2 2 3.5-4"/>',
   webhooks:           '<path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/>',
   audit:              '<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5L20 20"/>',
+  'back-to-roster':   '<path d="M11 4l-7 8 7 8M4 12h16"/>',
 }
 
 function _navIcon(id) {
@@ -132,6 +130,12 @@ function renderAdminNav(active) {
   const nav = document.getElementById('admin-nav')
   if (!nav) return
 
+  const backLink = `
+    <a href="../index.html" onclick="closeMobileNav()"
+       class="flex items-center gap-2.5 px-3 py-2 mb-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors border-b border-gray-100">
+      ${_navIcon('back-to-roster')}<span>${aesc(t('back_to_roster'))}</span>
+    </a>`
+
   const quickAdd = `
     <div class="flex gap-1.5 mb-2 px-1">
       <a href="experts.html?new=1" onclick="closeMobileNav()" class="flex-1 text-center text-xs font-semibold bg-blue-900 hover:bg-blue-800 text-white px-2 py-1.5 rounded-lg transition-colors">+ ${aesc(t('nav_quick_add_expert'))}</a>
@@ -157,7 +161,7 @@ function renderAdminNav(active) {
     return header + (collapsed ? '' : g.items.map(it => _navLink(it, active)).join(''))
   }).join('')
 
-  nav.innerHTML = quickAdd + primaryHtml + groupsHtml
+  nav.innerHTML = backLink + quickAdd + primaryHtml + groupsHtml
 }
 
 // ── Notifications (bell dropdown) ───────────────────────────────────────────────
