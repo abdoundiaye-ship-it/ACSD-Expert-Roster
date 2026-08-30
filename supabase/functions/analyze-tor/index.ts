@@ -250,6 +250,8 @@ function buildPrompt(
 ): string {
   return `Tu es analyste senior en veille et qualification d'appels d'offres pour ACSD, un cabinet de conseil ouest-africain répondant à des RFP/TOR de bailleurs (agences onusiennes, Banque mondiale, BAD, UE, USAID, etc.).
 
+LANGUAGE OF YOUR OUTPUT — read this before anything else: everything else in this prompt is written in French, but that is NOT a signal for what language to write your free-text answers in. First, detect the actual language the source TOR/RFP document itself is written in. Then write "summary" and "strategic_score_rationale" in THAT language — English document in, English summary/rationale out; French document in, French summary/rationale out. Never default to French just because these instructions are in French.
+
 PROFIL ACSD (pour évaluer l'alignement — dérivé du vivier d'experts réel) :
 ${acsdProfile}
 
@@ -263,7 +265,7 @@ Extrait les informations structurées de ce Terms of Reference / RFP et retourne
   "country": "best-guess match from the Geographies list below for the primary country of assignment, or null",
   "opportunity_type": "one of RFP, EOI, RFQ, REOI — infer from the document's own terminology",
   "deadline": "submission deadline as an ISO date (YYYY-MM-DD), or null if not stated",
-  "summary": "a 2-4 sentence plain-language summary of what this assignment is about",
+  "summary": "a 2-4 sentence plain-language summary of what this assignment is about, written in the SAME LANGUAGE as the source document (English document -> English summary, French document -> French summary)",
   "evaluation_criteria": [ { "criterion": "short label for a scored evaluation criterion", "weight": "weight or points as stated, e.g. '30%' or '30 pts', or ''" } ],
   "sectors": [ { "name": "a name from the Sectors list below that matches a requirement", "importance": "required" or "preferred" } ],
   "languages": [ "names from the Languages list below that are required or preferred for this assignment" ],
@@ -279,8 +281,10 @@ Extrait les informations structurées de ce Terms of Reference / RFP et retourne
   },
   "has_blocking_eligibility_issue": "boolean — true if the document states an eligibility requirement ACSD cannot meet (e.g. minimum turnover, years of existence, prior donor registration, number of similar references) that is NOT satisfiable — this caps the total score regardless of thematic fit",
   "source_fully_read": "boolean — true only if you had complete access to the document's actual content; false if the document was truncated, partially unreadable, or you had to infer significant parts",
-  "strategic_score_rationale": "2-3 phrases factuelles, en français, citant des éléments vérifiables du texte de l'avis — pas de remplissage"
+  "strategic_score_rationale": "2-3 factual sentences citing verifiable elements from the notice's text — no filler — written in the SAME LANGUAGE as the source document (English document -> English rationale, French document -> French rationale)"
 }
+
+Règle de langue impérative : "summary" et "strategic_score_rationale" doivent être rédigés dans la langue du document source (TOR/RFP) lui-même, jamais automatiquement en français — un document en anglais donne un résumé et une justification en anglais.
 
 Règles de notation impératives :
 - Chaque note doit s'appuyer sur un élément textuel vérifiable du document — ne jamais extrapoler.
@@ -300,6 +304,8 @@ Activity Types: ${activityTypes.join(', ')}
 Donors: ${donors.join(', ')}
 
 Work order role types (context only, not a required output field): ${workOrderRoles.join(', ')}
+
+Reminder: "summary" and "strategic_score_rationale" go in the source document's own language, not automatically in French — check what language the TOR/RFP text above is actually written in before writing them.
 
 Return ONLY the JSON object.`
 }
