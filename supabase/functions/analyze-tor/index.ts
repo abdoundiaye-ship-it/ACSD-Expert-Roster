@@ -236,11 +236,11 @@ async function computeAcsdProfile(adminClient: any): Promise<string> {
   const topDonors       = topN(donorRes.data ?? [], (r) => r.donors?.name, 8)
   const topGeographies  = topN(geoRes.data ?? [], (r) => r.geographies?.country_name, 10)
 
-  return `ACSD — cabinet de conseil basé au Burkina Faso, spécialisé en management, transformation organisationnelle, gouvernance et développement institutionnel, avec une équipe de consultants seniors et un ancrage local dans plusieurs pays d'Afrique de l'Ouest et Centrale. Statut de soumission possible : cabinet en soumission propre, chef de file de groupement, ou partenaire local — selon le montage le plus pertinent pour l'opportunité.
-Secteurs dominants du vivier d'experts (par fréquence) : ${topSectors.join(', ') || 'non disponible'}.
-Bailleurs déjà servis (par expérience terrain du vivier) : ${topDonors.join(', ') || 'non disponible'}.
-Zones prioritaires (par expérience terrain du vivier) : ${topGeographies.join(', ') || 'non disponible'} — UEMOA/CEDEAO en priorité, Afrique francophone et anglophone en secondaire.
-Langues : français, anglais, langues nationales d'Afrique de l'Ouest.`
+  return `ACSD — a Burkina Faso-based consulting firm specializing in management, organizational transformation, governance, and institutional development, with a team of senior consultants and a local footprint across several West and Central African countries. Possible bidding status: bidding directly, lead firm of a consortium, or local partner — whichever structure best fits the opportunity.
+Dominant sectors in the expert roster (by frequency): ${topSectors.join(', ') || 'not available'}.
+Donors already served (by the roster's field experience): ${topDonors.join(', ') || 'not available'}.
+Priority zones (by the roster's field experience): ${topGeographies.join(', ') || 'not available'} — UEMOA/ECOWAS as priority, Francophone and Anglophone Africa secondary.
+Languages: French, English, national languages of West Africa.`
 }
 
 function buildPrompt(
@@ -248,14 +248,14 @@ function buildPrompt(
   activityTypes: string[], donors: string[], workOrderRoles: string[],
   acsdProfile: string,
 ): string {
-  return `Tu es analyste senior en veille et qualification d'appels d'offres pour ACSD, un cabinet de conseil ouest-africain répondant à des RFP/TOR de bailleurs (agences onusiennes, Banque mondiale, BAD, UE, USAID, etc.).
+  return `You are a senior opportunity-intelligence and qualification analyst for ACSD, a West African consulting firm responding to donor RFPs/TORs (UN agencies, World Bank, AfDB, EU, USAID, etc.).
 
-LANGUAGE OF YOUR OUTPUT — read this before anything else: everything else in this prompt is written in French, but that is NOT a signal for what language to write your free-text answers in. First, detect the actual language the source TOR/RFP document itself is written in. Then write "summary" and "strategic_score_rationale" in THAT language — English document in, English summary/rationale out; French document in, French summary/rationale out. Never default to French just because these instructions are in French.
+LANGUAGE OF YOUR OUTPUT — read this before anything else: detect the actual language the source TOR/RFP document itself is written in, then write "summary" and "strategic_score_rationale" in THAT language — an English document gets an English summary/rationale, a French document gets a French summary/rationale. This is the ONLY thing that should determine their language.
 
-PROFIL ACSD (pour évaluer l'alignement — dérivé du vivier d'experts réel) :
+ACSD PROFILE (for evaluating fit — derived from the actual expert roster):
 ${acsdProfile}
 
-Extrait les informations structurées de ce Terms of Reference / RFP et retourne UNIQUEMENT un objet JSON valide (pas de markdown, pas d'explication) :
+Extract structured information from this Terms of Reference / RFP and return ONLY a valid JSON object (no markdown, no explanation):
 
 {
   "title": "the opportunity/assignment title as written",
@@ -273,23 +273,23 @@ Extrait les informations structurées de ce Terms of Reference / RFP et retourne
   "activity_types": [ "names from the Activity Types list below matching deliverables this TOR asks for" ],
   "positions": [ { "role_title": "the role/position name as written (e.g. 'Team Leader', 'Senior WASH Evaluator')", "required_seniority_tier": "one of junior, intermediary, senior, principal_expert — infer from years-of-experience requirements", "required_sector_guess": "best-guess match from the Sectors list, or null", "quantity": integer number of people needed for this role, default 1 } ],
   "strategic_score_breakdown": {
-    "alignement_thematique": "integer 0-30 — objet du marché au cœur d'une expertise phare d'ACSD (30) vs lien marginal/hors périmètre (0), voir PROFIL ACSD ci-dessus",
-    "adequation_geographique": "integer 0-15 — pays UEMOA/CEDEAO où ACSD est implanté (15) vs hors Afrique de l'Ouest (0)",
-    "eligibilite_conformite": "integer 0-20 — aucun critère éliminatoire, toutes pièces disponibles (20) vs exigence non satisfaite : CA, années d'existence, enregistrement bailleur, références similaires (0)",
-    "valeur_strategique": "integer 0-20 — budget significatif, bailleur structurant, effet de levier durable (20) vs micro-marché sans suite (0)",
-    "faisabilite_operationnelle": "integer 0-15 — délai confortable, dossier léger, concurrence limitée (15) vs délai < 7 jours ou dossier très lourd (0)"
+    "alignement_thematique": "integer 0-30 — the assignment's subject sits at the core of one of ACSD's flagship areas of expertise (30) vs a marginal/out-of-scope link (0), see ACSD PROFILE above",
+    "adequation_geographique": "integer 0-15 — UEMOA/ECOWAS country where ACSD has a presence (15) vs outside West Africa (0)",
+    "eligibilite_conformite": "integer 0-20 — no eliminatory criterion, all required documents available (20) vs an unmet requirement: turnover, years of existence, donor registration, similar references (0)",
+    "valeur_strategique": "integer 0-20 — significant budget, strategic/structuring donor, durable leverage effect (20) vs a micro-contract with no follow-on potential (0)",
+    "faisabilite_operationnelle": "integer 0-15 — comfortable deadline, light submission requirements, limited competition (15) vs deadline < 7 days or very heavy submission requirements (0)"
   },
   "has_blocking_eligibility_issue": "boolean — true if the document states an eligibility requirement ACSD cannot meet (e.g. minimum turnover, years of existence, prior donor registration, number of similar references) that is NOT satisfiable — this caps the total score regardless of thematic fit",
   "source_fully_read": "boolean — true only if you had complete access to the document's actual content; false if the document was truncated, partially unreadable, or you had to infer significant parts",
   "strategic_score_rationale": "2-3 factual sentences citing verifiable elements from the notice's text — no filler — written in the SAME LANGUAGE as the source document (English document -> English rationale, French document -> French rationale)"
 }
 
-Règle de langue impérative : "summary" et "strategic_score_rationale" doivent être rédigés dans la langue du document source (TOR/RFP) lui-même, jamais automatiquement en français — un document en anglais donne un résumé et une justification en anglais.
+Mandatory language rule: "summary" and "strategic_score_rationale" must be written in the source document's own language (TOR/RFP) — never automatically in French; an English document gets an English summary and rationale, a French document gets a French summary and rationale.
 
-Règles de notation impératives :
-- Chaque note doit s'appuyer sur un élément textuel vérifiable du document — ne jamais extrapoler.
-- Donnée manquante sur un critère = note basse sur ce critère spécifique (notamment un malus sur faisabilite_operationnelle si le délai ou la charge de travail ne sont pas précisés) — ne jamais deviner pour gonfler un score.
-- has_blocking_eligibility_issue et source_fully_read sont des indicateurs factuels séparés du calcul des sous-scores — ne les utilise pas pour ajuster manuellement strategic_score_breakdown, le plafonnement est appliqué automatiquement en aval.
+Mandatory scoring rules:
+- Every score must be backed by a verifiable textual element from the document — never extrapolate.
+- Missing data on a criterion = a low score on that specific criterion (in particular, penalize faisabilite_operationnelle if the deadline or workload isn't stated) — never guess in order to inflate a score.
+- has_blocking_eligibility_issue and source_fully_read are factual indicators kept separate from the sub-score calculation — do not use them to manually adjust strategic_score_breakdown; the capping is applied automatically downstream.
 
 Use semantic/fuzzy matching against the controlled vocabulary lists below — do not invent values outside these lists for sectors/languages/geographies/activity_types/donor_guess (positions' role_title is free text, taken verbatim from the document).
 
