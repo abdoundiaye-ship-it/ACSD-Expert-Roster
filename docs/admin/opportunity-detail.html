@@ -344,8 +344,6 @@
               <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_pos_seniority_ph" for="pm-seniority">Seniority</label>
               <select id="pm-seniority" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <option value="" data-i18n="oppdetail_opt_any">— any —</option>
-                <option value="junior" data-i18n="seniority_junior">Junior</option><option value="intermediary" data-i18n="seniority_intermediary">Intermediary</option>
-                <option value="senior" data-i18n="seniority_senior">Senior</option><option value="principal_expert" data-i18n="seniority_principal_expert">Principal</option>
               </select>
             </div>
             <div>
@@ -479,6 +477,7 @@
         sb.from('activity_types').select('id, name').order('name'),
         sb.from('work_order_roles').select('id, name').order('name'),
         sb.from('experts').select('id, full_name, default_daily_rate_usd').eq('is_active', true).order('full_name'),
+        loadSeniorityTiers(),
       ])
 
       if (oppRes.error || !oppRes.data) {
@@ -573,6 +572,8 @@
       allSectors.forEach(s => pmSector.appendChild(new Option(s.name, s.id)))
       const pmWorole = document.getElementById('pm-worole')
       allWorkOrderRoles.forEach(w => pmWorole.appendChild(new Option(w.name, w.id)))
+      const pmSeniority = document.getElementById('pm-seniority')
+      ;(_seniorityTiers ?? []).forEach(st => pmSeniority.appendChild(new Option(seniorityTierLabel(st.code), st.code)))
       const aeExpert = document.getElementById('ae-expert')
       allExperts.forEach(e => aeExpert.appendChild(new Option(e.full_name, e.id)))
     }
@@ -803,7 +804,7 @@
           <div class="flex items-center justify-between flex-wrap gap-2">
             <div>
               <p class="font-semibold text-sm text-gray-900">${aesc(p.role_title)} <span class="text-xs text-gray-400 font-normal">×${p.quantity}</span></p>
-              <p class="text-xs text-gray-500">${aesc(p.required_seniority_tier ?? t('oppdetail_any_seniority'))} · ${aesc(sector)}</p>
+              <p class="text-xs text-gray-500">${p.required_seniority_tier ? aesc(seniorityTierLabel(p.required_seniority_tier)) : aesc(t('oppdetail_any_seniority'))} · ${aesc(sector)}</p>
             </div>
             <div class="flex gap-2">
               <button onclick="openPositionModal('${p.id}')" class="text-xs text-blue-600 hover:text-blue-800 font-medium">${t('btn_edit')}</button>
@@ -912,7 +913,7 @@
           <tbody>
             ${matches.slice(0, 15).map(m => `
               <tr class="border-t border-gray-100 align-top">
-                <td class="py-2 pr-2 font-medium text-gray-800">${aesc(m.full_name)}<br><span class="text-gray-400 font-normal">${aesc(m.seniority_tier ?? '')}</span></td>
+                <td class="py-2 pr-2 font-medium text-gray-800">${aesc(m.full_name)}<br><span class="text-gray-400 font-normal">${aesc(seniorityTierLabel(m.seniority_tier))}</span></td>
                 <td class="py-2 pr-2">
                   <span class="font-semibold ${m.match_score >= 70 ? 'text-green-700' : m.match_score >= 40 ? 'text-amber-700' : 'text-gray-400'}" title="${aesc(JSON.stringify(m.score_breakdown))}">${m.match_score}</span>
                 </td>
@@ -1434,7 +1435,7 @@
 
     function buildSummaryHtml() {
       const teamRows = selectedExperts.map(s =>
-        `<tr><td>${aesc(s.assigned_role_title)}</td><td>${aesc(s.experts?.full_name ?? '')}</td><td>${aesc(s.experts?.seniority_tier ?? '')}</td></tr>`).join('')
+        `<tr><td>${aesc(s.assigned_role_title)}</td><td>${aesc(s.experts?.full_name ?? '')}</td><td>${aesc(seniorityTierLabel(s.experts?.seniority_tier))}</td></tr>`).join('')
       return `
         <h1>Executive Summary</h1>
         <p>${aesc(opportunity.summary ?? '')}</p>

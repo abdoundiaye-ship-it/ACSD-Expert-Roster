@@ -130,10 +130,6 @@
           <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_level">Level</label>
           <select id="ef-seniority" class="fi">
             <option value="" data-i18n="rp_all">All</option>
-            <option value="principal_expert" data-i18n="seniority_principal_expert">Principal Expert</option>
-            <option value="senior" data-i18n="seniority_senior">Senior</option>
-            <option value="intermediary" data-i18n="seniority_intermediary">Intermediary</option>
-            <option value="junior" data-i18n="seniority_junior">Junior</option>
           </select>
         </div>
         <div>
@@ -318,8 +314,6 @@
           <label class="block text-xs font-medium text-gray-500 mb-1" data-i18n="rp_seniority">Seniority</label>
           <select id="tf-seniority" class="fi">
             <option value="" data-i18n="rp_all">All</option>
-            <option value="principal_expert" data-i18n="seniority_principal_expert">Principal Expert</option><option value="senior" data-i18n="seniority_senior">Senior</option>
-            <option value="intermediary" data-i18n="seniority_intermediary">Intermediary</option><option value="junior" data-i18n="seniority_junior">Junior</option>
           </select>
         </div>
         <div>
@@ -563,6 +557,7 @@ async function loadLookups() {
     sb.from('geographies').select('country_name').order('country_name'),
     sb.from('languages').select('name').order('name'),
     sb.from('donors').select('name').order('name'),
+    loadSeniorityTiers(),
   ])
   lookups = { sectors: s.data||[], geographies: g.data||[], languages: l.data||[], donors: d.data||[] }
   fill('ef-sector',    lookups.sectors,     'name',         'name')
@@ -571,6 +566,19 @@ async function loadLookups() {
   fill('ef-donor',     lookups.donors,      'name',         'name')
   fill('of-sector',    lookups.sectors,     'name',         'name')
   fill('kbf-sector',   lookups.sectors,     'name',         'name')
+  fillSeniorityFilters()
+}
+
+function fillSeniorityFilters() {
+  const items = (_seniorityTiers ?? []).map(t2 => ({ code: t2.code, label: seniorityTierLabel(t2.code) }))
+  ;['ef-seniority', 'tf-seniority'].forEach(id => {
+    const sel = document.getElementById(id)
+    if (!sel) return
+    const current = sel.value
+    sel.querySelectorAll('option[value]:not([value=""])').forEach(o => o.remove())
+    fill(id, items, 'code', 'label')
+    sel.value = current
+  })
 }
 
 function fill(id, items, vk, lk) {
@@ -1210,7 +1218,7 @@ function ec(s) {
 }
 
 function fmtLevel(s) {
-  return {principal_expert:'Principal Expert',senior:'Senior',intermediary:'Intermediary',junior:'Junior'}[s]||s||'—'
+  return seniorityTierLabel(s) || '—'
 }
 function fmtAvail(s) {
   return {available:'Available',assigned:'On Assignment',unavailable:'Unavailable',unknown:'Not Specified'}[s]||s||'—'
@@ -1275,7 +1283,7 @@ function showToast(msg, type = 'info') {
   setTimeout(() => el.classList.add('hidden'), 3500)
 }
 
-document.addEventListener('acsd:langchange', () => { renderSavedConfigs() })
+document.addEventListener('acsd:langchange', () => { renderSavedConfigs(); if (lookups) fillSeniorityFilters() })
 
 init()
 </script>

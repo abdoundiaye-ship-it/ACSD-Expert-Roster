@@ -8,6 +8,7 @@
 
 document.addEventListener('acsd:langchange', () => {
   if (typeof allExperts !== 'undefined' && allExperts.length) renderFiltered()
+  if (typeof populateSeniorityFilter === 'function' && document.getElementById('f-seniority')) populateSeniorityFilter()
 })
 
 // ── Display constants ─────────────────────────────────────────────────────────
@@ -53,6 +54,7 @@ async function init() {
       sb.from('geographies').select('country_name').order('country_name'),
       sb.from('donors').select('name').order('name'),
       sb.from('work_order_roles').select('name').order('name'),
+      loadSeniorityTiers(),
     ])
 
     allExperts = experts
@@ -62,6 +64,7 @@ async function init() {
     populateSelect('f-language',  languages.data,   'name')
     populateSelect('f-donor',     donors.data,      'name')
     populateSelect('f-role',      roles.data,       'name')
+    populateSeniorityFilter()
 
     const FILTER_IDS = ['f-affiliation','f-seniority','f-sector','f-geography',
                         'f-language','f-donor','f-role','f-availability']
@@ -214,7 +217,7 @@ function expertCard(e) {
   <div class="flex flex-wrap gap-1.5">
     <span class="text-xs font-medium px-2 py-0.5 rounded-full ${AFFIL_COLOR[e.affiliation_type]}">${esc(t('affil_' + e.affiliation_type))}</span>
     ${e.seniority_tier
-      ? `<span class="text-xs font-medium px-2 py-0.5 rounded-full ${SENIORITY_COLOR[e.seniority_tier]}">${esc(t('seniority_' + e.seniority_tier))}</span>`
+      ? `<span class="text-xs font-medium px-2 py-0.5 rounded-full ${SENIORITY_COLOR[e.seniority_tier] ?? 'bg-gray-100 text-gray-600'}">${esc(seniorityTierLabel(e.seniority_tier))}</span>`
       : ''}
   </div>
 
@@ -271,7 +274,7 @@ function showModal(e) {
   <div>
     <div class="flex flex-wrap items-center gap-2 mb-2">
       <span class="text-xs font-medium px-2 py-0.5 rounded-full ${AFFIL_COLOR[e.affiliation_type]}">${esc(t('affil_' + e.affiliation_type))}</span>
-      ${e.seniority_tier ? `<span class="text-xs font-medium px-2 py-0.5 rounded-full ${SENIORITY_COLOR[e.seniority_tier]}">${esc(t('seniority_' + e.seniority_tier))}</span>` : ''}
+      ${e.seniority_tier ? `<span class="text-xs font-medium px-2 py-0.5 rounded-full ${SENIORITY_COLOR[e.seniority_tier] ?? 'bg-gray-100 text-gray-600'}">${esc(seniorityTierLabel(e.seniority_tier))}</span>` : ''}
       <span class="text-xs text-gray-500 flex items-center gap-1">
         <span class="w-2 h-2 rounded-full ${AVAIL_DOT[e.availability_status] ?? 'bg-gray-300'}"></span>
         ${esc(t('avail_' + (e.availability_status ?? 'unknown')))}
@@ -398,6 +401,20 @@ function populateSelect(id, items, key) {
     opt.textContent = item[key]
     sel.appendChild(opt)
   })
+}
+
+// Most-senior-first, matching the dropdown's original hardcoded order.
+function populateSeniorityFilter() {
+  const sel = document.getElementById('f-seniority')
+  const current = sel.value
+  sel.querySelectorAll('option[value]:not([value=""])').forEach(o => o.remove())
+  ;[...(_seniorityTiers ?? [])].sort((a, b) => b.sort_order - a.sort_order).forEach(tier => {
+    const opt = document.createElement('option')
+    opt.value = tier.code
+    opt.textContent = seniorityTierLabel(tier.code)
+    sel.appendChild(opt)
+  })
+  sel.value = current
 }
 
 function clearFilters() {

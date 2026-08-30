@@ -46,6 +46,35 @@ function setupSessionTimeout() {
   }, 60_000)
 }
 
+// ── Seniority tiers (shared reference data) ─────────────────────────────────
+// seniority_tier is a real lookup table (seniority_tiers), not a hardcoded
+// enum — every page that shows, filters, or selects a tier goes through
+// this instead of its own copy of the 4-value list, so a tier added or
+// renamed via Reference Data shows up everywhere without a code change.
+// Cached per page load; auth.js is the one shared script every relevant
+// page already loads (app.js/admin.js/reports.html do not all overlap).
+
+let _seniorityTiers = null
+
+async function loadSeniorityTiers() {
+  if (_seniorityTiers) return _seniorityTiers
+  const { data, error } = await sb.from('seniority_tiers').select('id, code, name, sort_order').order('sort_order')
+  if (error) { console.error('[loadSeniorityTiers]', error.message); return [] }
+  _seniorityTiers = data ?? []
+  return _seniorityTiers
+}
+
+// Prefers the i18n translation for the 4 original tiers (so existing FR/EN
+// labels are unchanged); falls back to the tier's own `name` column for any
+// tier added later that has no i18n entry, then to the raw code as a last resort.
+function seniorityTierLabel(code) {
+  if (!code) return ''
+  const key = 'seniority_' + code
+  const translated = typeof t === 'function' ? t(key) : key
+  if (translated !== key) return translated
+  return _seniorityTiers?.find(x => x.code === code)?.name ?? code
+}
+
 // ── Authentication ─────────────────────────────────────────────────────────────
 
 async function checkAuth() {

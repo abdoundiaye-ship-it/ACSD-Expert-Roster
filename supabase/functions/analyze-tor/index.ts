@@ -74,13 +74,14 @@ serve(async (req: Request) => {
   }
 
   // ── Fetch controlled vocabulary for extraction ───────────────────────────
-  const [sRes, lRes, gRes, aRes, dRes, wRes] = await Promise.all([
+  const [sRes, lRes, gRes, aRes, dRes, wRes, tRes] = await Promise.all([
     adminClient.from('sectors').select('name').order('sort_order'),
     adminClient.from('languages').select('name').order('name'),
     adminClient.from('geographies').select('country_name').order('country_name'),
     adminClient.from('activity_types').select('name').order('name'),
     adminClient.from('donors').select('name').order('name'),
     adminClient.from('work_order_roles').select('name').order('name'),
+    adminClient.from('seniority_tiers').select('code').order('sort_order'),
   ])
   const sectors        = (sRes.data ?? []).map((r: { name: string }) => r.name)
   const languages       = (lRes.data ?? []).map((r: { name: string }) => r.name)
@@ -88,13 +89,14 @@ serve(async (req: Request) => {
   const activityTypes   = (aRes.data ?? []).map((r: { name: string }) => r.name)
   const donors          = (dRes.data ?? []).map((r: { name: string }) => r.name)
   const workOrderRoles  = (wRes.data ?? []).map((r: { name: string }) => r.name)
+  const seniorityTiers  = (tRes.data ?? []).map((r: { code: string }) => r.code)
 
   // ── Prepare Claude request ───────────────────────────────────────────────
   const apiKey = Deno.env.get('ANTHROPIC_API_KEY')
   if (!apiKey) return respond({ error: 'ANTHROPIC_API_KEY is not configured on this project' }, 500)
 
   const acsdProfile = await computeAcsdProfile(adminClient)
-  const prompt = buildPrompt(sectors, languages, geographies, activityTypes, donors, workOrderRoles, acsdProfile)
+  const prompt = buildPrompt(sectors, languages, geographies, activityTypes, donors, workOrderRoles, seniorityTiers, acsdProfile)
 
   let messages: { role: string; content: unknown }[]
 
@@ -245,7 +247,7 @@ Languages: French, English, national languages of West Africa.`
 
 function buildPrompt(
   sectors: string[], languages: string[], geographies: string[],
-  activityTypes: string[], donors: string[], workOrderRoles: string[],
+  activityTypes: string[], donors: string[], workOrderRoles: string[], seniorityTiers: string[],
   acsdProfile: string,
 ): string {
   return `You are a senior opportunity-intelligence and qualification analyst for ACSD, a West African consulting firm responding to donor RFPs/TORs (UN agencies, World Bank, AfDB, EU, USAID, etc.).
@@ -271,7 +273,7 @@ Extract structured information from this Terms of Reference / RFP and return ONL
   "languages": [ "names from the Languages list below that are required or preferred for this assignment" ],
   "geographies": [ "country names from the Geographies list below where relevant experience or coverage is required" ],
   "activity_types": [ "names from the Activity Types list below matching deliverables this TOR asks for" ],
-  "positions": [ { "role_title": "the role/position name as written (e.g. 'Team Leader', 'Senior WASH Evaluator')", "required_seniority_tier": "one of junior, intermediary, senior, principal_expert — infer from years-of-experience requirements", "required_sector_guess": "best-guess match from the Sectors list, or null", "quantity": integer number of people needed for this role, default 1 } ],
+  "positions": [ { "role_title": "the role/position name as written (e.g. 'Team Leader', 'Senior WASH Evaluator')", "required_seniority_tier": "one of the values in the Seniority Tiers list below — infer from years-of-experience requirements", "required_sector_guess": "best-guess match from the Sectors list, or null", "quantity": integer number of people needed for this role, default 1 } ],
   "strategic_score_breakdown": {
     "alignement_thematique": "integer 0-30 — the assignment's subject sits at the core of one of ACSD's flagship areas of expertise (30) vs a marginal/out-of-scope link (0), see ACSD PROFILE above",
     "adequation_geographique": "integer 0-15 — UEMOA/ECOWAS country where ACSD has a presence (15) vs outside West Africa (0)",
@@ -291,7 +293,7 @@ Mandatory scoring rules:
 - Missing data on a criterion = a low score on that specific criterion (in particular, penalize faisabilite_operationnelle if the deadline or workload isn't stated) — never guess in order to inflate a score.
 - has_blocking_eligibility_issue and source_fully_read are factual indicators kept separate from the sub-score calculation — do not use them to manually adjust strategic_score_breakdown; the capping is applied automatically downstream.
 
-Use semantic/fuzzy matching against the controlled vocabulary lists below — do not invent values outside these lists for sectors/languages/geographies/activity_types/donor_guess (positions' role_title is free text, taken verbatim from the document).
+Use semantic/fuzzy matching against the controlled vocabulary lists below — do not invent values outside these lists for sectors/languages/geographies/activity_types/donor_guess/required_seniority_tier (positions' role_title is free text, taken verbatim from the document).
 
 Sectors: ${sectors.join(', ')}
 
@@ -302,6 +304,8 @@ Geographies: ${geographies.join(', ')}
 Activity Types: ${activityTypes.join(', ')}
 
 Donors: ${donors.join(', ')}
+
+Seniority Tiers (listed from least to most senior): ${seniorityTiers.join(', ')}
 
 Work order role types (context only, not a required output field): ${workOrderRoles.join(', ')}
 

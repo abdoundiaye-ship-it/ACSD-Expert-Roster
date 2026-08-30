@@ -73,12 +73,12 @@
   <script src="../js/auth.js"></script>
   <script src="../js/admin.js"></script>
   <script>
-    function tierLabel(t2) { return { junior: t('seniority_junior'), intermediary: t('seniority_intermediary'), senior: t('seniority_senior'), principal_expert: t('seniority_principal_expert') }[t2] ?? t2 }
     let lastAskResult = null
 
     async function init() {
       const session = await initAdmin('ask')
       if (!session) return
+      await loadSeniorityTiers()
     }
 
     async function askIntelligence() {
@@ -136,7 +136,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex items-center justify-between gap-4">
           <div class="min-w-0">
             <a href="experts.html?edit=${aesc(r.expert_id)}" class="font-semibold text-gray-900 hover:text-blue-700 truncate block">${aesc(r.full_name ?? t('ask_unknown_name'))}</a>
-            <p class="text-xs text-gray-500 truncate">${aesc(r.title ?? '')}${r.title && r.seniority_tier ? ' · ' : ''}${aesc(tierLabel(r.seniority_tier) ?? '')}</p>
+            <p class="text-xs text-gray-500 truncate">${aesc(r.title ?? '')}${r.title && r.seniority_tier ? ' · ' : ''}${aesc(seniorityTierLabel(r.seniority_tier) ?? '')}</p>
             <p class="text-xs text-gray-400 mt-1">${aesc(r.basis ?? '')}</p>
           </div>
           <div class="text-right flex-shrink-0">

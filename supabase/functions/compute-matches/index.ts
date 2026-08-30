@@ -4,7 +4,6 @@ import { requireAdmin } from '../_shared/auth.ts'
 import { callClaude, extractText, extractJsonObject } from '../_shared/claude.ts'
 import { CORS } from '../_shared/cors.ts'
 
-const TIERS = ['junior', 'intermediary', 'senior', 'principal_expert']
 const LANG_PROF_WEIGHT: Record<string, number> = { native: 1.0, fluent: 1.0, professional: 0.8, working: 0.5 }
 
 serve(async (req: Request) => {
@@ -52,6 +51,12 @@ serve(async (req: Request) => {
     position = posData
   }
 
+  // ── Seniority tier ordinal map (for role/seniority distance scoring) ────
+  // seniority_tiers.sort_order replaces the old hardcoded TIERS array —
+  // adding/reordering tiers in that table now flows through automatically.
+  const { data: tierRows } = await adminClient.from('seniority_tiers').select('code, sort_order')
+  const tierOrder: Record<string, number> = Object.fromEntries((tierRows ?? []).map((t: { code: string; sort_order: number }) => [t.code, t.sort_order]))
+
   // ── Donor category map (for partial donor-experience credit) ────────────
   const { data: donorRows } = await adminClient.from('donors').select('id, category_id')
   const donorCategoryMap: Record<number, number> = {}
@@ -83,7 +88,7 @@ serve(async (req: Request) => {
       sectors: oppSectors, languages: oppLanguages, geographies: oppGeographies,
       activities: oppActivities, donorId: opportunity.donor_id, donorCategory: oppDonorCategory,
       donorCategoryMap,
-    }, position)
+    }, position, tierOrder)
     return { expert, matchScore, breakdown }
   })
 
@@ -188,6 +193,7 @@ function scoreExpert(
   opp: { sectors: { sector_id: number; importance: string }[]; languages: number[]; geographies: number[];
          activities: number[]; donorId: number | null; donorCategory: number | null; donorCategoryMap: Record<number, number> },
   position: { work_order_role_id: number | null; required_seniority_tier: string | null } | null,
+  tierOrder: Record<string, number>,
 ) {
   const expertGeoIds       = new Set((expert.expert_geographies ?? []).map((g: any) => g.geography_id))
   const expertActivityIds  = new Set((expert.expert_activity_experience ?? []).map((a: any) => a.activity_type_id))
@@ -256,7 +262,9 @@ function scoreExpert(
       ? (expertRoleFitIds.has(position.work_order_role_id) ? 10 : 0)
       : 10
     if (position.required_seniority_tier) {
-      const diff = Math.abs(TIERS.indexOf(expert.seniority_tier) - TIERS.indexOf(position.required_seniority_tier))
+      const expertOrder = tierOrder[expert.seniority_tier] ?? 0
+      const requiredOrder = tierOrder[position.required_seniority_tier] ?? 0
+      const diff = Math.abs(expertOrder - requiredOrder)
       roleSeniority += diff === 0 ? 5 : diff === 1 ? 2.5 : 0
     } else {
       roleSeniority += 5

@@ -256,10 +256,6 @@
               <select id="ef-seniority"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="" data-i18n="exp_opt_not_set">— not set —</option>
-                <option value="junior" data-i18n="seniority_junior">Junior</option>
-                <option value="intermediary" data-i18n="seniority_intermediary">Intermediary</option>
-                <option value="senior" data-i18n="seniority_senior">Senior</option>
-                <option value="principal_expert" data-i18n="seniority_principal_expert">Principal Expert</option>
               </select>
             </div>
             <div>
@@ -423,7 +419,6 @@
     const AFFIL_COLOR    = { internal: 'bg-blue-900 text-white', partner: 'bg-emerald-700 text-white' }
     const AVAIL_DOT      = { available: 'bg-green-500', assigned: 'bg-amber-500', unavailable: 'bg-red-500', unknown: 'bg-gray-300' }
     function affilLabel(a) { return { internal: t('affil_internal'), partner: t('affil_partner') }[a] ?? a }
-    function seniorityLabel(s) { return { principal_expert: t('seniority_principal_expert'), senior: t('seniority_senior'), intermediary: t('seniority_intermediary'), junior: t('seniority_junior') }[s] ?? s }
     function availLabel(a) { return { available: t('avail_available'), assigned: t('avail_assigned'), unavailable: t('avail_unavailable'), unknown: t('avail_unknown') }[a] ?? a }
 
     async function loadExperts() {
@@ -435,12 +430,14 @@
           .select('id, full_name, first_name, last_name, title, email, phone, affiliation_type, partner_org, seniority_tier, years_experience, availability_status, is_active, bio_summary, cv_storage_path, created_at, expert_sectors(priority, sectors(id, name))')
           .order('full_name'),
         sb.from('sectors').select('id, name').order('sort_order'),
+        loadSeniorityTiers(),
       ])
 
       allExperts = expRes.data ?? []
       allSectors = secRes.data ?? []
 
       populateSectorSelects()
+      populateSeniorityOptions()
       filterExperts()
 
       // If opened from roster with ?edit=ID, open the edit form; ?new=1
@@ -473,6 +470,19 @@
             ${aesc(s.name)}
           </label>
         </div>`).join('')
+    }
+
+    function populateSeniorityOptions() {
+      const select = document.getElementById('ef-seniority')
+      const current = select.value
+      select.querySelectorAll('option[value]:not([value=""])').forEach(o => o.remove())
+      ;(_seniorityTiers ?? []).forEach(tier => {
+        const opt = document.createElement('option')
+        opt.value = tier.code
+        opt.textContent = seniorityTierLabel(tier.code)
+        select.appendChild(opt)
+      })
+      select.value = current
     }
 
     const debouncedFilterExperts = debounce(() => filterExperts(), 250)
@@ -513,7 +523,7 @@
               ${affilLabel(e.affiliation_type)}
             </span>
           </td>
-          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell">${e.seniority_tier ? aesc(seniorityLabel(e.seniority_tier)) : '—'}</td>
+          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell">${e.seniority_tier ? aesc(seniorityTierLabel(e.seniority_tier)) : '—'}</td>
           <td class="px-5 py-3">
             <div class="flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full flex-shrink-0 ${dot}"></span>
@@ -947,7 +957,10 @@
       document.getElementById('cv-analyze-btn').classList.add('hidden')
     }
 
-    document.addEventListener('acsd:langchange', () => { if (allExperts.length || document.getElementById('expert-count').textContent) filterExperts() })
+    document.addEventListener('acsd:langchange', () => {
+      if (allExperts.length || document.getElementById('expert-count').textContent) filterExperts()
+      populateSeniorityOptions()
+    })
 
     loadExperts()
   </script>

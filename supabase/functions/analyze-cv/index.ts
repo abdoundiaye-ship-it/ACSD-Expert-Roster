@@ -35,21 +35,23 @@ serve(async (req: Request) => {
   }
 
   // ── Fetch controlled vocabulary for matching ─────────────────────────────
-  const [sRes, lRes, gRes] = await Promise.all([
+  const [sRes, lRes, gRes, tRes] = await Promise.all([
     adminClient.from('sectors').select('name').order('sort_order'),
     adminClient.from('languages').select('name').order('name'),
     adminClient.from('geographies').select('country_name').order('country_name'),
+    adminClient.from('seniority_tiers').select('code, years_hint').order('sort_order'),
   ])
   const sectors     = (sRes.data ?? []).map((r: { name: string })         => r.name)
   const languages   = (lRes.data ?? []).map((r: { name: string })         => r.name)
   const geographies = (gRes.data ?? []).map((r: { country_name: string }) => r.country_name)
+  const seniorityTiers = (tRes.data ?? []).map((r: { code: string; years_hint: string | null }) => r)
 
   // ── Prepare Claude request ───────────────────────────────────────────────
   const apiKey = Deno.env.get('ANTHROPIC_API_KEY')
   if (!apiKey) return respond({ error: 'ANTHROPIC_API_KEY is not configured on this project' }, 500)
 
   const bytes  = new Uint8Array(await file.arrayBuffer())
-  const prompt = buildPrompt(sectors, languages, geographies)
+  const prompt = buildPrompt(sectors, languages, geographies, seniorityTiers)
 
   let messages: { role: string; content: unknown }[]
   const extraHeaders: Record<string, string> = {}
@@ -104,7 +106,11 @@ serve(async (req: Request) => {
   return respond({ success: true, data: extracted })
 })
 
-function buildPrompt(sectors: string[], languages: string[], geographies: string[]): string {
+function buildPrompt(
+  sectors: string[], languages: string[], geographies: string[],
+  seniorityTiers: { code: string; years_hint: string | null }[],
+): string {
+  const tierHint = seniorityTiers.map(t => `"${t.code}" for ${t.years_hint ?? 'an unspecified range'}`).join(', ')
   return `You are a professional CV parser for an international development consulting roster.
 
 Extract structured information from this CV and return ONLY a valid JSON object (no markdown, no explanation):
@@ -119,7 +125,7 @@ Extract structured information from this CV and return ONLY a valid JSON object 
   "organization": "current employer or main organization, or null",
   "affiliation_type": "internal" or "partner" — default to "partner" unless clearly a core/internal staff,
   "years_experience": total years of professional experience as an integer,
-  "seniority_tier": "junior" for under 3 yrs, "intermediary" for 3–7 yrs, "senior" for 7–15 yrs, "principal_expert" for 15+ yrs,
+  "seniority_tier": ${tierHint},
   "bio_summary": "2–3 sentence professional summary written in third person, highlighting expertise and impact",
   "sectors": [only names from the Sectors list below that match this person's expertise],
   "languages": [only names from the Languages list below that this person speaks or works in],

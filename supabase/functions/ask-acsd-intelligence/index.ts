@@ -4,8 +4,6 @@ import { requireAdmin } from '../_shared/auth.ts'
 import { callClaude, extractText, extractJsonObject } from '../_shared/claude.ts'
 import { CORS } from '../_shared/cors.ts'
 
-const TIERS = ['junior', 'intermediary', 'senior', 'principal_expert']
-
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS })
   if (req.method !== 'POST')    return respond({ error: 'Method Not Allowed' }, 405)
@@ -27,22 +25,26 @@ serve(async (req: Request) => {
   //    criteria — Claude never sees or names actual experts here, only the
   //    controlled vocabulary and a list of open opportunities to resolve
   //    against, so it cannot hallucinate a match.
-  const [sRes, lRes, gRes, dRes, oppRes] = await Promise.all([
+  const [sRes, lRes, gRes, dRes, tRes, oppRes] = await Promise.all([
     adminClient.from('sectors').select('name').order('sort_order'),
     adminClient.from('languages').select('name').order('name'),
     adminClient.from('geographies').select('country_name').order('country_name'),
     adminClient.from('donors').select('name').order('name'),
+    adminClient.from('seniority_tiers').select('code, sort_order').order('sort_order'),
     adminClient.from('opportunities').select('id, title, organization').eq('status', 'open').order('created_at', { ascending: false }).limit(50),
   ])
   const sectors    = (sRes.data ?? []).map((r: any) => r.name)
   const languages   = (lRes.data ?? []).map((r: any) => r.name)
   const geographies = (gRes.data ?? []).map((r: any) => r.country_name)
   const donors      = (dRes.data ?? []).map((r: any) => r.name)
+  const tierRows    = tRes.data ?? []
+  const tierCodes   = tierRows.map((r: any) => r.code)
+  const tierOrder: Record<string, number> = Object.fromEntries(tierRows.map((r: any) => [r.code, r.sort_order]))
   const openOpps    = oppRes.data ?? []
 
   let criteria: any
   try {
-    criteria = await interpretQuery(apiKey, query, sectors, languages, geographies, donors, openOpps)
+    criteria = await interpretQuery(apiKey, query, sectors, languages, geographies, donors, tierCodes, openOpps)
   } catch (err) {
     return respond({ error: err instanceof Error ? err.message : 'Could not interpret query' }, 502)
   }
@@ -74,7 +76,7 @@ serve(async (req: Request) => {
   }
 
   if (results.length === 0) {
-    results = await filterSearch(adminClient, criteria, topN)
+    results = await filterSearch(adminClient, criteria, topN, tierOrder)
   }
 
   return respond({
@@ -88,7 +90,7 @@ serve(async (req: Request) => {
 
 async function interpretQuery(
   apiKey: string, query: string, sectors: string[], languages: string[], geographies: string[],
-  donors: string[], openOpps: { id: string; title: string; organization: string }[],
+  donors: string[], seniorityTiers: string[], openOpps: { id: string; title: string; organization: string }[],
 ): Promise<any> {
   const prompt = `You are the query interpreter for "Ask ACSD Intelligence", a natural-language search over ACSD's expert roster. Parse the admin's question below into structured search criteria. Return ONLY a valid JSON object (no markdown, no explanation):
 
@@ -98,12 +100,12 @@ async function interpretQuery(
   "languages": ["names from the Languages list below, or []"],
   "geographies": ["names from the Geographies list below, or []"],
   "donors": ["names from the Donors list below, or []"],
-  "seniority_tiers": ["any of junior, intermediary, senior, principal_expert mentioned or implied, or []"],
+  "seniority_tiers": ["any of the values in the Seniority Tiers list below that are mentioned or implied, or []"],
   "top_n": "integer — how many results were requested, default 5",
   "interpretation_summary": "one sentence restating what you understood the admin is asking for, in the same language as the question"
 }
 
-Only use values from the controlled lists below — do not invent sector/language/geography/donor names outside these lists.
+Only use values from the controlled lists below — do not invent sector/language/geography/donor/seniority-tier names outside these lists.
 
 Question: "${query}"
 
@@ -114,6 +116,7 @@ Sectors: ${sectors.join(', ')}
 Languages: ${languages.join(', ')}
 Geographies: ${geographies.join(', ')}
 Donors: ${donors.join(', ')}
+Seniority Tiers: ${seniorityTiers.join(', ')}
 
 Return ONLY the JSON object.`
 
@@ -144,7 +147,7 @@ Return ONLY the JSON object.`
 // extracted criteria they actually satisfy against real profile data, and
 // rank by that count. No AI involved in scoring — same "AI interprets,
 // code retrieves" split used by the matching engine.
-async function filterSearch(adminClient: any, criteria: any, topN: number): Promise<any[]> {
+async function filterSearch(adminClient: any, criteria: any, topN: number, tierOrder: Record<string, number>): Promise<any[]> {
   const { data: experts } = await adminClient
     .from('experts')
     .select(`
@@ -183,7 +186,7 @@ async function filterSearch(adminClient: any, criteria: any, topN: number): Prom
   // If no criteria were extracted at all, fall back to seniority/experience
   // ranking rather than returning an arbitrary/empty list.
   const ranked = totalCriteria === 0
-    ? scored.sort((a, b) => (TIERS.indexOf(b.e.seniority_tier) - TIERS.indexOf(a.e.seniority_tier)) || (b.e.years_experience ?? 0) - (a.e.years_experience ?? 0))
+    ? scored.sort((a, b) => ((tierOrder[b.e.seniority_tier] ?? 0) - (tierOrder[a.e.seniority_tier] ?? 0)) || (b.e.years_experience ?? 0) - (a.e.years_experience ?? 0))
     : scored.filter(s => s.hits > 0).sort((a, b) => b.hits - a.hits || (b.e.years_experience ?? 0) - (a.e.years_experience ?? 0))
 
   return ranked.slice(0, topN).map(({ e, hits, matchedBasis }) => ({

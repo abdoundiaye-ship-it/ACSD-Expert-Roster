@@ -461,6 +461,7 @@
         sb.from('languages').select('id, name').order('name'),
         sb.from('activity_types').select('id, name').order('name'),
         sb.from('work_order_roles').select('id, name').order('name'),
+        loadSeniorityTiers(),
       ])
 
       allOpportunities = oppRes.data ?? []
@@ -669,10 +670,7 @@
         <input class="pr-title col-span-4 border border-gray-300 rounded px-2 py-1 text-xs" placeholder="${aesc(t('opp_pos_role_ph'))}" value="${aesc(prefill?.role_title ?? '')}">
         <select class="pr-seniority col-span-2 border border-gray-300 rounded px-2 py-1 text-xs">
           <option value="">${aesc(t('opp_pos_seniority_ph'))}</option>
-          <option value="junior">${aesc(t('seniority_junior'))}</option>
-          <option value="intermediary">${aesc(t('seniority_intermediary'))}</option>
-          <option value="senior">${aesc(t('seniority_senior'))}</option>
-          <option value="principal_expert">${aesc(t('seniority_principal_expert'))}</option>
+          ${(_seniorityTiers ?? []).map(st => `<option value="${st.code}">${aesc(seniorityTierLabel(st.code))}</option>`).join('')}
         </select>
         <select class="pr-sector col-span-3 border border-gray-300 rounded px-2 py-1 text-xs">
           <option value="">${aesc(t('opp_pos_sector_ph'))}</option>

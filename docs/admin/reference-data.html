@@ -116,8 +116,19 @@
       activity_types:   { table: 'activity_types',   idCol: 'id', nameCol: 'name',         orderBy: 'name', extra: [] },
       work_order_roles: { table: 'work_order_roles', idCol: 'id', nameCol: 'name',         orderBy: 'name',
         extra: [{ key: 'indicative_days', type: 'text', labelKey: 'rd_col_indicative_days', required: false }] },
+      // `code` is the stable machine key ('junior', etc.) — used verbatim in
+      // Claude prompts, compute-matches' ordinal scoring, and every seniority
+      // dropdown/label across the app, so it's settable only when a tier is
+      // created (createOnly), never edited afterward. `name` (the generic
+      // nameCol every kind already has) is what's actually shown/renamable.
+      seniority_tiers: { table: 'seniority_tiers', idCol: 'id', nameCol: 'name', orderBy: 'sort_order',
+        extra: [
+          { key: 'code', type: 'text', labelKey: 'rd_col_code', required: true, createOnly: true },
+          { key: 'sort_order', type: 'number', labelKey: 'rd_col_sort_order', required: true },
+          { key: 'years_hint', type: 'text', labelKey: 'rd_col_years_hint', required: false },
+        ] },
     }
-    const TAB_ORDER = ['sectors', 'languages', 'geographies', 'donor_categories', 'donors', 'activity_types', 'work_order_roles']
+    const TAB_ORDER = ['sectors', 'languages', 'geographies', 'donor_categories', 'donors', 'activity_types', 'work_order_roles', 'seniority_tiers']
 
     let activeKind = 'sectors'
     let rows = []
@@ -215,10 +226,11 @@
           </div>`
         }
         const defaultVal = f.key === 'sort_order' && !row ? (Math.max(0, ...rows.map(r => r.sort_order ?? 0)) + 1) : val
+        const locked = f.createOnly && row
         return `<div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">${aesc(t(f.labelKey))}</label>
-          <input id="im-field-${f.key}" type="${f.type === 'number' ? 'number' : 'text'}"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value="${aesc(String(defaultVal ?? ''))}">
+          <label class="block text-xs font-semibold text-gray-600 mb-1">${aesc(t(f.labelKey))}${locked ? ' ' + aesc(t('rd_locked_hint')) : ''}</label>
+          <input id="im-field-${f.key}" type="${f.type === 'number' ? 'number' : 'text'}" ${locked ? 'disabled' : ''}
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm ${locked ? 'bg-gray-100 text-gray-500' : ''}" value="${aesc(String(defaultVal ?? ''))}">
         </div>`
       }).join('')
 
@@ -233,6 +245,7 @@
 
       const body = { [kind.nameCol]: name }
       for (const f of kind.extra) {
+        if (f.createOnly && id) continue // locked once created — see openItemModal
         const el = document.getElementById('im-field-' + f.key)
         const raw = el.value.trim()
         if (f.required && !raw) { showToast(t('rd_name_required'), 'error'); return }
