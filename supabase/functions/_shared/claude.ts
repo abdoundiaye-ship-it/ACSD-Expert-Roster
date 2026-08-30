@@ -18,6 +18,14 @@ export interface CallClaudeOptions {
   extraHeaders?: Record<string, string>
   timeoutMs?: number
   retries?: number
+  // Opt-in only — callers on Claude Sonnet 5 / Opus-tier models where
+  // omitting `thinking` now means "run adaptive thinking by default" (a
+  // behavior change from older models, where omitting it meant no
+  // thinking at all). Left undefined for callers on other model families
+  // (e.g. Haiku 4.5, which uses the older budget_tokens shape and errors
+  // on `output_config.effort`) so their request body is unchanged.
+  thinking?: { type: 'adaptive' } | { type: 'disabled' }
+  effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max'
 }
 
 const DEFAULT_TIMEOUT_MS = 60_000
@@ -29,10 +37,13 @@ export async function callClaude(opts: CallClaudeOptions): Promise<any> {
   const {
     apiKey, model, maxTokens, messages, system, extraHeaders,
     timeoutMs = DEFAULT_TIMEOUT_MS, retries = DEFAULT_RETRIES,
+    thinking, effort,
   } = opts
 
   const body: Record<string, unknown> = { model, max_tokens: maxTokens, messages }
   if (system) body.system = system
+  if (thinking) body.thinking = thinking
+  if (effort) body.output_config = { effort }
 
   let lastErr: Error = new Error('Claude API call failed')
 

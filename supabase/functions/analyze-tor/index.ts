@@ -97,10 +97,10 @@ serve(async (req: Request) => {
   const prompt = buildPrompt(sectors, languages, geographies, activityTypes, donors, workOrderRoles, acsdProfile)
 
   let messages: { role: string; content: unknown }[]
-  const extraHeaders: Record<string, string> = {}
 
   if (isPDF && pdfBytes) {
-    extraHeaders['anthropic-beta'] = 'pdfs-2024-09-25'
+    // No beta header needed for base64 PDF document blocks on current models
+    // (the 2024-era pdfs-2024-09-25 flag this used to require has been GA'd).
     messages = [{
       role: 'user',
       content: [
@@ -116,10 +116,20 @@ serve(async (req: Request) => {
   }
 
   // ── Call Claude ──────────────────────────────────────────────────────────
+  // maxTokens is generous (16000, not the previous 4000) because Claude
+  // Sonnet 5 runs adaptive thinking by default even when `thinking` is
+  // omitted — unlike older Sonnet models, where no `thinking` param meant
+  // no thinking at all. Those thinking tokens count against max_tokens, so
+  // a low cap could be exhausted before any JSON text is emitted, which is
+  // exactly what "AI did not return structured data" meant: the response
+  // hit stop_reason "max_tokens" with an empty/truncated text block.
+  // Pinning `effort: 'low'` keeps this extraction task (not open-ended
+  // reasoning) from spending more of that budget on thinking than it needs.
   let claudeData: any
   try {
     claudeData = await callClaude({
-      apiKey, model: 'claude-sonnet-5', maxTokens: 4000, messages, extraHeaders,
+      apiKey, model: 'claude-sonnet-5', maxTokens: 16000, messages,
+      thinking: { type: 'adaptive' }, effort: 'low',
     })
   } catch (err) {
     return respond({ error: err instanceof Error ? err.message : 'Claude API call failed' }, 502)
@@ -129,8 +139,11 @@ serve(async (req: Request) => {
 
   const jsonStr = extractJsonObject(rawText)
   if (!jsonStr) {
-    console.error('[analyze-tor] no balanced JSON object found', rawText.slice(0, 1000))
-    return respond({ error: 'AI did not return structured data — try a different file' }, 500)
+    console.error('[analyze-tor] no balanced JSON object found — stop_reason:', claudeData.stop_reason, 'text:', rawText.slice(0, 1000))
+    const truncated = claudeData.stop_reason === 'max_tokens'
+    return respond({ error: truncated
+      ? 'AI response was truncated before it finished — the document may be too long or complex. Try again, or split it into a shorter excerpt.'
+      : 'AI did not return structured data — try a different file' }, 500)
   }
 
   let extracted: Record<string, unknown>
