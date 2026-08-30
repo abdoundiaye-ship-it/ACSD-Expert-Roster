@@ -117,11 +117,19 @@ Donors: ${donors.join(', ')}
 
 Return ONLY the JSON object.`
 
-  const data = await callClaude({ apiKey, model: 'claude-sonnet-5', maxTokens: 1000, messages: [{ role: 'user', content: prompt }] })
+  // thinking/effort pinned explicitly and maxTokens raised (was 1000) —
+  // claude-sonnet-5 runs adaptive thinking by default when `thinking` is
+  // omitted, and those tokens count against max_tokens; see analyze-tor
+  // for the full diagnosis of the truncation this caused.
+  const data = await callClaude({
+    apiKey, model: 'claude-sonnet-5', maxTokens: 3000,
+    thinking: { type: 'adaptive' }, effort: 'low',
+    messages: [{ role: 'user', content: prompt }],
+  })
   const rawText = extractText(data.content)
   const jsonStr = extractJsonObject(rawText)
   if (!jsonStr) {
-    console.error('[ask-acsd-intelligence] no balanced JSON object found', rawText.slice(0, 1000))
+    console.error('[ask-acsd-intelligence] no balanced JSON object found — stop_reason:', data.stop_reason, rawText.slice(0, 1000))
     throw new Error('AI did not return structured data — try rephrasing the question')
   }
   try {

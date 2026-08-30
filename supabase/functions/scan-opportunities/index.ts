@@ -802,15 +802,20 @@ Return ONLY the JSON object.`
   // slow/failed notice should be skipped (see the per-notice try/catch at
   // each call site) rather than let one call eat the default 60s budget
   // and stall the whole scan.
+  // thinking/effort pinned explicitly and maxTokens raised (was 1200) —
+  // claude-sonnet-5 runs adaptive thinking by default when `thinking` is
+  // omitted, and those tokens count against max_tokens; see analyze-tor
+  // for the full diagnosis of the truncation this caused.
   const data = await callClaude({
-    apiKey, model: 'claude-sonnet-5', maxTokens: 1200,
+    apiKey, model: 'claude-sonnet-5', maxTokens: 4000,
+    thinking: { type: 'adaptive' }, effort: 'low',
     messages: [{ role: 'user', content: prompt }],
     timeoutMs: 25_000, retries: 1,
   })
   const rawText = extractText(data.content)
   const jsonStr = extractJsonObject(rawText)
   if (!jsonStr) {
-    console.error('[scan-opportunities] no balanced JSON object found', rawText.slice(0, 1000))
+    console.error('[scan-opportunities] no balanced JSON object found — stop_reason:', data.stop_reason, rawText.slice(0, 1000))
     throw new Error('No JSON in Claude response')
   }
 

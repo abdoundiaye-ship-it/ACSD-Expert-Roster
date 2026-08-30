@@ -306,9 +306,17 @@ ${JSON.stringify(profile, null, 2)}
 
 Return format: { "<expert_id>": "justification text", ... }`
 
+  // thinking/effort pinned explicitly and maxTokens raised (was 2000) —
+  // claude-sonnet-5 runs adaptive thinking by default when `thinking` is
+  // omitted, and those tokens count against max_tokens; see analyze-tor
+  // for the full diagnosis of the truncation this caused.
   let data: any
   try {
-    data = await callClaude({ apiKey, model: 'claude-sonnet-5', maxTokens: 2000, messages: [{ role: 'user', content: prompt }] })
+    data = await callClaude({
+      apiKey, model: 'claude-sonnet-5', maxTokens: 6000,
+      thinking: { type: 'adaptive' }, effort: 'low',
+      messages: [{ role: 'user', content: prompt }],
+    })
   } catch (err) {
     console.error('[getJustifications] Claude API call failed', err instanceof Error ? err.message : err)
     return {}
@@ -317,7 +325,7 @@ Return format: { "<expert_id>": "justification text", ... }`
   const rawText: string = extractText(data.content)
   const jsonStr = extractJsonObject(rawText)
   if (!jsonStr) {
-    console.error('[getJustifications] no JSON object found in Claude response', rawText.slice(0, 500))
+    console.error('[getJustifications] no JSON object found in Claude response — stop_reason:', data.stop_reason, rawText.slice(0, 500))
     return {}
   }
   try {

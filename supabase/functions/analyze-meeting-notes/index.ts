@@ -30,10 +30,15 @@ serve(async (req: Request) => {
 
   const prompt = buildPrompt(rawNotes)
 
+  // thinking/effort pinned explicitly and maxTokens raised (was 1500) —
+  // claude-sonnet-5 runs adaptive thinking by default when `thinking` is
+  // omitted, and those tokens count against max_tokens; see analyze-tor
+  // for the full diagnosis of the truncation this caused.
   let claudeData: any
   try {
     claudeData = await callClaude({
-      apiKey, model: 'claude-sonnet-5', maxTokens: 1500,
+      apiKey, model: 'claude-sonnet-5', maxTokens: 6000,
+      thinking: { type: 'adaptive' }, effort: 'low',
       messages: [{ role: 'user', content: prompt }],
     })
   } catch (err) {
@@ -43,8 +48,10 @@ serve(async (req: Request) => {
   const rawText = extractText(claudeData.content)
   const jsonStr = extractJsonObject(rawText)
   if (!jsonStr) {
-    console.error('[analyze-meeting-notes] no balanced JSON object found', rawText.slice(0, 1000))
-    return respond({ error: 'AI did not return structured data — try again' }, 500)
+    console.error('[analyze-meeting-notes] no balanced JSON object found — stop_reason:', claudeData.stop_reason, rawText.slice(0, 1000))
+    return respond({ error: claudeData.stop_reason === 'max_tokens'
+      ? 'AI response was truncated before it finished — try shorter notes'
+      : 'AI did not return structured data — try again' }, 500)
   }
 
   let parsed: { summary?: string; decisions?: unknown; action_items?: unknown }

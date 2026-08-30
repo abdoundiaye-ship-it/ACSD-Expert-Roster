@@ -73,9 +73,15 @@ async function digestPdf(apiKey: string, bytes: Uint8Array): Promise<{ suggested
 
 Return ONLY the JSON object.`
 
+  // No beta header needed for base64 PDF document blocks on current models.
+  // maxTokens is generous (8000, not the previous 3000) and thinking/effort
+  // are pinned explicitly because claude-sonnet-5 runs adaptive thinking by
+  // default when `thinking` is omitted — those tokens count against
+  // max_tokens, so a low cap risked stop_reason "max_tokens" with no JSON
+  // ever written (see analyze-tor for the full diagnosis of this pattern).
   const data = await callClaude({
-    apiKey, model: 'claude-sonnet-5', maxTokens: 3000,
-    extraHeaders: { 'anthropic-beta': 'pdfs-2024-09-25' },
+    apiKey, model: 'claude-sonnet-5', maxTokens: 8000,
+    thinking: { type: 'adaptive' }, effort: 'low',
     messages: [{
       role: 'user',
       content: [
@@ -88,8 +94,10 @@ Return ONLY the JSON object.`
   const rawText = extractText(data.content)
   const jsonStr = extractJsonObject(rawText)
   if (!jsonStr) {
-    console.error('[analyze-kb-document] no balanced JSON object found', rawText.slice(0, 1000))
-    throw new Error('AI did not return structured data — try a different file')
+    console.error('[analyze-kb-document] no balanced JSON object found — stop_reason:', data.stop_reason, rawText.slice(0, 1000))
+    throw new Error(data.stop_reason === 'max_tokens'
+      ? 'AI response was truncated before it finished — try a shorter document'
+      : 'AI did not return structured data — try a different file')
   }
 
   let parsed: any
