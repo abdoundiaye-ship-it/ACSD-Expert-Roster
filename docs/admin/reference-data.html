@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACSD Expert Intelligence Platform — Reference Data</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>body { font-family: system-ui, -apple-system, sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-blue-950 text-white shadow sticky top-0 z-30">
+    <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap">
+      <div class="flex items-center gap-2.5">
+        <button type="button" class="mobile-nav-toggle" onclick="toggleMobileNav()" aria-label="Open menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+        <img src="../img/logo.png" alt="ACSD Logo" class="h-9 w-auto flex-shrink-0">
+        <span class="font-bold text-sm tracking-tight">ACSD Expert Intelligence Platform</span>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0 header-actions">
+        <span id="admin-user-email" class="text-xs text-blue-300 hidden sm:block"></span>
+        <button id="admin-logout-btn"
+          class="text-xs bg-blue-900 hover:bg-blue-800 px-3 py-1.5 rounded-lg transition-colors">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-screen-xl mx-auto px-4 py-6 flex gap-6">
+    <div id="admin-sidebar-backdrop" class="admin-sidebar-backdrop" onclick="closeMobileNav()"></div>
+    <aside class="w-48 flex-shrink-0 admin-sidebar" id="admin-sidebar">
+      <button type="button" class="mobile-nav-close" onclick="closeMobileNav()" aria-label="Close menu">&times;</button>
+      <nav id="admin-nav" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 space-y-0.5 sticky top-20"></nav>
+    </aside>
+
+    <main class="flex-1 min-w-0 space-y-5">
+
+      <div>
+        <h2 class="text-lg font-bold text-gray-900" data-i18n="rd_title">Reference Data</h2>
+        <p class="text-sm text-gray-500 mt-0.5" data-i18n="rd_subtitle">Manage the shared vocabulary used to tag experts and opportunities — sectors, languages, geographies, donors, activity types, and work-order role types.</p>
+      </div>
+
+      <div class="flex gap-1.5 overflow-x-auto pb-1" id="rd-tabs"></div>
+
+      <div class="flex items-center justify-between gap-4">
+        <div id="rd-count" class="text-sm text-gray-500 font-medium"></div>
+        <button onclick="openItemModal()"
+          class="bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0" data-i18n="rd_add_btn">
+          + Add
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide" id="rd-thead"></tr>
+          </thead>
+          <tbody id="rd-tbody" class="divide-y divide-gray-100">
+            <tr><td colspan="4" class="px-5 py-6 text-center text-xs text-gray-400" data-i18n="loading">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Add/Edit modal -->
+  <div id="item-modal" class="hidden admin-modal fixed inset-0 z-50 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAdminModal('item-modal')"></div>
+    <div class="relative flex items-start justify-center min-h-full px-4 py-10">
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+
+        <h3 id="im-title-heading" class="font-bold text-gray-900 text-base mb-4" data-i18n="rd_modal_add_title">Add Item</h3>
+        <input type="hidden" id="im-id">
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="cl_col_name" for="im-name">Name</label>
+            <input id="im-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" data-i18n-placeholder="rd_name_placeholder" placeholder="Name">
+          </div>
+          <div id="im-extra-fields" class="space-y-3"></div>
+        </div>
+
+        <div class="flex gap-3 mt-5">
+          <button onclick="saveItem()" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm" data-i18n="btn_save">Save</button>
+          <button onclick="closeAdminModal('item-modal')" class="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 rounded-lg text-sm" data-i18n="btn_cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    // Each "kind" is one of the 7 controlled-vocabulary tables. `extra`
+    // describes any columns beyond id/name — the modal and table render
+    // themselves generically from this, so adding an 8th lookup table later
+    // is a config entry, not a new page.
+    const KINDS = {
+      sectors:          { table: 'sectors',          idCol: 'id', nameCol: 'name',         orderBy: 'sort_order',
+        extra: [{ key: 'sort_order', type: 'number', labelKey: 'rd_col_sort_order', required: true }] },
+      languages:        { table: 'languages',        idCol: 'id', nameCol: 'name',         orderBy: 'name', extra: [] },
+      geographies:      { table: 'geographies',      idCol: 'id', nameCol: 'country_name', orderBy: 'country_name',
+        extra: [{ key: 'region', type: 'text', labelKey: 'rd_col_region', required: false }] },
+      donor_categories: { table: 'donor_categories', idCol: 'id', nameCol: 'name',         orderBy: 'name', extra: [] },
+      donors:           { table: 'donors',           idCol: 'id', nameCol: 'name',         orderBy: 'name',
+        extra: [{ key: 'category_id', type: 'select', labelKey: 'rd_col_category', required: true, optionsFrom: 'donor_categories' }] },
+      activity_types:   { table: 'activity_types',   idCol: 'id', nameCol: 'name',         orderBy: 'name', extra: [] },
+      work_order_roles: { table: 'work_order_roles', idCol: 'id', nameCol: 'name',         orderBy: 'name',
+        extra: [{ key: 'indicative_days', type: 'text', labelKey: 'rd_col_indicative_days', required: false }] },
+    }
+    const TAB_ORDER = ['sectors', 'languages', 'geographies', 'donor_categories', 'donors', 'activity_types', 'work_order_roles']
+
+    let activeKind = 'sectors'
+    let rows = []
+    let donorCategoryOptions = []   // cached for donors' category select + display lookup
+
+    async function loadReferenceData() {
+      const session = await initAdmin('reference-data')
+      if (!session) return
+      renderTabs()
+      await loadDonorCategoryOptions()
+      await loadRows()
+    }
+
+    async function loadDonorCategoryOptions() {
+      const { data } = await sb.from('donor_categories').select('id, name').order('name')
+      donorCategoryOptions = data ?? []
+    }
+
+    function renderTabs() {
+      document.getElementById('rd-tabs').innerHTML = TAB_ORDER.map(k => `
+        <button onclick="switchTab('${k}')"
+          class="px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors border
+            ${k === activeKind ? 'bg-blue-900 text-white border-blue-900' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}">
+          ${aesc(t('rd_tab_' + k))}
+        </button>`).join('')
+    }
+
+    async function switchTab(kind) {
+      activeKind = kind
+      renderTabs()
+      await loadRows()
+    }
+
+    async function loadRows() {
+      const kind = KINDS[activeKind]
+      document.getElementById('rd-tbody').innerHTML = `<tr><td colspan="4" class="px-5 py-6 text-center text-xs text-gray-400">${t('loading')}</td></tr>`
+
+      let query = sb.from(kind.table).select('*')
+      if (activeKind === 'donors') query = sb.from(kind.table).select('*, donor_categories(name)')
+      const { data, error } = await query.order(kind.orderBy)
+      if (error) { showToast(t('rd_load_failed_prefix') + error.message, 'error'); return }
+      rows = data ?? []
+      renderTable()
+    }
+
+    function renderTable() {
+      const kind = KINDS[activeKind]
+      document.getElementById('rd-count').textContent = t('rd_count', rows.length)
+
+      const thead = document.getElementById('rd-thead')
+      thead.innerHTML = `
+        <th class="text-left px-5 py-3">${aesc(t('cl_col_name'))}</th>
+        ${kind.extra.map(f => `<th class="text-left px-5 py-3">${aesc(t(f.labelKey))}</th>`).join('')}
+        <th class="text-right px-5 py-3">${aesc(t('wh_col_actions'))}</th>`
+
+      const tbody = document.getElementById('rd-tbody')
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${2 + kind.extra.length}" class="px-5 py-6 text-center text-xs text-gray-400">${t('rd_no_items')}</td></tr>`
+        return
+      }
+      tbody.innerHTML = rows.map(r => `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-5 py-3 font-medium text-gray-900">${aesc(r[kind.nameCol])}</td>
+          ${kind.extra.map(f => `<td class="px-5 py-3 text-xs text-gray-500">${aesc(extraDisplay(r, f))}</td>`).join('')}
+          <td class="px-5 py-3 text-right">
+            <div class="flex items-center justify-end gap-3">
+              <button onclick='openItemModal(${JSON.stringify(r).replace(/'/g, "&apos;")})' class="text-xs text-blue-600 hover:text-blue-800 font-medium">${t('btn_edit')}</button>
+              <button onclick="deleteItem(${r[kind.idCol]}, '${aesc(String(r[kind.nameCol])).replace(/'/g, "\\'")}')" class="text-xs text-red-500 hover:text-red-700 font-medium">${t('btn_delete')}</button>
+            </div>
+          </td>
+        </tr>`).join('')
+    }
+
+    function extraDisplay(row, field) {
+      if (field.key === 'category_id') return row.donor_categories?.name ?? '—'
+      return row[field.key] ?? '—'
+    }
+
+    function openItemModal(row = null) {
+      const kind = KINDS[activeKind]
+      document.getElementById('im-title-heading').textContent = row ? t('rd_modal_edit_title') : t('rd_modal_add_title')
+      document.getElementById('im-id').value = row ? row[kind.idCol] : ''
+      document.getElementById('im-name').value = row ? row[kind.nameCol] : ''
+
+      const extraWrap = document.getElementById('im-extra-fields')
+      extraWrap.innerHTML = kind.extra.map(f => {
+        const val = row ? row[f.key] : ''
+        if (f.type === 'select' && f.optionsFrom === 'donor_categories') {
+          const opts = donorCategoryOptions.map(o => `<option value="${o.id}" ${row && row.category_id === o.id ? 'selected' : ''}>${aesc(o.name)}</option>`).join('')
+          return `<div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">${aesc(t(f.labelKey))}${f.required ? '' : ''}</label>
+            <select id="im-field-${f.key}" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <option value="">${aesc(t('opt_none_dash'))}</option>${opts}
+            </select>
+          </div>`
+        }
+        const defaultVal = f.key === 'sort_order' && !row ? (Math.max(0, ...rows.map(r => r.sort_order ?? 0)) + 1) : val
+        return `<div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">${aesc(t(f.labelKey))}</label>
+          <input id="im-field-${f.key}" type="${f.type === 'number' ? 'number' : 'text'}"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value="${aesc(String(defaultVal ?? ''))}">
+        </div>`
+      }).join('')
+
+      openAdminModal('item-modal')
+    }
+
+    async function saveItem() {
+      const kind = KINDS[activeKind]
+      const id = document.getElementById('im-id').value
+      const name = document.getElementById('im-name').value.trim()
+      if (!name) { showToast(t('rd_name_required'), 'error'); return }
+
+      const body = { [kind.nameCol]: name }
+      for (const f of kind.extra) {
+        const el = document.getElementById('im-field-' + f.key)
+        const raw = el.value.trim()
+        if (f.required && !raw) { showToast(t('rd_name_required'), 'error'); return }
+        body[f.key] = raw === '' ? null : (f.type === 'number' || f.type === 'select' ? Number(raw) : raw)
+      }
+
+      const { error } = id
+        ? await sb.from(kind.table).update(body).eq(kind.idCol, id)
+        : await sb.from(kind.table).insert(body)
+      if (error) {
+        showToast(error.code === '23505' ? t('rd_duplicate_error') : t('save_failed_prefix') + error.message, 'error')
+        return
+      }
+
+      await logAudit(id ? 'UPDATE' : 'CREATE', activeKind, id || name, name, null, body)
+      closeAdminModal('item-modal')
+      showToast(t('rd_saved'))
+      await loadRows()
+      if (activeKind === 'donor_categories') await loadDonorCategoryOptions()
+    }
+
+    async function deleteItem(id, name) {
+      if (!confirm(t('rd_confirm_delete', name))) return
+      const kind = KINDS[activeKind]
+      const { error } = await sb.from(kind.table).delete().eq(kind.idCol, id)
+      if (error) {
+        // 23503 = FK violation — Postgres itself is the source of truth for
+        // "still in use", across every table that references this row (not
+        // just the expert_* junctions), so this catch is the one place that
+        // needs to know about that rather than a hand-maintained usage count.
+        showToast(error.code === '23503' ? t('rd_in_use_error', name) : t('delete_failed_prefix') + error.message, 'error')
+        return
+      }
+      await logAudit('DELETE', activeKind, id, name, { name }, null)
+      showToast(t('rd_deleted'))
+      await loadRows()
+    }
+
+    document.addEventListener('acsd:langchange', () => { renderTabs(); if (rows.length || document.getElementById('rd-count').textContent) renderTable() })
+
+    loadReferenceData()
+  </script>
+</body>
+</html>

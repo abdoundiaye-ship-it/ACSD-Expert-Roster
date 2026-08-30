@@ -67,6 +67,7 @@ const NAV_ICONS = {
   webhooks:           '<path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/>',
   audit:              '<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5L20 20"/>',
   'back-to-roster':   '<path d="M11 4l-7 8 7 8M4 12h16"/>',
+  'reference-data':   '<path d="M4 5a1 1 0 011-1h5l2 2h7a1 1 0 011 1v3H4V5z"/><path d="M4 10h16v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9z"/><path d="M9 14h6"/>',
 }
 
 function _navIcon(id) {
@@ -121,6 +122,7 @@ function renderAdminNav(active) {
       { id: 'contracts', href: 'contracts.html', label: t('nav_contracts') },
     ] },
     { key: 'admin', label: t('nav_group_admin'), collapsible: true, items: [
+      { id: 'reference-data', href: 'reference-data.html', label: t('nav_reference_data') },
       { id: 'users',    href: 'users.html',    label: t('nav_users') },
       { id: 'roles',    href: 'roles.html',    label: t('nav_roles') },
       { id: 'webhooks', href: 'webhooks.html', label: t('nav_webhooks') },
