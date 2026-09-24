@@ -126,6 +126,13 @@
                 <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_reference" for="ov-reference">Reference / Solicitation Number</label>
                 <input id="ov-reference" placeholder="e.g. RFP DDP-SEN-DKR-2026-05" data-i18n-placeholder="opp_reference_ph" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
               </div>
+              <div class="col-span-2">
+                <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="opp_lbl_source_url" for="ov-source-url">Source URL (original posting)</label>
+                <div class="flex gap-2">
+                  <input id="ov-source-url" type="url" placeholder="https://…" data-i18n-placeholder="opp_source_url_ph" oninput="updateSourceUrlOpenLink()" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <a id="ov-source-url-open" href="#" target="_blank" rel="noopener noreferrer" class="hidden flex-shrink-0 text-xs text-blue-600 hover:underline self-center whitespace-nowrap px-2" data-i18n="opp_source_url_open">Open ↗</a>
+                </div>
+              </div>
               <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1" data-i18n="oppdetail_lbl_organization" for="ov-organization">Organization</label>
                 <input id="ov-organization" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -656,10 +663,19 @@
       }
     }
 
+    function updateSourceUrlOpenLink() {
+      const url = document.getElementById('ov-source-url').value.trim()
+      const link = document.getElementById('ov-source-url-open')
+      link.href = url
+      link.classList.toggle('hidden', !url)
+    }
+
     function renderOverview() {
       renderBidNoBid()
       document.getElementById('ov-title').value = opportunity.title ?? ''
       document.getElementById('ov-reference').value = opportunity.reference_number ?? ''
+      document.getElementById('ov-source-url').value = opportunity.source_url ?? ''
+      updateSourceUrlOpenLink()
       document.getElementById('ov-organization').value = opportunity.organization ?? ''
       document.getElementById('ov-donor').value = opportunity.donor_id ?? ''
       document.getElementById('ov-client').value = opportunity.client_id ?? ''
@@ -725,6 +741,7 @@
       const body = {
         title, organization,
         reference_number: document.getElementById('ov-reference').value.trim() || null,
+        source_url: document.getElementById('ov-source-url').value.trim() || null,
         donor_id: document.getElementById('ov-donor').value || null,
         client_id: document.getElementById('ov-client').value || null,
         primary_country_id: document.getElementById('ov-country').value || null,

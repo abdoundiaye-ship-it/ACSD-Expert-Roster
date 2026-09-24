@@ -19,6 +19,40 @@ const TARGET_COUNTRIES: Record<string, string> = {
   GH: 'Ghana', BJ: 'Benin', GN: 'Guinea', CM: 'Cameroon', CI: "Cote d'Ivoire",
 }
 
+// ── Concurrency control ──────────────────────────────────────────────────────
+// A full scan can process up to 20 notices per source across several active
+// sources at once, scoring each one with a real Claude call (10-25s,
+// including a retry on transient failures). Doing that sequentially — one
+// notice, then the next — routinely pushed a full scan (especially with the
+// UI's default "select all sources") well past the Edge Runtime's
+// wall-clock limit, which kills the invocation mid-request; the client then
+// sees a dropped/non-JSON response, surfaced as a bare "Scan failed". This
+// gate is shared across every source scanned in one request (not one gate
+// per source) so wall-clock time stays roughly flat as sources/notices grow,
+// while still capping how many Claude calls are in flight at once.
+class Semaphore {
+  private queue: Array<() => void> = []
+  private active = 0
+  constructor(private readonly limit: number) {}
+
+  async run<T>(fn: () => Promise<T>): Promise<T> {
+    if (this.active >= this.limit) {
+      await new Promise<void>(resolve => this.queue.push(resolve))
+    }
+    this.active++
+    try {
+      return await fn()
+    } finally {
+      this.active--
+      this.queue.shift()?.()
+    }
+  }
+}
+
+async function mapConcurrent<T, R>(items: T[], gate: Semaphore, fn: (item: T) => Promise<R>): Promise<R[]> {
+  return Promise.all(items.map(item => gate.run(() => fn(item))))
+}
+
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS })
   if (req.method !== 'POST')    return respond({ error: 'Method Not Allowed' }, 405)
@@ -64,38 +98,46 @@ serve(async (req: Request) => {
     if (sources.length === 0) return respond({ error: 'Source(s) not found' }, 404)
   }
 
-  const totals = { new_count: 0, go: 0, a_etudier: 0, veille: 0, rejet: 0 }
-  const results: Array<{ source_id: string; source_name: string; status: 'ok' | 'skipped' | 'error'; message?: string; new_count?: number }> = []
+  // Sources run concurrently rather than one after another — see the
+  // Semaphore comment above for why. `scoreGate` still bounds how many
+  // Claude scoring calls are in flight at once across all of them.
+  const scoreGate = new Semaphore(6)
+  type SourceResult = { source_id: string; source_name: string; status: 'ok' | 'skipped' | 'error'; message?: string; new_count?: number }
+  type SourceSummary = { new_count: number; go: number; a_etudier: number; veille: number; rejet: number }
 
-  for (const source of sources) {
+  const outcomes = await Promise.all(sources.map(async (source): Promise<{ result: SourceResult; summary: SourceSummary | null }> => {
     if (source.access_method !== 'api' && source.access_method !== 'rss') {
-      results.push({ source_id: source.id, source_name: source.name, status: 'skipped', message: `not automatable (access_method=${source.access_method}) — use the paste-intake flow` })
-      continue
+      return { result: { source_id: source.id, source_name: source.name, status: 'skipped', message: `not automatable (access_method=${source.access_method}) — use the paste-intake flow` }, summary: null }
     }
     try {
-      let summary: { new_count: number; go: number; a_etudier: number; veille: number; rejet: number }
+      let summary: SourceSummary
       if (source.access_method === 'rss') {
         // Generic — works for any source tagged rss, unlike the api branch
         // below which needs a hand-written adapter per named source.
-        summary = await scanRssSource(adminClient, apiKey, source)
+        summary = await scanRssSource(adminClient, apiKey, source, scoreGate)
       } else {
         const adapter = SOURCE_ADAPTERS[source.name]
         if (!adapter) {
-          results.push({ source_id: source.id, source_name: source.name, status: 'skipped', message: 'no automated adapter implemented yet' })
-          continue
+          return { result: { source_id: source.id, source_name: source.name, status: 'skipped', message: 'no automated adapter implemented yet' }, summary: null }
         }
-        summary = await adapter(adminClient, apiKey)
+        summary = await adapter(adminClient, apiKey, scoreGate)
       }
-      totals.new_count += summary.new_count
-      totals.go += summary.go
-      totals.a_etudier += summary.a_etudier
-      totals.veille += summary.veille
-      totals.rejet += summary.rejet
-      results.push({ source_id: source.id, source_name: source.name, status: 'ok', new_count: summary.new_count })
+      return { result: { source_id: source.id, source_name: source.name, status: 'ok', new_count: summary.new_count }, summary }
     } catch (err) {
-      results.push({ source_id: source.id, source_name: source.name, status: 'error', message: err instanceof Error ? err.message : 'Scan failed' })
+      return { result: { source_id: source.id, source_name: source.name, status: 'error', message: err instanceof Error ? err.message : 'Scan failed' }, summary: null }
     }
+  }))
+
+  const totals = { new_count: 0, go: 0, a_etudier: 0, veille: 0, rejet: 0 }
+  for (const o of outcomes) {
+    if (!o.summary) continue
+    totals.new_count += o.summary.new_count
+    totals.go += o.summary.go
+    totals.a_etudier += o.summary.a_etudier
+    totals.veille += o.summary.veille
+    totals.rejet += o.summary.rejet
   }
+  const results = outcomes.map(o => o.result)
 
   await logScanRun(adminClient, triggeredBy, triggeredByUserId, { ...totals, results }, null)
   if (totals.new_count > 0) {
@@ -176,7 +218,7 @@ async function logScanRun(
 // RSS/Atom is a standard enough format that one parser covers any feed.
 // Adding a new *API* source is a new entry here (plus its own scanX
 // function), not a new branch in the dispatch loop above.
-const SOURCE_ADAPTERS: Record<string, (adminClient: any, apiKey: string) => Promise<{
+const SOURCE_ADAPTERS: Record<string, (adminClient: any, apiKey: string, gate: Semaphore) => Promise<{
   new_count: number; go: number; a_etudier: number; veille: number; rejet: number
 }>> = {
   'World Bank Procurement Notices': scanWorldBank,
@@ -199,28 +241,29 @@ interface WbNotice {
   notice_text?: string
 }
 
-async function scanWorldBank(adminClient: any, apiKey: string) {
+async function scanWorldBank(adminClient: any, apiKey: string, gate: Semaphore) {
   // 1. Fetch candidate notices, one qterm (free-text) request per target
   //    country name — see comment on TARGET_COUNTRIES above for why qterm
   //    is used instead of the documented-but-broken exact-match params.
-  const allNotices: WbNotice[] = []
-  for (const countryName of Object.values(TARGET_COUNTRIES)) {
+  //    Run all 10 country requests in parallel — sequentially they added
+  //    up to a large chunk of a scan's wall-clock time on their own.
+  const perCountry = await Promise.all(Object.values(TARGET_COUNTRIES).map(async (countryName): Promise<WbNotice[]> => {
     const url = `https://search.worldbank.org/api/procnotices?format=json&rows=25&qterm=${encodeURIComponent(countryName)}`
     try {
       const res = await fetchWithTimeout(url, { timeoutMs: 15_000 })
-      if (!res.ok) { console.error(`[scan-opportunities] World Bank fetch failed for ${countryName}: HTTP ${res.status}`); continue }
+      if (!res.ok) { console.error(`[scan-opportunities] World Bank fetch failed for ${countryName}: HTTP ${res.status}`); return [] }
       const json = await res.json()
-      const notices: WbNotice[] = (json.procnotices ?? [])
-        // qterm is free-text search, not an exact filter — re-check the
-        // actual country field rather than trusting relevance ranking.
-        .filter((n: WbNotice) => n.project_ctry_name === countryName)
-      allNotices.push(...notices)
+      // qterm is free-text search, not an exact filter — re-check the
+      // actual country field rather than trusting relevance ranking.
+      return (json.procnotices ?? []).filter((n: WbNotice) => n.project_ctry_name === countryName)
     } catch (err) {
       // one country failing shouldn't abort the whole scan — the other 9
       // still run — but log it so a real, ongoing failure isn't invisible.
       console.error(`[scan-opportunities] World Bank fetch errored for ${countryName}:`, err instanceof Error ? err.message : err)
+      return []
     }
-  }
+  }))
+  const allNotices: WbNotice[] = perCountry.flat()
 
   // 2. Keep only Published notices that actually carry a submission
   //    deadline and haven't already passed it — this naturally excludes
@@ -249,15 +292,17 @@ async function scanWorldBank(adminClient: any, apiKey: string) {
   const counts = { go: 0, a_etudier: 0, veille: 0, rejet: 0 }
   let newCount = 0
 
-  for (const notice of newNotices) {
+  // Scored concurrently (bounded by the shared gate) instead of one notice
+  // at a time — see the Semaphore comment near the top of this file.
+  await mapConcurrent(newNotices, gate, async (notice) => {
     const noticeText = [notice.project_name, notice.bid_description, notice.notice_text].filter(Boolean).join('\n\n')
-    if (!noticeText.trim()) continue
+    if (!noticeText.trim()) return
 
     let scored: { strategic_score: number; strategic_score_breakdown: Record<string, number>; strategic_score_confidence: string; strategic_score_rationale: string; summary: string }
     try {
       scored = await scoreNoticeText(apiKey, acsdProfile, noticeText)
     } catch (_) {
-      continue // skip notices Claude fails to score rather than failing the whole scan
+      return // skip notices Claude fails to score rather than failing the whole scan
     }
 
     const status = scored.strategic_score < 50 ? 'archived' : 'open'
@@ -274,6 +319,10 @@ async function scanWorldBank(adminClient: any, apiKey: string) {
       opportunity_type: opportunityType,
       deadline: notice.submission_deadline_date!.slice(0, 10),
       summary: scored.summary || notice.bid_description || null,
+      // World Bank's own notice detail page — confirmed live (2026-09) to
+      // resolve at this path keyed by the notice's own `id` (distinct from
+      // bid_reference_no, which isn't a valid URL key on its own).
+      source_url: `https://projects.worldbank.org/en/projects-operations/procurement-detail/${notice.id}?lang=en`,
       source: 'api_scan',
       status,
       strategic_score: scored.strategic_score,
@@ -281,14 +330,14 @@ async function scanWorldBank(adminClient: any, apiKey: string) {
       strategic_score_confidence: scored.strategic_score_confidence,
       strategic_score_rationale: scored.strategic_score_rationale,
     })
-    if (insErr) continue
+    if (insErr) return
 
     newCount++
     if (scored.strategic_score >= 85) counts.go++
     else if (scored.strategic_score >= 70) counts.a_etudier++
     else if (scored.strategic_score >= 50) counts.veille++
     else counts.rejet++
-  }
+  })
 
   return { new_count: newCount, ...counts }
 }
@@ -325,7 +374,7 @@ function tedPickLang(obj?: Record<string, string> | Record<string, string[]>): s
   return val ?? ''
 }
 
-async function scanTed(adminClient: any, apiKey: string) {
+async function scanTed(adminClient: any, apiKey: string, gate: Semaphore) {
   // 1. Fetch candidate notices in target countries, recent first.
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - 60)
@@ -375,17 +424,19 @@ async function scanTed(adminClient: any, apiKey: string) {
   const counts = { go: 0, a_etudier: 0, veille: 0, rejet: 0 }
   let newCount = 0
 
-  for (const notice of newNotices) {
+  // Scored concurrently (bounded by the shared gate) instead of one notice
+  // at a time — see the Semaphore comment near the top of this file.
+  await mapConcurrent(newNotices, gate, async (notice) => {
     const title = tedPickLang(notice['notice-title'])
     const description = tedPickLang(notice['description-proc'])
     const noticeText = [title, description].filter(Boolean).join('\n\n')
-    if (!noticeText.trim()) continue
+    if (!noticeText.trim()) return
 
     let scored: { strategic_score: number; strategic_score_breakdown: Record<string, number>; strategic_score_confidence: string; strategic_score_rationale: string; summary: string }
     try {
       scored = await scoreNoticeText(apiKey, acsdProfile, noticeText)
     } catch (_) {
-      continue // skip notices Claude fails to score rather than failing the whole scan
+      return // skip notices Claude fails to score rather than failing the whole scan
     }
 
     const status = scored.strategic_score < 50 ? 'archived' : 'open'
@@ -413,6 +464,11 @@ async function scanTed(adminClient: any, apiKey: string) {
       opportunity_type: 'RFP',
       deadline: deadlineRaw ? deadlineRaw.slice(0, 10) : null,
       summary: scored.summary || description || null,
+      // TED's own API response carries this exact path under
+      // `links.html.ENG` per publication-number — deterministic enough
+      // (confirmed live 2026-09) to build directly rather than requesting
+      // the full multi-language `links` object for every notice.
+      source_url: `https://ted.europa.eu/en/notice/-/detail/${notice['publication-number']}`,
       source: 'api_scan',
       status,
       strategic_score: scored.strategic_score,
@@ -420,14 +476,14 @@ async function scanTed(adminClient: any, apiKey: string) {
       strategic_score_confidence: scored.strategic_score_confidence,
       strategic_score_rationale: scored.strategic_score_rationale,
     })
-    if (insErr) continue
+    if (insErr) return
 
     newCount++
     if (scored.strategic_score >= 85) counts.go++
     else if (scored.strategic_score >= 70) counts.a_etudier++
     else if (scored.strategic_score >= 50) counts.veille++
     else counts.rejet++
-  }
+  })
 
   return { new_count: newCount, ...counts }
 }
@@ -506,7 +562,7 @@ function extractUndpDescription(html: string): string {
   return stripHtml(introIdx !== -1 ? block.slice(introIdx) : block).slice(0, 3000)
 }
 
-async function scanUndp(adminClient: any, apiKey: string) {
+async function scanUndp(adminClient: any, apiKey: string, gate: Semaphore) {
   const res = await fetchWithTimeout('https://procurement-notices.undp.org/', { timeoutMs: 20_000 })
   if (!res.ok) throw new Error(`UNDP procurement page returned HTTP ${res.status}`)
   const html = await res.text()
@@ -547,28 +603,31 @@ async function scanUndp(adminClient: any, apiKey: string) {
   const counts = { go: 0, a_etudier: 0, veille: 0, rejet: 0 }
   let newCount = 0
 
-  for (const notice of newNotices) {
+  // Detail-page fetch + scoring runs concurrently across notices (bounded
+  // by the shared gate) instead of one notice fully finishing before the
+  // next starts — see the Semaphore comment near the top of this file.
+  await mapConcurrent(newNotices, gate, async (notice) => {
     // The listing page only gives a title + a generic process label (e.g.
     // "IC - Individual contractor") — too thin on its own to judge genuine
     // thematic fit, and confirmed live to under-represent notices that read
     // as real management/governance consulting work by title alone. Fetch
     // the notice's own detail page for its actual description before
     // scoring, the same substance level WB/TED's own APIs already provide.
+    const detailUrl = `https://procurement-notices.undp.org/view_negotiation.cfm?nego_id=${notice.negoId}`
     let description = ''
     try {
-      const detailRes = await fetchWithTimeout(
-        `https://procurement-notices.undp.org/view_negotiation.cfm?nego_id=${notice.negoId}`, { timeoutMs: 10_000 })
+      const detailRes = await fetchWithTimeout(detailUrl, { timeoutMs: 10_000 })
       if (detailRes.ok) description = extractUndpDescription(await detailRes.text())
     } catch (_) { /* fall back to the thinner listing-page text below */ }
 
     const noticeText = [notice.title, notice.process, notice.officeCountry, description].filter(Boolean).join('\n\n')
-    if (!noticeText.trim()) continue
+    if (!noticeText.trim()) return
 
     let scored: { strategic_score: number; strategic_score_breakdown: Record<string, number>; strategic_score_confidence: string; strategic_score_rationale: string; summary: string }
     try {
       scored = await scoreNoticeText(apiKey, acsdProfile, noticeText)
     } catch (_) {
-      continue // skip notices Claude fails to score rather than failing the whole scan
+      return // skip notices Claude fails to score rather than failing the whole scan
     }
 
     const status = scored.strategic_score < 50 ? 'archived' : 'open'
@@ -590,6 +649,7 @@ async function scanUndp(adminClient: any, apiKey: string) {
       opportunity_type: opportunityType,
       deadline: notice.deadlineIso,
       summary: scored.summary || noticeText || null,
+      source_url: detailUrl,
       source: 'api_scan',
       status,
       strategic_score: scored.strategic_score,
@@ -597,14 +657,14 @@ async function scanUndp(adminClient: any, apiKey: string) {
       strategic_score_confidence: scored.strategic_score_confidence,
       strategic_score_rationale: scored.strategic_score_rationale,
     })
-    if (insErr) continue
+    if (insErr) return
 
     newCount++
     if (scored.strategic_score >= 85) counts.go++
     else if (scored.strategic_score >= 70) counts.a_etudier++
     else if (scored.strategic_score >= 50) counts.veille++
     else counts.rejet++
-  }
+  })
 
   return { new_count: newCount, ...counts }
 }
@@ -686,7 +746,7 @@ function stripHtml(s: string): string {
 }
 
 async function scanRssSource(
-  adminClient: any, apiKey: string, source: { id: string; name: string; portal_url: string | null },
+  adminClient: any, apiKey: string, source: { id: string; name: string; portal_url: string | null }, gate: Semaphore,
 ) {
   if (!source.portal_url) {
     throw new Error('No Portal URL configured for this source — set it to the feed\'s actual .xml/.rss URL in Intelligence Sources.')
@@ -716,16 +776,18 @@ async function scanRssSource(
   const counts = { go: 0, a_etudier: 0, veille: 0, rejet: 0 }
   let newCount = 0
 
-  for (const item of newItems) {
+  // Scored concurrently (bounded by the shared gate) instead of one item at
+  // a time — see the Semaphore comment near the top of this file.
+  await mapConcurrent(newItems, gate, async (item) => {
     const description = stripHtml(item.description)
     const noticeText = [item.title, description].filter(Boolean).join('\n\n')
-    if (!noticeText.trim()) continue
+    if (!noticeText.trim()) return
 
     let scored: { strategic_score: number; strategic_score_breakdown: Record<string, number>; strategic_score_confidence: string; strategic_score_rationale: string; summary: string }
     try {
       scored = await scoreNoticeText(apiKey, acsdProfile, noticeText)
     } catch (_) {
-      continue // skip items Claude fails to score rather than failing the whole scan
+      return // skip items Claude fails to score rather than failing the whole scan
     }
 
     const status = scored.strategic_score < 50 ? 'archived' : 'open'
@@ -740,6 +802,7 @@ async function scanRssSource(
       // text. Review the item and set it manually on the Overview tab.
       deadline: null,
       summary: scored.summary || description || null,
+      source_url: item.link || null,
       source: 'api_scan',
       status,
       strategic_score: scored.strategic_score,
@@ -747,14 +810,14 @@ async function scanRssSource(
       strategic_score_confidence: scored.strategic_score_confidence,
       strategic_score_rationale: scored.strategic_score_rationale,
     })
-    if (insErr) continue
+    if (insErr) return
 
     newCount++
     if (scored.strategic_score >= 85) counts.go++
     else if (scored.strategic_score >= 70) counts.a_etudier++
     else if (scored.strategic_score >= 50) counts.veille++
     else counts.rejet++
-  }
+  })
 
   return { new_count: newCount, ...counts }
 }
