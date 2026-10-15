@@ -199,21 +199,21 @@
       }
       tbody.innerHTML = allSources.map(s => `
         <tr class="hover:bg-gray-50 transition-colors">
-          <td class="px-5 py-3">
-            <p class="font-medium text-gray-900">${aesc(s.name)}</p>
-            ${s.portal_url ? `<a href="${aesc(s.portal_url)}" target="_blank" class="text-xs text-blue-500 hover:underline">${aesc(s.portal_url)}</a>` : ''}
+          <td class="px-5 py-3 max-w-xs">
+            <p class="font-medium text-gray-900 break-words">${aesc(s.name)}</p>
+            ${s.portal_url ? `<a href="${aesc(s.portal_url)}" target="_blank" class="text-xs text-blue-500 hover:underline break-all">${aesc(s.portal_url)}</a>` : ''}
           </td>
-          <td class="px-5 py-3">
+          <td class="px-5 py-3 whitespace-nowrap">
             <span class="text-xs font-medium px-2 py-0.5 rounded-full ${ACCESS_COLOR[s.access_method] ?? 'bg-gray-100 text-gray-600'}">${aesc(accessLabel(s.access_method))}</span>
           </td>
-          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell max-w-md">${aesc(s.notes ?? '')}</td>
-          <td class="px-5 py-3">
+          <td class="px-5 py-3 text-xs text-gray-500 hidden lg:table-cell max-w-sm break-words">${aesc(s.notes ?? '')}</td>
+          <td class="px-5 py-3 whitespace-nowrap">
             <button onclick="toggleSourceActive('${aesc(s.id)}', ${s.active})"
               class="text-xs font-medium ${s.active ? 'text-green-600 hover:text-green-800' : 'text-gray-400 hover:text-gray-600'}">
               ${s.active ? t('src_active_label') : t('src_inactive_label')}
             </button>
           </td>
-          <td class="px-5 py-3 text-right">
+          <td class="px-5 py-3 text-right whitespace-nowrap">
             <div class="flex items-center justify-end gap-3">
               <button onclick="openSourceModal(allSources.find(x=>x.id==='${aesc(s.id)}'))" class="text-xs text-blue-600 hover:text-blue-800 font-medium">${t('btn_edit')}</button>
               <button onclick="deleteSource('${aesc(s.id)}', '${aesc(s.name)}')" class="text-xs text-red-500 hover:text-red-700 font-medium">${t('btn_delete')}</button>
