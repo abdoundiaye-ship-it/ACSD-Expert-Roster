@@ -224,6 +224,7 @@ const SOURCE_ADAPTERS: Record<string, (adminClient: any, apiKey: string, gate: S
   'World Bank Procurement Notices': scanWorldBank,
   'Union européenne (TED / EuropeAid-FPI)': scanTed,
   'UNDP Procurement': scanUndp,
+  'Grants.gov': scanGrantsGov,
 }
 
 // ── World Bank adapter ───────────────────────────────────────────────────────
@@ -650,6 +651,117 @@ async function scanUndp(adminClient: any, apiKey: string, gate: Semaphore) {
       deadline: notice.deadlineIso,
       summary: scored.summary || noticeText || null,
       source_url: detailUrl,
+      source: 'api_scan',
+      status,
+      strategic_score: scored.strategic_score,
+      strategic_score_breakdown: scored.strategic_score_breakdown,
+      strategic_score_confidence: scored.strategic_score_confidence,
+      strategic_score_rationale: scored.strategic_score_rationale,
+    })
+    if (insErr) return
+
+    newCount++
+    if (scored.strategic_score >= 85) counts.go++
+    else if (scored.strategic_score >= 70) counts.a_etudier++
+    else if (scored.strategic_score >= 50) counts.veille++
+    else counts.rejet++
+  })
+
+  return { new_count: newCount, ...counts }
+}
+
+// ── Grants.gov adapter ───────────────────────────────────────────────────────
+// api.simpler.grants.gov (confirmed live 2026-10) requires a free,
+// self-service API key (X-API-Key header) — stored as the GRANTS_GOV_API_KEY
+// secret, separate from ANTHROPIC_API_KEY. Its filters object has no
+// geography/country field (confirmed against the live API and its docs), so
+// relevance to ACSD's priority countries is done the same way the generic
+// RSS adapter leaves eligibility to Claude: a short `query` of ACSD's
+// priority country names (reusing TARGET_COUNTRIES, well under the API's
+// 100-character query cap) with query_operator 'OR' narrows the candidate
+// set, then each notice's own eligibility text is handed to the same scoring
+// step so Claude — not a brittle upstream filter — judges actual fit.
+
+interface GrantsGovOpportunity {
+  opportunity_id: string
+  opportunity_number?: string
+  opportunity_title: string
+  agency_name?: string
+  summary?: {
+    summary_description?: string
+    applicant_eligibility_description?: string
+    close_date?: string
+  }
+}
+
+async function scanGrantsGov(adminClient: any, apiKey: string, gate: Semaphore) {
+  const grantsGovApiKey = Deno.env.get('GRANTS_GOV_API_KEY')
+  if (!grantsGovApiKey) throw new Error('GRANTS_GOV_API_KEY is not configured on this project')
+
+  const res = await fetchWithTimeout('https://api.simpler.grants.gov/v1/opportunities/search', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-API-Key': grantsGovApiKey },
+    body: JSON.stringify({
+      query: Object.values(TARGET_COUNTRIES).join(' '),
+      query_operator: 'OR',
+      filters: { opportunity_status: { one_of: ['posted'] } },
+      pagination: { page_offset: 1, page_size: 25, sort_order: [{ order_by: 'close_date', sort_direction: 'ascending' }] },
+    }),
+    timeoutMs: 20_000,
+  })
+  if (!res.ok) {
+    const bodyText = await res.text().catch(() => '')
+    throw new Error(`Grants.gov API returned HTTP ${res.status}${bodyText ? `: ${bodyText.slice(0, 300)}` : ''}`)
+  }
+  const json = await res.json()
+
+  // Only genuinely open notices — a null close_date (forecasted, not yet
+  // posted with a real deadline) is kept rather than dropped, the same way
+  // the generic RSS adapter allows a null deadline instead of guessing one.
+  const today = new Date().toISOString().slice(0, 10)
+  const candidates: GrantsGovOpportunity[] = (json.data ?? []).filter((o: GrantsGovOpportunity) =>
+    o.opportunity_id && o.opportunity_title && (!o.summary?.close_date || o.summary.close_date >= today))
+
+  // Dedupe against opportunities already in the system.
+  const refNumbers = [...new Set(candidates.map(o => o.opportunity_number || o.opportunity_id))]
+  const { data: existingRows } = refNumbers.length
+    ? await adminClient.from('opportunities').select('reference_number').in('reference_number', refNumbers)
+    : { data: [] }
+  const existingRefs = new Set((existingRows ?? []).map((r: any) => r.reference_number))
+  const newOpps = candidates.filter(o => !existingRefs.has(o.opportunity_number || o.opportunity_id)).slice(0, 20)
+
+  const acsdProfile = await computeAcsdProfile(adminClient)
+  const counts = { go: 0, a_etudier: 0, veille: 0, rejet: 0 }
+  let newCount = 0
+
+  // Scored concurrently (bounded by the shared gate) instead of one notice
+  // at a time — see the Semaphore comment near the top of this file.
+  await mapConcurrent(newOpps, gate, async (opp) => {
+    const noticeText = [
+      opp.opportunity_title, opp.agency_name,
+      opp.summary?.summary_description, opp.summary?.applicant_eligibility_description,
+    ].filter(Boolean).join('\n\n')
+    if (!noticeText.trim()) return
+
+    let scored: { strategic_score: number; strategic_score_breakdown: Record<string, number>; strategic_score_confidence: string; strategic_score_rationale: string; summary: string }
+    try {
+      scored = await scoreNoticeText(apiKey, acsdProfile, noticeText)
+    } catch (_) {
+      return // skip notices Claude fails to score rather than failing the whole scan
+    }
+
+    const status = scored.strategic_score < 50 ? 'archived' : 'open'
+
+    const { error: insErr } = await adminClient.from('opportunities').insert({
+      title: opp.opportunity_title.slice(0, 200),
+      reference_number: opp.opportunity_number || opp.opportunity_id,
+      organization: opp.agency_name || 'Grants.gov',
+      opportunity_type: 'RFP',
+      deadline: opp.summary?.close_date ?? null,
+      summary: scored.summary || opp.summary?.summary_description || null,
+      // simpler.grants.gov's own detail page, keyed by the API's own
+      // opportunity_id — confirmed live (2026-10) to resolve directly.
+      source_url: `https://simpler.grants.gov/opportunity/${opp.opportunity_id}`,
       source: 'api_scan',
       status,
       strategic_score: scored.strategic_score,
