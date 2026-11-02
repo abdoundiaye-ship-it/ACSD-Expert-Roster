@@ -40,11 +40,11 @@ serve(async (req: Request) => {
     .single()
   if (oppErr || !opportunity) return respond({ error: 'Opportunity not found' }, 404)
 
-  let position: { id: string; work_order_role_id: number | null; required_seniority_tier: string | null } | null = null
+  let position: Position | null = null
   if (positionId) {
     const { data: posData, error: posErr } = await adminClient
       .from('opportunity_positions')
-      .select('id, work_order_role_id, required_seniority_tier')
+      .select('id, role_title, work_order_role_id, required_seniority_tier, required_sector_id')
       .eq('id', positionId)
       .single()
     if (posErr || !posData) return respond({ error: 'Position not found' }, 404)
@@ -67,7 +67,7 @@ serve(async (req: Request) => {
   const { data: experts, error: expErr } = await adminClient
     .from('experts')
     .select(`
-      id, full_name, seniority_tier, years_experience, is_active,
+      id, full_name, title, bio_summary, seniority_tier, years_experience, is_active,
       expert_sectors(sector_id, priority),
       expert_languages(language_id, proficiency),
       expert_geographies(geography_id),
@@ -188,11 +188,19 @@ serve(async (req: Request) => {
 
 // ── Scoring ──────────────────────────────────────────────────────────────────
 
+interface Position {
+  id: string
+  role_title: string | null
+  work_order_role_id: number | null
+  required_seniority_tier: string | null
+  required_sector_id: number | null
+}
+
 function scoreExpert(
   expert: any,
   opp: { sectors: { sector_id: number; importance: string }[]; languages: number[]; geographies: number[];
          activities: number[]; donorId: number | null; donorCategory: number | null; donorCategoryMap: Record<number, number> },
-  position: { work_order_role_id: number | null; required_seniority_tier: string | null } | null,
+  position: Position | null,
   tierOrder: Record<string, number>,
 ) {
   const expertGeoIds       = new Set((expert.expert_geographies ?? []).map((g: any) => g.geography_id))
@@ -256,21 +264,58 @@ function scoreExpert(
 
   let total: number
   if (position) {
-    // Role & seniority fit (weight 15) — position-specific
-    let roleSeniority = 0
-    roleSeniority += position.work_order_role_id
-      ? (expertRoleFitIds.has(position.work_order_role_id) ? 10 : 0)
-      : 10
-    if (position.required_seniority_tier) {
-      const expertOrder = tierOrder[expert.seniority_tier] ?? 0
-      const requiredOrder = tierOrder[position.required_seniority_tier] ?? 0
-      const diff = Math.abs(expertOrder - requiredOrder)
-      roleSeniority += diff === 0 ? 5 : diff === 1 ? 2.5 : 0
+    // Position-specific scoring. Previously 85 of 100 points came from the
+    // opportunity-level dimensions above (identical for every position), the
+    // position's own sector was never read, and a missing work_order_role_id
+    // (the norm for TOR-extracted positions) gave every expert the same free
+    // 10 points — so a Team Leader, a Finance expert and a Statistician on the
+    // same opportunity got near-identical rankings. Now the position's own
+    // specialty carries the most weight and the opportunity context is scaled
+    // down to a supporting role.
+    //
+    //   specialty 35  — position sector (expert_sectors) + role-title concepts vs expert title/bio
+    //   context   50  — the opportunity dimensions above, rescaled from 85 to 50
+    //   seniority 15  — asymmetric: over-qualified loses little, under-qualified loses a lot
+    //                   (5 of the 15 move to role fit when a work_order_role_id is set)
+    const posSectorFit = position.required_sector_id
+      ? sectorPriorityFit(expert, position.required_sector_id)
+      : sector / 30 // no position sector → fall back to the opportunity sector fit
+    const roleConcepts = conceptsIn(position.role_title ?? '')
+    let specialty: number
+    if (roleConcepts.size > 0) {
+      const titleConcepts = conceptsIn(expert.title ?? '')
+      const bioConcepts = conceptsIn(expert.bio_summary ?? '')
+      let hits = 0
+      for (const c of roleConcepts) hits += titleConcepts.has(c) ? 1 : bioConcepts.has(c) ? 0.5 : 0
+      const titleFit = Math.min(1, hits / Math.min(2, roleConcepts.size))
+      specialty = posSectorFit * 20 + titleFit * 15
+      breakdown.title_fit = round2(titleFit * 15)
     } else {
-      roleSeniority += 5
+      specialty = posSectorFit * 35
+    }
+    breakdown.position_sector = round2(specialty - (breakdown.title_fit ?? 0))
+
+    const contextScale = 50 / 85
+    breakdown.sector = round2(sector * contextScale)
+    breakdown.geography = round2(geography * contextScale)
+    breakdown.language = round2(language * contextScale)
+    breakdown.donor = round2(donor * contextScale)
+    breakdown.activity = round2(activity * contextScale)
+    const context = (sector + geography + language + donor + activity) * contextScale
+
+    let seniorityFit = 1
+    if (position.required_seniority_tier) {
+      const gap = (tierOrder[expert.seniority_tier] ?? 0) - (tierOrder[position.required_seniority_tier] ?? 0)
+      seniorityFit = gap === 0 ? 1 : gap === 1 ? 0.85 : gap >= 2 ? 0.6 : gap === -1 ? 0.4 : 0
+    }
+    let roleSeniority: number
+    if (position.work_order_role_id) {
+      roleSeniority = (expertRoleFitIds.has(position.work_order_role_id) ? 5 : 0) + seniorityFit * 10
+    } else {
+      roleSeniority = seniorityFit * 15
     }
     breakdown.role_seniority = round2(roleSeniority)
-    total = sector + geography + language + donor + activity + roleSeniority
+    total = specialty + context + roleSeniority
   } else {
     // No position specified — rescale the 5 general dimensions (sum 85) to 100
     const scale = 100 / 85
@@ -287,6 +332,49 @@ function scoreExpert(
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100
+}
+
+// primary = 1.0, secondary = 0.5, absent = 0
+function sectorPriorityFit(expert: any, sectorId: number): number {
+  const es = (expert.expert_sectors ?? []).find((s: any) => s.sector_id === sectorId)
+  return es ? (es.priority === 'primary' ? 1.0 : 0.5) : 0
+}
+
+// Professional concepts recognised in a position's role title and in an
+// expert's title/bio — bilingual FR/EN, matched on accent-stripped lowercase
+// text so "Statisticien.ne", "Statistician" and "statistiques" all land on
+// the same concept. Deterministic and explainable: a hit means the expert's
+// own title (full credit) or bio (half credit) names the same specialty.
+const CONCEPTS: Record<string, RegExp> = {
+  leadership:  /team lead|chef de mission|chef d.equipe|head of mission|chef de projet|project director|directeur|director|\bceo\b|coordinat|lead consultant|consultant principal/,
+  finance:     /financ|budget|comptab|accountan|accounting|fiscal|audit/,
+  statistics:  /statisti|donnees|\bdata\b|quantitati|econometr/,
+  meal:        /\bmeal\b|m&e|suivi.?evaluation|monitoring|evaluat|\bgar\b|results.based|resultats/,
+  gender:      /genre|gender|gesi|equite|equity|inclusion/,
+  child:       /enfant|child/,
+  governance:  /gouvernance|governance|institution|decentrali/,
+  planning:    /planification|planning|strateg|politique|policy/,
+  economics:   /econom/,
+  health:      /sante|health|hiv|vih|medic/,
+  environment: /environ|climat|climate|dechet|waste|biodivers|conservation/,
+  gis:         /\bsig\b|\bgis\b|remote sensing|teledetection|spatial|cartograph/,
+  agriculture: /agri|agro|securite alimentaire|food security|rural|pastoral|elevage|livestock/,
+  hr:          /ressources humaines|human resources?\b/,
+  legal:       /jurid|juriste|legal|\blaw\b|\bdroit\b/,
+  engineering: /ingenieur|engineer|genie civil|hydraul|hydrolog/,
+  transport:   /transport|logisti/,
+  capacity:    /renforcement des capacites|capacity (building|strengthening)|\bformation\b|training/,
+  social:      /sociolog|social|anthropolog|communaut|community/,
+  protection:  /protection|humanitar|human rights|droits/,
+}
+
+function conceptsIn(text: string): Set<string> {
+  const t = text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    // French inclusive forms: "chef.fe", "expert.e", "statisticien.ne", "consultant(e)"
+    .replace(/\.(e|fe|ne|re|se|le|trice)\b|\((e|fe|ne|re|se|le|trice)\)/g, '')
+  const found = new Set<string>()
+  for (const [name, re] of Object.entries(CONCEPTS)) if (re.test(t)) found.add(name)
+  return found
 }
 
 // ── AI justification (top-N only, one batched call) ───────────────────────
