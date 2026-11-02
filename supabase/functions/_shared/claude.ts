@@ -114,17 +114,21 @@ export async function callClaude(opts: CallClaudeOptions): Promise<any> {
 // ── Google Gemini adapter (free tier) ────────────────────────────────────────
 // Translates the Claude-shaped request to Gemini's generateContent API and
 // normalises the reply back to the Claude shape. Reads GEMINI_API_KEY (a free
-// Google AI Studio key); model from LLM_MODEL, defaulting to gemini-2.0-flash.
+// Google AI Studio key); model from LLM_MODEL, defaulting to gemini-3.8-flash.
 // Handles both plain-text messages and the document+text arrays the CV/TOR/KB
 // callers send (mapped to Gemini inline_data). Mirrors callClaude's
 // timeout/retry contract and throws the same error shapes.
 async function callGemini(args: {
   messages: ClaudeMessage[]; system?: string; maxTokens: number; timeoutMs: number; retries: number
 }): Promise<any> {
-  const { messages, system, maxTokens, timeoutMs, retries } = args
+  const { messages, system, maxTokens, retries } = args
+  // gemini-3.8-flash reasons before answering (~30s even for trivial prompts),
+  // so enforce a floor above the shorter per-caller timeouts (scan uses 25s).
+  const timeoutMs = Math.max(args.timeoutMs, 90_000)
   const key = Deno.env.get('GEMINI_API_KEY')
   if (!key) throw new Error('LLM_PROVIDER=gemini but GEMINI_API_KEY is not configured on this project')
-  const model = Deno.env.get('LLM_MODEL') || 'gemini-2.0-flash'
+  // gemini-2.0-flash was retired (404 "no longer available") — 3.8-flash is the current free-tier model.
+  const model = Deno.env.get('LLM_MODEL') || 'gemini-3.8-flash'
 
   // Map Claude messages -> Gemini contents. Gemini uses 'model' for assistant
   // turns; these callers only send 'user' turns, but we map defensively.
