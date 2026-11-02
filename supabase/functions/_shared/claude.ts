@@ -56,6 +56,16 @@ export async function callClaude(opts: CallClaudeOptions): Promise<any> {
     return { content: [{ type: 'text', text: mock ?? '{}' }], stop_reason: 'end_turn', mock: true }
   }
 
+  // Provider router: when LLM_PROVIDER=gemini, route to Google Gemini's free
+  // tier instead of Anthropic. The response is normalised back to the Claude
+  // shape ({ content: [{ type:'text', text }] }) so every caller and the
+  // extractText/extractJsonObject helpers work unchanged. Gemini is used
+  // (not a text-only free API) because several callers send PDF documents,
+  // which Gemini accepts as inline_data. Default stays 'anthropic'.
+  if ((Deno.env.get('LLM_PROVIDER') ?? 'anthropic').toLowerCase() === 'gemini') {
+    return await callGemini({ messages, system, maxTokens, timeoutMs, retries })
+  }
+
   const body: Record<string, unknown> = { model, max_tokens: maxTokens, messages }
   if (system) body.system = system
   if (thinking) body.thinking = thinking
@@ -98,6 +108,86 @@ export async function callClaude(opts: CallClaudeOptions): Promise<any> {
     await new Promise(r => setTimeout(r, 500 * (attempt + 1))) // brief backoff before retrying
   }
 
+  throw lastErr
+}
+
+// ── Google Gemini adapter (free tier) ────────────────────────────────────────
+// Translates the Claude-shaped request to Gemini's generateContent API and
+// normalises the reply back to the Claude shape. Reads GEMINI_API_KEY (a free
+// Google AI Studio key); model from LLM_MODEL, defaulting to gemini-2.0-flash.
+// Handles both plain-text messages and the document+text arrays the CV/TOR/KB
+// callers send (mapped to Gemini inline_data). Mirrors callClaude's
+// timeout/retry contract and throws the same error shapes.
+async function callGemini(args: {
+  messages: ClaudeMessage[]; system?: string; maxTokens: number; timeoutMs: number; retries: number
+}): Promise<any> {
+  const { messages, system, maxTokens, timeoutMs, retries } = args
+  const key = Deno.env.get('GEMINI_API_KEY')
+  if (!key) throw new Error('LLM_PROVIDER=gemini but GEMINI_API_KEY is not configured on this project')
+  const model = Deno.env.get('LLM_MODEL') || 'gemini-2.0-flash'
+
+  // Map Claude messages -> Gemini contents. Gemini uses 'model' for assistant
+  // turns; these callers only send 'user' turns, but we map defensively.
+  const contents = messages.map(m => {
+    const parts: Record<string, unknown>[] = []
+    if (typeof m.content === 'string') {
+      parts.push({ text: m.content })
+    } else {
+      for (const block of m.content as Array<Record<string, any>>) {
+        if (block.type === 'text') parts.push({ text: block.text })
+        else if (block.type === 'document' && block.source?.type === 'base64') {
+          parts.push({ inline_data: { mime_type: block.source.media_type, data: block.source.data } })
+        }
+      }
+    }
+    return { role: m.role === 'assistant' ? 'model' : 'user', parts }
+  })
+
+  const body: Record<string, unknown> = {
+    contents,
+    // Gemini flash models cap output at 8192 tokens; don't request more.
+    generationConfig: { maxOutputTokens: Math.min(maxTokens, 8192), temperature: 0 },
+  }
+  if (system) body.systemInstruction = { parts: [{ text: system }] }
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
+  let lastErr: Error = new Error('Gemini API call failed')
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      })
+      clearTimeout(timer)
+
+      if (res.ok) {
+        const data = await res.json()
+        const cand = data.candidates?.[0]
+        const text = (cand?.content?.parts ?? []).map((p: any) => p?.text ?? '').join('')
+        const stop = cand?.finishReason === 'MAX_TOKENS' ? 'max_tokens' : 'end_turn'
+        return { content: [{ type: 'text', text }], stop_reason: stop, provider: 'gemini' }
+      }
+
+      const errText = (await res.text()).slice(0, 400)
+      lastErr = new Error(`Gemini API error (${res.status}): ${errText}`)
+      const retryable = res.status === 429 || res.status >= 500
+      if (!retryable || attempt === retries) throw lastErr
+    } catch (err) {
+      clearTimeout(timer)
+      if (err instanceof Error && err.name === 'AbortError') {
+        lastErr = new Error(`Gemini API request timed out after ${timeoutMs}ms`)
+      } else if (err instanceof Error) {
+        lastErr = err
+      }
+      if (attempt === retries) throw lastErr
+    }
+    await new Promise(r => setTimeout(r, 500 * (attempt + 1)))
+  }
   throw lastErr
 }
 
