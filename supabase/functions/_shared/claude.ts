@@ -67,7 +67,13 @@ export async function callClaude(opts: CallClaudeOptions): Promise<any> {
   // (not a text-only free API) because several callers send PDF documents,
   // which Gemini accepts as inline_data. Default stays 'anthropic'.
   const primary = (Deno.env.get('LLM_PROVIDER') ?? 'anthropic').toLowerCase() === 'gemini' ? 'gemini' : 'anthropic'
-  const secondary = primary === 'gemini' ? 'anthropic' : 'gemini'
+  // LLM_FALLBACK_MODEL (Gemini primary only): fall back to a second Gemini
+  // model instead of Claude. Free-tier quotas are counted per model, so a
+  // lighter model usually still has quota when the main one is exhausted —
+  // a zero-cost fallback for projects without Anthropic API credit.
+  const fallbackModel = primary === 'gemini' ? Deno.env.get('LLM_FALLBACK_MODEL') || null : null
+  const secondary = primary === 'gemini' && !fallbackModel ? 'anthropic' : 'gemini'
+  const secondaryLabel = fallbackModel ? `gemini (${fallbackModel})` : secondary
 
   // Automatic fallback: if the primary provider fails for any reason (quota
   // or credit exhausted, outage, timeout, auth), retry the call ONCE on the
@@ -83,8 +89,8 @@ export async function callClaude(opts: CallClaudeOptions): Promise<any> {
   // so it gets a floor above the shorter per-caller timeouts (scan uses 25s).
   const providerTimeout = (p: 'anthropic' | 'gemini') => p === 'gemini' ? Math.max(timeoutMs, GEMINI_MIN_TIMEOUT_MS) : timeoutMs
 
-  const run = (provider: 'anthropic' | 'gemini', timeout: number, retryTimeouts: boolean) => provider === 'gemini'
-    ? callGemini({ messages, system, maxTokens, timeoutMs: timeout, retries, retryTimeouts })
+  const run = (provider: 'anthropic' | 'gemini', timeout: number, retryTimeouts: boolean, geminiModel?: string) => provider === 'gemini'
+    ? callGemini({ messages, system, maxTokens, timeoutMs: timeout, retries, retryTimeouts, model: geminiModel })
     : callAnthropic({ apiKey, model, maxTokens, messages, system, extraHeaders, timeoutMs: timeout, retries, thinking, effort, retryTimeouts })
 
   const startedAt = Date.now()
@@ -96,15 +102,15 @@ export async function callClaude(opts: CallClaudeOptions): Promise<any> {
     // The fallback only gets what's left of the function's time budget.
     const remaining = FUNCTION_BUDGET_MS - (Date.now() - startedAt)
     if (remaining < MIN_FALLBACK_MS) {
-      throw new Error(`${primaryMsg} — no time left to fall back to ${secondary}`)
+      throw new Error(`${primaryMsg} — no time left to fall back to ${secondaryLabel}`)
     }
-    console.warn(`[callClaude] ${primary} failed, falling back to ${secondary}: ${primaryMsg.slice(0, 300)}`)
+    console.warn(`[callClaude] ${primary} failed, falling back to ${secondaryLabel}: ${primaryMsg.slice(0, 300)}`)
     try {
-      const res = await run(secondary, Math.min(providerTimeout(secondary), remaining), false)
+      const res = await run(secondary, Math.min(providerTimeout(secondary), remaining), false, fallbackModel ?? undefined)
       return { ...res, fallback_from: primary }
     } catch (secondaryErr) {
       const secondaryMsg = secondaryErr instanceof Error ? secondaryErr.message : String(secondaryErr)
-      throw new Error(`${primaryMsg} — fallback to ${secondary} also failed: ${secondaryMsg}`)
+      throw new Error(`${primaryMsg} — fallback to ${secondaryLabel} also failed: ${secondaryMsg}`)
     }
   }
 }
@@ -171,12 +177,13 @@ async function callAnthropic(args: {
 // timeout/retry contract and throws the same error shapes.
 async function callGemini(args: {
   messages: ClaudeMessage[]; system?: string; maxTokens: number; timeoutMs: number; retries: number; retryTimeouts: boolean
+  model?: string
 }): Promise<any> {
   const { messages, system, maxTokens, timeoutMs, retries, retryTimeouts } = args
   const key = Deno.env.get('GEMINI_API_KEY')
   if (!key) throw new Error('LLM_PROVIDER=gemini but GEMINI_API_KEY is not configured on this project')
   // gemini-2.0-flash was retired (404 "no longer available") — 3.8-flash is the current free-tier model.
-  const model = Deno.env.get('LLM_MODEL') || 'gemini-3.8-flash'
+  const model = args.model || Deno.env.get('LLM_MODEL') || 'gemini-3.8-flash'
 
   // Map Claude messages -> Gemini contents. Gemini uses 'model' for assistant
   // turns; these callers only send 'user' turns, but we map defensively.
