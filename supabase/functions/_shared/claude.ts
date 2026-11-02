@@ -204,8 +204,12 @@ async function callGemini(args: {
 
   const body: Record<string, unknown> = {
     contents,
-    // Gemini flash models cap output at 8192 tokens; don't request more.
-    generationConfig: { maxOutputTokens: Math.min(maxTokens, 8192), temperature: 0 },
+    // Current Gemini flash models allow 65,536 output tokens, and their
+    // "thinking" draws on the same allowance — so add headroom on top of
+    // what the caller needs for its answer (the old 8192 cap could truncate
+    // analyze-tor's 16k-token JSON, or leave a 2k CV extraction nothing
+    // after thinking).
+    generationConfig: { maxOutputTokens: Math.min(maxTokens + 16_000, 65_536), temperature: 0 },
   }
   if (system) body.systemInstruction = { parts: [{ text: system }] }
 
