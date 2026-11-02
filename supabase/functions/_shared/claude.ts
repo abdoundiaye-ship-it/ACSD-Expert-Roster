@@ -26,6 +26,12 @@ export interface CallClaudeOptions {
   // on `output_config.effort`) so their request body is unchanged.
   thinking?: { type: 'adaptive' } | { type: 'disabled' }
   effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max'
+  // Canned text this call returns verbatim when MOCK_AI mode is on, instead
+  // of hitting the Anthropic API. Each caller passes a string shaped like
+  // the real response it expects (e.g. a JSON object). See the MOCK_AI gate
+  // below. Only for cost-free UI testing of a project with no API credit;
+  // unset MOCK_AI (or set it to anything but 'true') for real behavior.
+  mock?: string
 }
 
 const DEFAULT_TIMEOUT_MS = 60_000
@@ -37,8 +43,18 @@ export async function callClaude(opts: CallClaudeOptions): Promise<any> {
   const {
     apiKey, model, maxTokens, messages, system, extraHeaders,
     timeoutMs = DEFAULT_TIMEOUT_MS, retries = DEFAULT_RETRIES,
-    thinking, effort,
+    thinking, effort, mock,
   } = opts
+
+  // MOCK_AI test mode: return the caller-supplied canned text without any
+  // network call, so AI features can be exercised end-to-end on a project
+  // whose Anthropic key has no credit. Shaped to look like a real Claude
+  // response ({ content: [{ type:'text', text }] }) so every downstream
+  // extractText/extractJsonObject path works unchanged. Gated strictly on
+  // the string 'true' so it can never accidentally stay on in production.
+  if (Deno.env.get('MOCK_AI') === 'true') {
+    return { content: [{ type: 'text', text: mock ?? '{}' }], stop_reason: 'end_turn', mock: true }
+  }
 
   const body: Record<string, unknown> = { model, max_tokens: maxTokens, messages }
   if (system) body.system = system

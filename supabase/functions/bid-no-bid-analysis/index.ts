@@ -59,6 +59,24 @@ serve(async (req: Request) => {
       apiKey, model: 'claude-sonnet-5', maxTokens: 6000,
       thinking: { type: 'adaptive' }, effort: 'low',
       messages: [{ role: 'user', content: prompt }],
+      // Canned result returned only when the MOCK_AI secret is 'true' (see
+      // _shared/claude.ts). Lets this feature be tested with no API credit.
+      // The [MODE TEST] prefixes make it unmistakable that this is not a
+      // real AI analysis, so it can never be mistaken for a live result.
+      mock: JSON.stringify({
+        success_chance: 60,
+        recommendation: 'CONDITIONAL_GO',
+        strengths: [
+          '[MODE TEST] Données simulées — aucun appel à l\'IA n\'a été effectué.',
+          '[MODE TEST] Le moteur de matching a identifié plusieurs experts seniors alignés sur les secteurs requis.',
+          '[MODE TEST] Couverture géographique et linguistique cohérente avec les exigences de l\'opportunité.',
+        ],
+        risks: [
+          '[MODE TEST] Résultat factice destiné uniquement au test de l\'interface — ne pas utiliser pour une décision réelle.',
+          '[MODE TEST] Aucune équipe n\'a encore été formellement assemblée pour cette opportunité.',
+        ],
+        rationale: '[MODE TEST] Ceci est une réponse simulée générée sans appel à l\'API Anthropic (MOCK_AI activé). Désactivez MOCK_AI et configurez une clé ANTHROPIC_API_KEY créditée pour obtenir une véritable analyse Bid/No-Bid.',
+      }),
     })
   } catch (err) {
     return respond({ error: err instanceof Error ? err.message : 'Claude API call failed' }, 502)
