@@ -128,6 +128,14 @@ Return ONLY the JSON object.`
     apiKey, model: 'claude-sonnet-5', maxTokens: 3000,
     thinking: { type: 'adaptive' }, effort: 'low',
     messages: [{ role: 'user', content: prompt }],
+    // Canned interpretation returned only when MOCK_AI='true' (see
+    // _shared/claude.ts). Empty filter arrays → a broad, harmless default search.
+    mock: JSON.stringify({
+      opportunity_id: null,
+      sectors: [], languages: [], geographies: [], donors: [], seniority_tiers: [],
+      top_n: 5,
+      interpretation_summary: '[MODE TEST] Interprétation simulée (MOCK_AI activé) — désactivez MOCK_AI et configurez une clé créditée pour une vraie recherche.',
+    }),
   })
   const rawText = extractText(data.content)
   const jsonStr = extractJsonObject(rawText)

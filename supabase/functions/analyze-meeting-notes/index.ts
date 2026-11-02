@@ -40,6 +40,12 @@ serve(async (req: Request) => {
       apiKey, model: 'claude-sonnet-5', maxTokens: 6000,
       thinking: { type: 'adaptive' }, effort: 'low',
       messages: [{ role: 'user', content: prompt }],
+      // Canned result returned only when MOCK_AI='true' (see _shared/claude.ts).
+      mock: JSON.stringify({
+        summary: '[MODE TEST] Résumé simulé de la réunion — généré sans appel à l\'IA (MOCK_AI activé). Désactivez MOCK_AI et configurez une clé ANTHROPIC_API_KEY créditée pour une véritable analyse.',
+        decisions: ['[MODE TEST] Décision simulée'],
+        action_items: [{ description: '[MODE TEST] Action simulée', suggested_assignee: null }],
+      }),
     })
   } catch (err) {
     return respond({ error: err instanceof Error ? err.message : 'Claude API call failed' }, 502)

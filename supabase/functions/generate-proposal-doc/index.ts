@@ -268,6 +268,10 @@ async function callClaude(apiKey: string, userPrompt: string): Promise<string> {
     apiKey, model: 'claude-sonnet-5', maxTokens: 2500,
     system: GUARDRAIL_SYSTEM,
     messages: [{ role: 'user', content: userPrompt }],
+    // Canned document body returned only when MOCK_AI='true' (see
+    // _shared/claude.ts) — covers all proposal doc types (EOI, technical
+    // approach, workplan, tailored CV) since they share this wrapper.
+    mock: '<h2>[MODE TEST] Document simulé</h2><p>[MODE TEST] Ce contenu a été généré sans appel à l\'IA (MOCK_AI activé). Il s\'agit d\'un texte factice destiné uniquement au test de l\'interface. Désactivez MOCK_AI et configurez une clé ANTHROPIC_API_KEY créditée pour générer un véritable document de proposition.</p>',
   })
   const text: string = extractText(data.content)
   if (!text.trim()) throw new Error('AI returned an empty response')

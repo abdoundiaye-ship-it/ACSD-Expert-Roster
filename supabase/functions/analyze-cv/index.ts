@@ -87,6 +87,16 @@ serve(async (req: Request) => {
   try {
     claudeData = await callClaude({
       apiKey, model: 'claude-haiku-4-5-20251001', maxTokens: 2000, messages, extraHeaders,
+      // Canned extraction returned only when MOCK_AI='true' (see _shared/claude.ts).
+      // Clearly flagged so the pre-filled form is never mistaken for real CV data.
+      mock: JSON.stringify({
+        full_name: '[MODE TEST] Expert Simulé', first_name: '[MODE TEST]', last_name: 'Simulé',
+        title: '[MODE TEST] Données simulées — MOCK_AI activé', email: null, phone: null,
+        organization: null, affiliation_type: 'partner', years_experience: 10, seniority_tier: 'senior',
+        bio_summary: '[MODE TEST] Résumé simulé généré sans appel à l\'IA. Désactivez MOCK_AI et configurez une clé ANTHROPIC_API_KEY créditée pour une vraie extraction de CV.',
+        sectors: ['MEAL technical integration'], languages: ['French'], geographies: ['Burkina Faso'],
+        confidence_notes: '[MODE TEST] Donnée factice — ne pas enregistrer tel quel.',
+      }),
     })
   } catch (err) {
     return respond({ error: err instanceof Error ? err.message : 'Claude API call failed' }, 502)

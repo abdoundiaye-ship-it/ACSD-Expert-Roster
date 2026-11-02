@@ -986,6 +986,15 @@ Return ONLY the JSON object.`
     thinking: { type: 'adaptive' }, effort: 'low',
     messages: [{ role: 'user', content: prompt }],
     timeoutMs: 25_000, retries: 1,
+    // Canned score returned only when MOCK_AI='true' (see _shared/claude.ts) —
+    // lets the scan flow run with no API credit. Clearly flagged as test data.
+    mock: JSON.stringify({
+      summary: '[MODE TEST] Résumé simulé (MOCK_AI activé, aucun appel à l\'IA).',
+      strategic_score_breakdown: { alignement_thematique: 18, adequation_geographique: 10, eligibilite_conformite: 14, valeur_strategique: 10, faisabilite_operationnelle: 9 },
+      has_blocking_eligibility_issue: false,
+      source_fully_read: true,
+      strategic_score_rationale: '[MODE TEST] Score factice — désactivez MOCK_AI pour un scoring réel.',
+    }),
   })
   const rawText = extractText(data.content)
   const jsonStr = extractJsonObject(rawText)

@@ -132,6 +132,28 @@ serve(async (req: Request) => {
     claudeData = await callClaude({
       apiKey, model: 'claude-sonnet-5', maxTokens: 16000, messages,
       thinking: { type: 'adaptive' }, effort: 'low',
+      // Canned result returned only when MOCK_AI='true' (see _shared/claude.ts) —
+      // credit-free UI testing. [MODE TEST] labels make it clearly not real.
+      mock: JSON.stringify({
+        title: '[MODE TEST] Titre d\'opportunité simulé',
+        reference_number: '[MODE TEST] REF-000',
+        organization: '[MODE TEST] Organisation simulée',
+        donor_guess: null,
+        country: 'Burkina Faso',
+        opportunity_type: 'RFP',
+        deadline: null,
+        summary: '[MODE TEST] Résumé simulé — généré sans appel à l\'IA (MOCK_AI activé). Désactivez MOCK_AI et configurez une clé ANTHROPIC_API_KEY créditée pour une véritable analyse de TDR.',
+        evaluation_criteria: [{ criterion: '[MODE TEST] Critère simulé', weight: '30%' }],
+        sectors: [{ name: 'MEAL technical integration', importance: 'required' }],
+        languages: ['French'],
+        geographies: ['Burkina Faso'],
+        activity_types: ['Evaluation reports'],
+        positions: [{ role_title: '[MODE TEST] Chef de mission', required_seniority_tier: 'senior', required_sector_guess: null, quantity: 1 }],
+        strategic_score_breakdown: { alignement_thematique: 20, adequation_geographique: 12, eligibilite_conformite: 15, valeur_strategique: 12, faisabilite_operationnelle: 10 },
+        has_blocking_eligibility_issue: false,
+        source_fully_read: true,
+        strategic_score_rationale: '[MODE TEST] Justification simulée sans appel à l\'IA.',
+      }),
     })
   } catch (err) {
     return respond({ error: err instanceof Error ? err.message : 'Claude API call failed' }, 502)

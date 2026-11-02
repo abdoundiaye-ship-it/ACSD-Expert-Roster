@@ -89,6 +89,12 @@ Return ONLY the JSON object.`
         { type: 'text', text: prompt },
       ],
     }],
+    // Canned result returned only when MOCK_AI='true' (see _shared/claude.ts).
+    mock: JSON.stringify({
+      suggested_title: '[MODE TEST] Document simulé',
+      suggested_category: 'templates',
+      extracted_text: '[MODE TEST] Digest simulé — généré sans appel à l\'IA (MOCK_AI activé). Désactivez MOCK_AI et configurez une clé ANTHROPIC_API_KEY créditée pour une véritable analyse du document.',
+    }),
   })
 
   const rawText = extractText(data.content)
