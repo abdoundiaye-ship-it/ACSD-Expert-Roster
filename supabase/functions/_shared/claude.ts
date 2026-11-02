@@ -36,6 +36,10 @@ export interface CallClaudeOptions {
 
 const DEFAULT_TIMEOUT_MS = 60_000
 const DEFAULT_RETRIES = 2
+const GEMINI_MIN_TIMEOUT_MS = 90_000
+// Edge Functions are cut off at ~150s; keep the primary + fallback pair inside it.
+const FUNCTION_BUDGET_MS = 140_000
+const MIN_FALLBACK_MS = 15_000
 
 // Retries only on network-level failures, timeouts, 429, and 5xx — never
 // on 4xx client errors (a bad request won't succeed just by resending it).
@@ -62,10 +66,55 @@ export async function callClaude(opts: CallClaudeOptions): Promise<any> {
   // extractText/extractJsonObject helpers work unchanged. Gemini is used
   // (not a text-only free API) because several callers send PDF documents,
   // which Gemini accepts as inline_data. Default stays 'anthropic'.
-  if ((Deno.env.get('LLM_PROVIDER') ?? 'anthropic').toLowerCase() === 'gemini') {
-    return await callGemini({ messages, system, maxTokens, timeoutMs, retries })
-  }
+  const primary = (Deno.env.get('LLM_PROVIDER') ?? 'anthropic').toLowerCase() === 'gemini' ? 'gemini' : 'anthropic'
+  const secondary = primary === 'gemini' ? 'anthropic' : 'gemini'
 
+  // Automatic fallback: if the primary provider fails for any reason (quota
+  // or credit exhausted, outage, timeout, auth), retry the call ONCE on the
+  // other provider — but only if that provider is configured, and unless
+  // LLM_FALLBACK=false. When a fallback exists the primary doesn't retry its
+  // own timeouts: three back-to-back timeouts plus a fallback attempt would
+  // blow past the Edge Function wall-clock limit (~150s).
+  const fallbackOn = Deno.env.get('LLM_FALLBACK') !== 'false'
+  const secondaryReady = secondary === 'gemini' ? !!Deno.env.get('GEMINI_API_KEY') : !!apiKey
+  const canFallback = fallbackOn && secondaryReady
+
+  // gemini-3.8-flash reasons before answering (~30s even for trivial prompts),
+  // so it gets a floor above the shorter per-caller timeouts (scan uses 25s).
+  const providerTimeout = (p: 'anthropic' | 'gemini') => p === 'gemini' ? Math.max(timeoutMs, GEMINI_MIN_TIMEOUT_MS) : timeoutMs
+
+  const run = (provider: 'anthropic' | 'gemini', timeout: number, retryTimeouts: boolean) => provider === 'gemini'
+    ? callGemini({ messages, system, maxTokens, timeoutMs: timeout, retries, retryTimeouts })
+    : callAnthropic({ apiKey, model, maxTokens, messages, system, extraHeaders, timeoutMs: timeout, retries, thinking, effort, retryTimeouts })
+
+  const startedAt = Date.now()
+  try {
+    return await run(primary, providerTimeout(primary), !canFallback)
+  } catch (primaryErr) {
+    if (!canFallback) throw primaryErr
+    const primaryMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr)
+    // The fallback only gets what's left of the function's time budget.
+    const remaining = FUNCTION_BUDGET_MS - (Date.now() - startedAt)
+    if (remaining < MIN_FALLBACK_MS) {
+      throw new Error(`${primaryMsg} — no time left to fall back to ${secondary}`)
+    }
+    console.warn(`[callClaude] ${primary} failed, falling back to ${secondary}: ${primaryMsg.slice(0, 300)}`)
+    try {
+      const res = await run(secondary, Math.min(providerTimeout(secondary), remaining), false)
+      return { ...res, fallback_from: primary }
+    } catch (secondaryErr) {
+      const secondaryMsg = secondaryErr instanceof Error ? secondaryErr.message : String(secondaryErr)
+      throw new Error(`${primaryMsg} — fallback to ${secondary} also failed: ${secondaryMsg}`)
+    }
+  }
+}
+
+async function callAnthropic(args: {
+  apiKey: string; model: string; maxTokens: number; messages: ClaudeMessage[]; system?: string
+  extraHeaders?: Record<string, string>; timeoutMs: number; retries: number
+  thinking?: CallClaudeOptions['thinking']; effort?: CallClaudeOptions['effort']; retryTimeouts: boolean
+}): Promise<any> {
+  const { apiKey, model, maxTokens, messages, system, extraHeaders, timeoutMs, retries, thinking, effort, retryTimeouts } = args
   const body: Record<string, unknown> = { model, max_tokens: maxTokens, messages }
   if (system) body.system = system
   if (thinking) body.thinking = thinking
@@ -90,20 +139,22 @@ export async function callClaude(opts: CallClaudeOptions): Promise<any> {
       })
       clearTimeout(timer)
 
-      if (res.ok) return await res.json()
+      if (res.ok) return { ...(await res.json()), provider: 'anthropic' }
 
       const errText = (await res.text()).slice(0, 400)
       lastErr = new Error(`Claude API error (${res.status}): ${errText}`)
       const retryable = res.status === 429 || res.status >= 500
-      if (!retryable || attempt === retries) throw lastErr
+      if (!retryable || attempt === retries) throw markFatal(lastErr)
     } catch (err) {
       clearTimeout(timer)
-      if (err instanceof Error && err.name === 'AbortError') {
+      if (isFatal(err)) throw err // a 4xx won't succeed by resending it
+      const timedOut = err instanceof Error && err.name === 'AbortError'
+      if (timedOut) {
         lastErr = new Error(`Claude API request timed out after ${timeoutMs}ms`)
       } else if (err instanceof Error) {
         lastErr = err
       }
-      if (attempt === retries) throw lastErr
+      if (attempt === retries || (timedOut && !retryTimeouts)) throw lastErr
     }
     await new Promise(r => setTimeout(r, 500 * (attempt + 1))) // brief backoff before retrying
   }
@@ -119,12 +170,9 @@ export async function callClaude(opts: CallClaudeOptions): Promise<any> {
 // callers send (mapped to Gemini inline_data). Mirrors callClaude's
 // timeout/retry contract and throws the same error shapes.
 async function callGemini(args: {
-  messages: ClaudeMessage[]; system?: string; maxTokens: number; timeoutMs: number; retries: number
+  messages: ClaudeMessage[]; system?: string; maxTokens: number; timeoutMs: number; retries: number; retryTimeouts: boolean
 }): Promise<any> {
-  const { messages, system, maxTokens, retries } = args
-  // gemini-3.8-flash reasons before answering (~30s even for trivial prompts),
-  // so enforce a floor above the shorter per-caller timeouts (scan uses 25s).
-  const timeoutMs = Math.max(args.timeoutMs, 90_000)
+  const { messages, system, maxTokens, timeoutMs, retries, retryTimeouts } = args
   const key = Deno.env.get('GEMINI_API_KEY')
   if (!key) throw new Error('LLM_PROVIDER=gemini but GEMINI_API_KEY is not configured on this project')
   // gemini-2.0-flash was retired (404 "no longer available") — 3.8-flash is the current free-tier model.
@@ -180,19 +228,31 @@ async function callGemini(args: {
       const errText = (await res.text()).slice(0, 400)
       lastErr = new Error(`Gemini API error (${res.status}): ${errText}`)
       const retryable = res.status === 429 || res.status >= 500
-      if (!retryable || attempt === retries) throw lastErr
+      if (!retryable || attempt === retries) throw markFatal(lastErr)
     } catch (err) {
       clearTimeout(timer)
-      if (err instanceof Error && err.name === 'AbortError') {
+      if (isFatal(err)) throw err
+      const timedOut = err instanceof Error && err.name === 'AbortError'
+      if (timedOut) {
         lastErr = new Error(`Gemini API request timed out after ${timeoutMs}ms`)
       } else if (err instanceof Error) {
         lastErr = err
       }
-      if (attempt === retries) throw lastErr
+      if (attempt === retries || (timedOut && !retryTimeouts)) throw lastErr
     }
     await new Promise(r => setTimeout(r, 500 * (attempt + 1)))
   }
   throw lastErr
+}
+
+// Marks an error raised inside a provider's retry loop as final, so the
+// loop's own catch rethrows it instead of retrying (it used to swallow the
+// "don't retry a 4xx" throw and resend the request anyway).
+function markFatal(err: Error): Error {
+  return Object.assign(err, { fatal: true })
+}
+function isFatal(err: unknown): boolean {
+  return err instanceof Error && (err as Error & { fatal?: boolean }).fatal === true
 }
 
 // Claude's content array isn't always [textBlock] — a leading non-text
