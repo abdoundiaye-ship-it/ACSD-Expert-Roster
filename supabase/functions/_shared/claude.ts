@@ -36,6 +36,9 @@ export interface CallClaudeOptions {
 
 const DEFAULT_TIMEOUT_MS = 60_000
 const DEFAULT_RETRIES = 2
+// Lite: ~1-2s on real prompts and stays available when the full Flash models
+// return 503 "high demand" on the free tier (measured 2026-11-03).
+const GEMINI_DEFAULT_MODEL = 'gemini-3.5-flash-lite'
 const GEMINI_MIN_TIMEOUT_MS = 90_000
 // Edge Functions are cut off at ~150s; keep the primary + fallback pair inside it.
 const FUNCTION_BUDGET_MS = 140_000
@@ -76,26 +79,30 @@ export async function callClaude(opts: CallClaudeOptions): Promise<any> {
   const secondaryLabel = fallbackModel ? `gemini (${fallbackModel})` : secondary
 
   // Automatic fallback: if the primary provider fails for any reason (quota
-  // or credit exhausted, outage, timeout, auth), retry the call ONCE on the
-  // other provider — but only if that provider is configured, and unless
-  // LLM_FALLBACK=false. When a fallback exists the primary doesn't retry its
-  // own timeouts: three back-to-back timeouts plus a fallback attempt would
-  // blow past the Edge Function wall-clock limit (~150s).
+  // or credit exhausted, overload, outage, timeout, auth), retry the call ONCE
+  // on the other provider — but only if that provider is configured, and
+  // unless LLM_FALLBACK=false. When a fallback exists the primary makes a
+  // single attempt: on the free tier a busy model answers 503 "high demand"
+  // after 7–17s each time, so retrying it only delays the fallback (and three
+  // back-to-back timeouts would blow past the ~150s Edge Function limit).
   const fallbackOn = Deno.env.get('LLM_FALLBACK') !== 'false'
   const secondaryReady = secondary === 'gemini' ? !!Deno.env.get('GEMINI_API_KEY') : !!apiKey
-  const canFallback = fallbackOn && secondaryReady
+  // A fallback model identical to the primary would just repeat the failure.
+  const sameModel = !!fallbackModel && fallbackModel === (Deno.env.get('LLM_MODEL') || GEMINI_DEFAULT_MODEL)
+  const canFallback = fallbackOn && secondaryReady && !sameModel
 
-  // gemini-3.8-flash reasons before answering (~30s even for trivial prompts),
-  // so it gets a floor above the shorter per-caller timeouts (scan uses 25s).
+  // Thinking Gemini models (e.g. gemini-3.8-flash) can take 30s+ even for
+  // trivial prompts, so Gemini gets a floor above the shorter per-caller
+  // timeouts (scan uses 25s).
   const providerTimeout = (p: 'anthropic' | 'gemini') => p === 'gemini' ? Math.max(timeoutMs, GEMINI_MIN_TIMEOUT_MS) : timeoutMs
 
-  const run = (provider: 'anthropic' | 'gemini', timeout: number, retryTimeouts: boolean, geminiModel?: string) => provider === 'gemini'
-    ? callGemini({ messages, system, maxTokens, timeoutMs: timeout, retries, retryTimeouts, model: geminiModel })
-    : callAnthropic({ apiKey, model, maxTokens, messages, system, extraHeaders, timeoutMs: timeout, retries, thinking, effort, retryTimeouts })
+  const run = (provider: 'anthropic' | 'gemini', timeout: number, attempts: number, retryTimeouts: boolean, geminiModel?: string) => provider === 'gemini'
+    ? callGemini({ messages, system, maxTokens, timeoutMs: timeout, retries: attempts, retryTimeouts, model: geminiModel })
+    : callAnthropic({ apiKey, model, maxTokens, messages, system, extraHeaders, timeoutMs: timeout, retries: attempts, thinking, effort, retryTimeouts })
 
   const startedAt = Date.now()
   try {
-    return await run(primary, providerTimeout(primary), !canFallback)
+    return await run(primary, providerTimeout(primary), canFallback ? 0 : retries, !canFallback)
   } catch (primaryErr) {
     if (!canFallback) throw primaryErr
     const primaryMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr)
@@ -106,7 +113,7 @@ export async function callClaude(opts: CallClaudeOptions): Promise<any> {
     }
     console.warn(`[callClaude] ${primary} failed, falling back to ${secondaryLabel}: ${primaryMsg.slice(0, 300)}`)
     try {
-      const res = await run(secondary, Math.min(providerTimeout(secondary), remaining), false, fallbackModel ?? undefined)
+      const res = await run(secondary, Math.min(providerTimeout(secondary), remaining), retries, false, fallbackModel ?? undefined)
       return { ...res, fallback_from: primary }
     } catch (secondaryErr) {
       const secondaryMsg = secondaryErr instanceof Error ? secondaryErr.message : String(secondaryErr)
@@ -171,7 +178,7 @@ async function callAnthropic(args: {
 // ── Google Gemini adapter (free tier) ────────────────────────────────────────
 // Translates the Claude-shaped request to Gemini's generateContent API and
 // normalises the reply back to the Claude shape. Reads GEMINI_API_KEY (a free
-// Google AI Studio key); model from LLM_MODEL, defaulting to gemini-3.8-flash.
+// Google AI Studio key); model from LLM_MODEL, defaulting to GEMINI_DEFAULT_MODEL.
 // Handles both plain-text messages and the document+text arrays the CV/TOR/KB
 // callers send (mapped to Gemini inline_data). Mirrors callClaude's
 // timeout/retry contract and throws the same error shapes.
@@ -182,8 +189,7 @@ async function callGemini(args: {
   const { messages, system, maxTokens, timeoutMs, retries, retryTimeouts } = args
   const key = Deno.env.get('GEMINI_API_KEY')
   if (!key) throw new Error('LLM_PROVIDER=gemini but GEMINI_API_KEY is not configured on this project')
-  // gemini-2.0-flash was retired (404 "no longer available") — 3.8-flash is the current free-tier model.
-  const model = args.model || Deno.env.get('LLM_MODEL') || 'gemini-3.8-flash'
+  const model = args.model || Deno.env.get('LLM_MODEL') || GEMINI_DEFAULT_MODEL
 
   // Map Claude messages -> Gemini contents. Gemini uses 'model' for assistant
   // turns; these callers only send 'user' turns, but we map defensively.
